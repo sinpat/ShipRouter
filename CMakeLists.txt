@@ -107,7 +107,7 @@ target_link_libraries(ShipRouter LINK_PUBLIC
   fmt
   tbb
   ZLIB::ZLIB
-  ${CMAKE_CURRENT_SOURCE_DIR}/vendor/osmpbf/lib/libosmpbf.a
+  ${CMAKE_CURRENT_SOURCE_DIR}/vendor/osmpbf/lib/libosmpbf.so
   ${Protobuf_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT})
 
