@@ -26,7 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #include <netinet/in.h>
 #include <zlib.h>
 #include <string>
@@ -48,7 +48,7 @@ const int lonlat_resolution = 1000 * 1000 * 1000;
 namespace CanalTP {
 
 // Represents the key/values of an object
-typedef std::map<std::string, std::string> Tags;
+using Tags = std::unordered_map<std::string, std::string>;
 
 // References of a relation
 struct Reference {
@@ -56,13 +56,13 @@ struct Reference {
     uint64_t member_id; // OSMID
     std::string role; // le role
 
-    Reference() {}
+    Reference() = default;
     Reference(OSMPBF::Relation::MemberType member_type, uint64_t member_id, std::string role) :
         member_type(member_type), member_id(member_id), role(role)
     {}
 };
 
-typedef std::vector<Reference> References;
+using References = std::vector<Reference>;
 
 // Main function
 template<typename Visitor>
@@ -128,7 +128,6 @@ struct Parser {
             fatal() << "Unable to open the file " << filename;
         buffer = new char[max_uncompressed_blob_size];
         unpack_buffer = new char[max_uncompressed_blob_size];
-        info() << "Reading the file" << filename;
     }
 
     ~Parser(){
@@ -149,7 +148,6 @@ private:
 
         // read the first 4 bytes of the file, this is the size of the blob-header
         if( !file.read((char*)&sz, 4) ){
-            info() << "We finished reading the file";
             this->finished = true;
             return result;
         }
