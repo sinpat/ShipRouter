@@ -63,6 +63,7 @@ add_dependencies(ShipRouterSrc progress-cpp-project)
 # make headers available
 target_include_directories(ShipRouterSrc PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/vendor/libosmpbfreader/include
   fmt
   tbb
   ${CLI11_INCLUDE_DIR}
@@ -91,6 +92,7 @@ find_package(ZLIB REQUIRED)
 target_include_directories(ShipRouter PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/vendor/osmpbf/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/vendor/libosmpbfreader/include
   fmt
   tbb
   ZLIB::ZLIB
