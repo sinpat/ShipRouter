@@ -25,6 +25,8 @@ include(cmake/progress.cmake)
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
+include_directories(/usr/local/include/)
+
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif()
@@ -43,9 +45,11 @@ add_library(ShipRouterSrc "")
 target_sources(ShipRouterSrc
   PUBLIC
   ${CMAKE_CURRENT_LIST_DIR}/include/Graph.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/PBFExtractor.hpp
 
   PRIVATE
   src/Graph.cpp
+  src/PBFExtractor.cpp
   )
 
 # add the dependencies of the target to enforce
@@ -80,11 +84,16 @@ target_link_libraries(ShipRouterSrc PRIVATE
 ###############################
 add_executable(ShipRouter src/main.cpp)
 
+find_package(Protobuf REQUIRED)
+find_package(ZLIB REQUIRED)
+
 # make headers available
 target_include_directories(ShipRouter PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/vendor/osmpbf/include
   fmt
   tbb
+  ZLIB::ZLIB
   ${CLI11_INCLUDE_DIR}
   ${PROGRESS_CPP_INCLUDE_DIR}
   ${SPAN_LITE_INCLUDE_DIR}
@@ -95,6 +104,9 @@ target_link_libraries(ShipRouter LINK_PUBLIC
   ShipRouterSrc
   fmt
   tbb
+  ZLIB::ZLIB
+  ${CMAKE_CURRENT_SOURCE_DIR}/vendor/osmpbf/lib/libosmpbf.a
+  ${Protobuf_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT})
 
 # add the dependencies of the target to enforce

@@ -1,6 +1,18 @@
 #include <fmt/core.h>
+#include <PBFExtractor.hpp>
 
 auto main() -> int
 {
-  fmt::print("Hello World\n");
+  parsePBFFile("../data/antarctica-latest.osm.pbf");
 }
+
+
+
+
+
+
+
+
+
+
+
