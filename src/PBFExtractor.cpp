@@ -15,17 +15,20 @@ struct Visitor
                        double lat,
                        const CanalTP::Tags& tags)
     {
+    }
+
+    void way_callback(uint64_t osmid,
+                      const CanalTP::Tags& tags,
+                      const std::vector<uint64_t>& refs)
+    {
 	  if(auto iter = tags.find("natural");
-		 iter != std::end(tags)) {
+		 iter != std::end(tags)
+		 and iter->second == "coastline") {
             fmt::print("{}: {}\n",
 					   osmid,
 					   *iter);
         }
     }
-
-    void way_callback(uint64_t osmid,
-                      const CanalTP::Tags& tags,
-                      const std::vector<uint64_t>& refs) {}
 
     void relation_callback(uint64_t osmid,
                            const CanalTP::Tags& tags,
@@ -41,3 +44,4 @@ auto parsePBFFile(std::string_view path)
     Visitor v;
     CanalTP::read_osm_pbf(path.data(), v);
 }
+
