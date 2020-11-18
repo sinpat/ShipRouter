@@ -3,6 +3,7 @@
 /cmake-build-*
 /build*
 /.clangd
+.vscode/
 
 
 /test/.idea
