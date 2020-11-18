@@ -84,7 +84,13 @@ target_link_libraries(ShipRouterSrc PRIVATE
 ###############################
 add_executable(ShipRouter src/main.cpp)
 
+
+# statically link protobuf
+set(Protobuf_USE_STATIC_LIBS ON)
+
 find_package(Protobuf REQUIRED)
+
+set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 find_package(ZLIB REQUIRED)
 
 # make headers available
