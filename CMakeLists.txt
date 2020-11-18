@@ -25,8 +25,6 @@ include(cmake/progress.cmake)
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
-include_directories(/usr/local/include/)
-
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif()
@@ -63,6 +61,7 @@ add_dependencies(ShipRouterSrc progress-cpp-project)
 # make headers available
 target_include_directories(ShipRouterSrc PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/vendor/osmpbf/include
   ${CMAKE_CURRENT_SOURCE_DIR}/vendor/libosmpbfreader/include
   fmt
   tbb
@@ -107,7 +106,7 @@ target_link_libraries(ShipRouter LINK_PUBLIC
   fmt
   tbb
   ZLIB::ZLIB
-  ${CMAKE_CURRENT_SOURCE_DIR}/vendor/osmpbf/lib/libosmpbf.so
+  ${CMAKE_CURRENT_SOURCE_DIR}/vendor/osmpbf/lib/libosmpbf.a
   ${Protobuf_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT})
 
