@@ -3,7 +3,7 @@
 
 OSMNode::OSMNode(double lon,
                  double lat,
-                 std::unordered_map<std::string, std::string>&& tags)
+                 Tags&& tags)
     : lon_(lon),
       lat_(lat),
       tags_(std::move(tags)) {}
@@ -21,13 +21,13 @@ auto OSMNode::getLat() const noexcept
 }
 
 auto OSMNode::getTags() const noexcept
-    -> const std::unordered_map<std::string, std::string>&
+    -> const Tags&
 {
     return tags_;
 }
 
 auto OSMNode::getTags() noexcept
-    -> std::unordered_map<std::string, std::string>&
+    -> Tags&
 {
     return tags_;
 }

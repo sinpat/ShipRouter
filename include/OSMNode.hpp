@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <Utils.hpp>
 #include <unordered_map>
 
 class OSMNode
@@ -8,7 +9,7 @@ class OSMNode
 public:
     OSMNode(double lon,
             double lat,
-            std::unordered_map<std::string, std::string>&& tags);
+            Tags&& tags);
 
     auto getLon() const noexcept
         -> double;
@@ -17,13 +18,13 @@ public:
         -> double;
 
     auto getTags() const noexcept
-        -> const std::unordered_map<std::string, std::string>&;
+        -> const Tags&;
 
     auto getTags() noexcept
-        -> std::unordered_map<std::string, std::string>&;
+        -> Tags&;
 
 private:
     double lon_;
     double lat_;
-    std::unordered_map<std::string, std::string> tags_;
+    Tags tags_;
 };
