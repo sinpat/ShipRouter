@@ -44,10 +44,14 @@ target_sources(ShipRouterSrc
   PUBLIC
   ${CMAKE_CURRENT_LIST_DIR}/include/Graph.hpp
   ${CMAKE_CURRENT_LIST_DIR}/include/PBFExtractor.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/NodeLookup.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/OSMNode.hpp
 
   PRIVATE
   src/Graph.cpp
   src/PBFExtractor.cpp
+  src/NodeLookup.cpp
+  src/OSMNode.cpp
   )
 
 # add the dependencies of the target to enforce
