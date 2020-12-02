@@ -8,13 +8,7 @@
 class Coastline
 {
 public:
-    Coastline(Tags&& tags,
-              std::vector<std::uint64_t>&& refs);
-
-    auto getTags() const noexcept
-        -> const Tags&;
-    auto getTags() noexcept
-        -> Tags&;
+    Coastline(std::vector<std::uint64_t> refs);
 
     auto getRefs() const noexcept
         -> const std::vector<std::uint64_t>&;
@@ -22,6 +16,5 @@ public:
         -> std::vector<std::uint64_t>&;
 
 private:
-    Tags tags_;
     std::vector<std::uint64_t> refs_;
 };

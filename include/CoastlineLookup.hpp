@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Coastline.hpp>
+#include <Polygon.hpp>
 #include <Utils.hpp>
 #include <string>
 #include <unordered_map>
@@ -19,6 +20,9 @@ public:
 
     auto deleteCoastline(std::uint64_t osmid) noexcept
         -> void;
+
+    auto calculatePolygons() const noexcept
+        -> std::vector<Polygon>;
 
 private:
     std::unordered_map<std::uint64_t, Coastline> coastlines_;

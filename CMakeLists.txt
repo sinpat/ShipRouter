@@ -48,6 +48,7 @@ target_sources(ShipRouterSrc
   ${CMAKE_CURRENT_LIST_DIR}/include/OSMNode.hpp
   ${CMAKE_CURRENT_LIST_DIR}/include/Coastline.hpp
   ${CMAKE_CURRENT_LIST_DIR}/include/CoastlineLookup.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/Polygon.hpp
 
   PRIVATE
   src/Graph.cpp
@@ -56,6 +57,7 @@ target_sources(ShipRouterSrc
   src/OSMNode.cpp
   src/Coastline.cpp
   src/CoastlineLookup.cpp
+  src/Polygon.cpp
   )
 
 # add the dependencies of the target to enforce
