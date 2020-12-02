@@ -10,8 +10,8 @@ class CoastlineLookup
 {
 public:
     auto addCoastline(std::uint64_t osmid,
-                      Tags&& tags,
-                      std::vector<std::uint64_t>&& refs) noexcept
+                      Tags tags,
+                      std::vector<std::uint64_t> refs) noexcept
         -> void;
 
     auto getCoastline(std::uint64_t osmid) const noexcept

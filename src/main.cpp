@@ -1,18 +1,8 @@
-#include <fmt/core.h>
 #include <PBFExtractor.hpp>
+#include <fmt/core.h>
 
 auto main() -> int
 {
-  parsePBFFile("../data/antarctica-latest.osm.pbf");
+    [[maybe_unused]] auto [nodes, coastlines] =
+        parsePBFFile("../data/antarctica-latest.osm.pbf");
 }
-
-
-
-
-
-
-
-
-
-
-

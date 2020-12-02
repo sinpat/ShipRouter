@@ -11,7 +11,7 @@ public:
     auto addNode(std::uint64_t osmid,
                  double lon,
                  double lat,
-                 std::unordered_map<std::string, std::string>&& tags) noexcept
+                 Tags tags) noexcept
         -> void;
 
     auto getNode(std::uint64_t osmid) const noexcept

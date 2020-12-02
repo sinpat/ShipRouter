@@ -6,8 +6,8 @@
 #include <vector>
 
 auto CoastlineLookup::addCoastline(std::uint64_t osmid,
-                                   Tags&& tags,
-                                   std::vector<std::uint64_t>&& refs) noexcept
+                                   Tags tags,
+                                   std::vector<std::uint64_t> refs) noexcept
     -> void
 {
     coastlines_.try_emplace(osmid, std::move(tags), std::move(refs));

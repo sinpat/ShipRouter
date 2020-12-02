@@ -4,7 +4,7 @@
 auto NodeLookup::addNode(std::uint64_t osmid,
                          double lon,
                          double lat,
-                         std::unordered_map<std::string, std::string>&& tags) noexcept
+                         Tags tags) noexcept
     -> void
 {
     nodes_.try_emplace(osmid, lon, lat, std::move(tags));
