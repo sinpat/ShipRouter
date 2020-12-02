@@ -3,9 +3,8 @@
 
 auto NodeLookup::addNode(std::uint64_t osmid,
                          double lon,
-                         double lat,
-                         Tags tags) noexcept
+                         double lat) noexcept
     -> void
 {
-    nodes_.try_emplace(osmid, osmid, lon, lat, std::move(tags));
+    nodes_.try_emplace(osmid, osmid, lon, lat);
 }

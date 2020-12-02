@@ -13,8 +13,7 @@ class NodeLookup
 public:
     auto addNode(std::uint64_t osmid,
                  double lon,
-                 double lat,
-                 Tags tags) noexcept
+                 double lat) noexcept
         -> void;
 
 private:

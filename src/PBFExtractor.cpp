@@ -15,25 +15,25 @@ struct Visitor
     void node_callback(uint64_t osmid,
                        double lon,
                        double lat,
-                       const CanalTP::Tags& tags)
+                       const CanalTP::Tags& /*tags*/)
     {
-        node_lookup_.addNode(osmid, lon, lat, tags);
+        node_lookup_.addNode(osmid, lon, lat);
     }
 
     void way_callback(uint64_t osmid,
                       const CanalTP::Tags& tags,
-                      const std::vector<uint64_t>& refs)
+                      std::vector<uint64_t> refs)
     {
         if(auto iter = tags.find("natural");
            iter != std::end(tags)
            and iter->second == "coastline") {
-            coastline_lookup_.addCoastline(refs);
+            coastline_lookup_.addCoastline(std::move(refs));
         }
     }
 
-    void relation_callback(uint64_t osmid,
-                           const CanalTP::Tags& tags,
-                           const CanalTP::References& refs) {}
+    void relation_callback(uint64_t /* osmid */,
+                           const CanalTP::Tags& /* tags */,
+                           const CanalTP::References& /* refs */) {}
 
     NodeLookup node_lookup_;
     CoastlineLookup coastline_lookup_;
