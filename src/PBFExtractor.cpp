@@ -28,7 +28,6 @@ struct Visitor
            iter != std::end(tags)
            and iter->second == "coastline") {
             coastline_lookup_.addCoastline(osmid,
-                                           tags,
                                            refs);
         }
     }

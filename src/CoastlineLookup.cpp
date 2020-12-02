@@ -1,16 +1,16 @@
 #include <Coastline.hpp>
 #include <CoastlineLookup.hpp>
+#include <NodeLookup.hpp>
 #include <Utils.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 auto CoastlineLookup::addCoastline(std::uint64_t osmid,
-                                   Tags tags,
                                    std::vector<std::uint64_t> refs) noexcept
     -> void
 {
-    coastlines_.try_emplace(osmid, std::move(tags), std::move(refs));
+    coastlines_.try_emplace(osmid, std::move(refs));
 }
 
 auto CoastlineLookup::getCoastline(std::uint64_t osmid) const noexcept
@@ -31,7 +31,7 @@ auto CoastlineLookup::deleteCoastline(std::uint64_t osmid) noexcept
 }
 
 
-auto CoastlineLookup::calculatePolygons() const noexcept
+auto CoastlineLookup::calculatePolygons(const NodeLookup& node_lookup) const noexcept
     -> std::vector<Polygon>
 {
     std::unordered_map<std::uint64_t, Coastline> coastlines;
@@ -66,8 +66,18 @@ auto CoastlineLookup::calculatePolygons() const noexcept
     std::transform(std::make_move_iterator(std::begin(coastlines)),
                    std::make_move_iterator(std::end(coastlines)),
                    std::back_inserter(polygons),
-                   [](auto elem) {
-                       return elem.second;
+                   [&](auto elem) {
+                       std::vector<OSMNode> nodes;
+                       const auto& refs = elem.second.getRefs();
+
+                       std::transform(std::begin(refs),
+                                      std::end(refs),
+                                      std::back_inserter(nodes),
+                                      [&](auto id) {
+										return node_lookup.getNode(id).value().get();
+                                      });
+
+					   return Polygon{std::move(nodes)};
                    });
 
     return polygons;

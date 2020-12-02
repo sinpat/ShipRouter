@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Coastline.hpp>
+#include <NodeLookup.hpp>
 #include <Polygon.hpp>
 #include <Utils.hpp>
 #include <string>
@@ -11,7 +12,6 @@ class CoastlineLookup
 {
 public:
     auto addCoastline(std::uint64_t osmid,
-                      Tags tags,
                       std::vector<std::uint64_t> refs) noexcept
         -> void;
 
@@ -21,7 +21,7 @@ public:
     auto deleteCoastline(std::uint64_t osmid) noexcept
         -> void;
 
-    auto calculatePolygons() const noexcept
+    auto calculatePolygons(const NodeLookup& node_lookup) const noexcept
         -> std::vector<Polygon>;
 
 private:
