@@ -25,5 +25,13 @@ public:
         -> std::vector<Polygon>;
 
 private:
+    friend auto calculatePolygons(CoastlineLookup&& coastline_lookup,
+                                  NodeLookup&& node_lookup) noexcept
+        -> std::vector<Polygon>;
+
     std::unordered_map<std::uint64_t, Coastline> coastlines_;
 };
+
+auto calculatePolygons(CoastlineLookup&& coastline_lookup,
+                       NodeLookup&& node_lookup) noexcept
+    -> std::vector<Polygon>;

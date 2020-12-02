@@ -1,10 +1,12 @@
 #include <OSMNode.hpp>
 #include <unordered_map>
 
-OSMNode::OSMNode(double lon,
+OSMNode::OSMNode(std::uint64_t id,
+                 double lon,
                  double lat,
                  Tags&& tags)
-    : lon_(lon),
+    : id_(id),
+      lon_(lon),
       lat_(lat),
       tags_(std::move(tags)) {}
 
@@ -30,4 +32,10 @@ auto OSMNode::getTags() noexcept
     -> Tags&
 {
     return tags_;
+}
+
+auto OSMNode::getId() const noexcept
+    -> std::uint64_t
+{
+    return id_;
 }

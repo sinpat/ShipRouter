@@ -7,7 +7,8 @@
 class OSMNode
 {
 public:
-    OSMNode(double lon,
+    OSMNode(std::uint64_t id,
+            double lon,
             double lat,
             Tags&& tags);
 
@@ -23,7 +24,11 @@ public:
     auto getTags() noexcept
         -> Tags&;
 
+    auto getId() const noexcept
+        -> std::uint64_t;
+
 private:
+    std::uint64_t id_;
     double lon_;
     double lat_;
     Tags tags_;
