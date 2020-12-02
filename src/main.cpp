@@ -7,6 +7,8 @@ auto main() -> int
     auto polygons = calculatePolygons(std::move(coastlines),
                                       std::move(nodes));
 
+    fmt::print("{}\n", polygons.size());
+
     for(auto poly : polygons) {
         if(poly.getNodes().empty()) {
             fmt::print("reeeeeeeeeeeeeeee\n");

@@ -23,7 +23,7 @@ public:
     auto deleteNode(std::uint64_t osmid) noexcept
         -> void;
 
-    auto idsToNodes(const std::vector<std::uint64_t>& ids) const noexcept
+    auto idsToNodes(const std::vector<std::uint64_t>& ids) noexcept
         -> std::vector<OSMNode>;
 
 private:

@@ -29,10 +29,9 @@ auto NodeLookup::deleteNode(std::uint64_t osmid) noexcept
 }
 
 
-auto NodeLookup::idsToNodes(const std::vector<std::uint64_t>& ids) const noexcept
+auto NodeLookup::idsToNodes(const std::vector<std::uint64_t>& ids) noexcept
     -> std::vector<OSMNode>
 {
-
     std::vector<OSMNode> nodes;
     std::transform(std::begin(ids),
                    std::end(ids),

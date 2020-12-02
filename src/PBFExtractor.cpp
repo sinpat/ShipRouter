@@ -27,8 +27,7 @@ struct Visitor
         if(auto iter = tags.find("natural");
            iter != std::end(tags)
            and iter->second == "coastline") {
-            coastline_lookup_.addCoastline(osmid,
-                                           refs);
+            coastline_lookup_.addCoastline(refs);
         }
     }
 
