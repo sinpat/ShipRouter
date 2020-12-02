@@ -17,15 +17,6 @@ public:
                  Tags tags) noexcept
         -> void;
 
-    auto getNode(std::uint64_t osmid) const noexcept
-        -> std::optional<CRef<OSMNode>>;
-
-    auto deleteNode(std::uint64_t osmid) noexcept
-        -> void;
-
-    auto idsToNodes(const std::vector<std::uint64_t>& ids) noexcept
-        -> std::vector<OSMNode>;
-
 private:
     friend auto calculatePolygons(CoastlineLookup&& coastline_lookup,
                                   NodeLookup&& node_lookup) noexcept

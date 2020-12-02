@@ -17,11 +17,7 @@ auto calculatePolygons(CoastlineLookup&& coastline_lookup,
                        NodeLookup&& node_lookup) noexcept
     -> std::vector<Polygon>
 {
-    std::unordered_map<std::uint64_t, Coastline> coastlines;
-    for(auto [_, coastline] : std::move(coastline_lookup.coastlines_)) {
-        auto first = coastline.getRefs().front();
-        coastlines.emplace(first, std::move(coastline));
-    }
+    auto coastlines = std::move(coastline_lookup.coastlines_);
 
     std::vector<Polygon> polygons;
     while(!coastlines.empty()) {
@@ -30,7 +26,13 @@ auto calculatePolygons(CoastlineLookup&& coastline_lookup,
         while(current_line.getRefs().front() != current_line.getRefs().back()) {
             auto current_last = current_line.getRefs().back();
 
-            auto [inner_first, append_line] = std::move(*coastlines.find(current_last));
+            auto iter = coastlines.find(current_last);
+            if(iter == std::end(coastlines)) {
+                current_line.getRefs().emplace_back(current_line.getRefs().front());
+                continue;
+            }
+
+            auto [inner_first, append_line] = std::move(*iter);
             coastlines.erase(current_last);
 
             auto new_nodes = std::move(current_line.getRefs());
@@ -43,10 +45,16 @@ auto calculatePolygons(CoastlineLookup&& coastline_lookup,
 
         coastlines.erase(first);
 
-        auto polygon_nodes = node_lookup.idsToNodes(current_line.getRefs());
-		polygons.emplace_back(std::move(polygon_nodes));
-    }
+        std::vector<OSMNode> polygon_nodes;
+        std::transform(std::begin(current_line.getRefs()),
+                       std::end(current_line.getRefs()),
+                       std::back_inserter(polygon_nodes),
+                       [&](auto id) {
+                           return std::move(node_lookup.nodes_.find(id)->second);
+                       });
 
+        polygons.emplace_back(std::move(polygon_nodes));
+    }
 
     return polygons;
 }
