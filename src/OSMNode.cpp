@@ -39,3 +39,15 @@ auto OSMNode::getId() const noexcept
 {
     return id_;
 }
+
+auto OSMNode::operator==(const OSMNode& other) const noexcept
+    -> bool
+{
+    return lon_ == other.lon_ and lat_ == other.lat_;
+}
+
+auto OSMNode::operator!=(const OSMNode& other) const noexcept
+    -> bool
+{
+    return !(*this == other);
+}
