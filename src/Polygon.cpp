@@ -5,6 +5,7 @@
 #include <Range.hpp>
 #include <SphericalPoint.hpp>
 #include <Vector3D.hpp>
+#include <numeric>
 
 Polygon::Polygon(const std::vector<OSMNode>& nodes)
 {
@@ -22,11 +23,12 @@ auto Polygon::pointInPolygon(double lat, double lng) const
     -> bool
 {
     const auto n_vertices = numberOfPoints() - 1;
+    auto range = utils::range(n_vertices);
     Vector3D p{lat, lng};
     // get vectors from p to each vertex
     std::vector<Vector3D> vec_to_vertex;
-    std::transform(std::begin(utils::range(n_vertices)),
-                   std::end(utils::range(n_vertices)),
+    std::transform(std::begin(range),
+                   std::end(range),
                    std::back_inserter(vec_to_vertex),
                    [&](auto idx) {
                        return p - Vector3D{x_[idx], y_[idx], z_[idx]};
@@ -34,11 +36,16 @@ auto Polygon::pointInPolygon(double lat, double lng) const
 
     vec_to_vertex.emplace_back(vec_to_vertex[0]);
 
-    // sum angles
-    double sum = 0;
-    for(size_t v = 0; v < n_vertices; v++) {
-        sum += vec_to_vertex[v].angleBetween(vec_to_vertex[v + 1], p);
-    }
+
+    auto sum = std::accumulate(std::begin(range),
+                               std::end(range),
+                               0.0,
+                               [&](auto current, auto idx) {
+                                   const auto& first = vec_to_vertex[idx];
+                                   const auto& second = vec_to_vertex[idx + 1];
+                                   return current + first.angleBetween(second, p);
+                               });
+
     return std::abs(sum) > M_PI;
 }
 
