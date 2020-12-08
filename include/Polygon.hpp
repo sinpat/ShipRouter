@@ -17,7 +17,7 @@ public:
     auto getNodes()
         -> std::vector<OSMNode>&;
 
-    auto pointInPolygon(double lng, double lat) const
+    auto pointInPolygon(double lat, double lng) const
         -> bool;
 
 private:

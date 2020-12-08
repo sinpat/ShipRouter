@@ -3,6 +3,7 @@
 #include <OSMNode.hpp>
 #include <Polygon.hpp>
 #include <SphericalPoint.hpp>
+#include <Vector3D.hpp>
 
 Polygon::Polygon(std::vector<OSMNode> nodes)
     : nodes_(std::move(nodes)) {}
@@ -19,28 +20,25 @@ auto Polygon::getNodes()
     return nodes_;
 }
 
-auto Polygon::pointInPolygon(double lng, double lat) const
+auto Polygon::pointInPolygon(double lat, double lng) const
     -> bool
 {
-    // create ray with given point and random other point
-    const auto ray = SphericalLine(
-        SphericalPoint(lng, lat),
-        SphericalPoint(lng + 1 % 180, 0)); // make sure points are not antipodal
-    // iterate over all edges of polygon and count intersections with ray
-    const auto n_nodes = nodes_.size();
-    auto hits = 0;
-    for(size_t i = 0; i < n_nodes; i++) {
-        const auto p1 = &nodes_[i];
-        const auto p2 = &nodes_[i + 1 % n_nodes];
-        const auto poly_edge = SphericalLine(
-            SphericalPoint(p1->getLon(), p1->getLat()),
-            SphericalPoint(p2->getLon(), p2->getLat()));
-        if(ray.crosses(poly_edge)) {
-            hits++;
-        }
+    const auto n_vertices = nodes_.size() - 1; // first and last are the same
+    const auto p = Vector3D(lat, lng);
+    // get vectors from p to each vertex
+    std::vector<Vector3D> vec_to_vertex(n_vertices);
+    for(size_t v = 0; v < n_vertices; v++) {
+        const auto polygon_vertex = nodes_[v];
+        vec_to_vertex[v] = p - Vector3D(polygon_vertex.getLon(), polygon_vertex.getLat());
     }
-    // point lies in polygon, if the edges are hit an even number of times, but not never
-    return hits != 0 && hits % 2 == 0;
+    vec_to_vertex.emplace_back(vec_to_vertex[0]);
+
+    // sum angles
+    int sum = 0;
+    for(size_t v = 0; v < n_vertices; v++) {
+        sum += vec_to_vertex[v].angleBetween(vec_to_vertex[v + 1], p);
+    }
+    return abs(sum) > M_PI;
 }
 
 auto calculatePolygons(CoastlineLookup&& coastline_lookup,
