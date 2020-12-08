@@ -30,7 +30,7 @@ auto Polygon::pointInPolygon(double lat, double lng) const
     for(size_t v = 0; v < n_vertices; v++) {
         sum += vec_to_vertex[v].angleBetween(vec_to_vertex[v + 1], p);
     }
-    return abs(sum) > M_PI;
+    return std::abs(sum) > M_PI;
 }
 
 auto Polygon::numberOfPoints() const
