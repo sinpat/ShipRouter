@@ -27,15 +27,12 @@ public:
         return x_ * other.x_ + y_ * other.y_ + z_ * other.z_;
     }
 
-    constexpr auto crossProduct(const Vector3D& second) const noexcept
+    constexpr auto crossProduct(const Vector3D& other) const noexcept
         -> Vector3D
     {
-        auto [x1, y1, z1] = *this;
-        auto [x2, y2, z2] = second;
-
-        return Vector3D{y1 * z2 - z1 * y2,
-                        z1 * x2 - x1 * z2,
-                        x1 * y2 - y2 * x2};
+        return Vector3D{y_ * other.z_ - z_ * other.y_,
+                        z_ * other.x_ - x_ * other.z_,
+                        x_ * other.y_ - other.y_ * other.x_};
     }
 
     auto length() const noexcept
