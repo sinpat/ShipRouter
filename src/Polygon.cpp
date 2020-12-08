@@ -2,6 +2,7 @@
 #include <NodeLookup.hpp>
 #include <OSMNode.hpp>
 #include <Polygon.hpp>
+#include <SphericalPoint.hpp>
 
 Polygon::Polygon(std::vector<OSMNode> nodes)
     : nodes_(std::move(nodes)) {}
@@ -21,7 +22,25 @@ auto Polygon::getNodes()
 auto Polygon::pointInPolygon(double lng, double lat) const
     -> bool
 {
-  
+    // create ray with given point and random other point
+    const auto ray = SphericalLine(
+        SphericalPoint(lng, lat),
+        SphericalPoint(0, 0));
+    // iterate over all edges of polygon and count intersections with ray
+    const auto n_nodes = nodes_.size();
+    auto hits = 0;
+    for(size_t i = 0; i < n_nodes; i++) {
+        const auto p1 = &nodes_[i];
+        const auto p2 = &nodes_[i + 1 % n_nodes];
+        const auto poly_edge = SphericalLine(
+            SphericalPoint(p1->getLon(), p1->getLat()),
+            SphericalPoint(p2->getLon(), p2->getLat()));
+        if(ray.crosses(poly_edge)) {
+            hits++;
+        }
+    }
+    // point lies in polygon, if the edges are hit an even number of times
+    return hits % 2 == 0;
 }
 
 auto calculatePolygons(CoastlineLookup&& coastline_lookup,
