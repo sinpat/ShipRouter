@@ -39,8 +39,8 @@ auto Polygon::pointInPolygon(double lng, double lat) const
             hits++;
         }
     }
-    // point lies in polygon, if the edges are hit an even number of times
-    return hits % 2 == 0;
+    // point lies in polygon, if the edges are hit an even number of times, but not never
+    return hits != 0 && hits % 2 == 0;
 }
 
 auto calculatePolygons(CoastlineLookup&& coastline_lookup,
