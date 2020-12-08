@@ -5,40 +5,38 @@
 #include <SphericalPoint.hpp>
 #include <Vector3D.hpp>
 
-Polygon::Polygon(std::vector<OSMNode> nodes)
-    : nodes_(std::move(nodes)) {}
-
-auto Polygon::getNodes() const
-    -> const std::vector<OSMNode>&
+Polygon::Polygon(const std::vector<OSMNode>& nodes)
 {
-    return nodes_;
-}
-
-auto Polygon::getNodes()
-    -> std::vector<OSMNode>&
-{
-    return nodes_;
+    for(const auto& n : nodes) {
+        lats_.emplace_back(n.getLat());
+        lngs_.emplace_back(n.getLon());
+    }
 }
 
 auto Polygon::pointInPolygon(double lat, double lng) const
     -> bool
 {
-    const auto n_vertices = nodes_.size() - 1; // first and last are the same
+    const auto n_vertices = numberOfPoints() - 1;
     const auto p = Vector3D(lat, lng);
     // get vectors from p to each vertex
     std::vector<Vector3D> vec_to_vertex(n_vertices);
     for(size_t v = 0; v < n_vertices; v++) {
-        const auto polygon_vertex = nodes_[v];
-        vec_to_vertex[v] = p - Vector3D(polygon_vertex.getLon(), polygon_vertex.getLat());
+        vec_to_vertex[v] = p - Vector3D{lats_[v], lngs_[v]};
     }
     vec_to_vertex.emplace_back(vec_to_vertex[0]);
 
     // sum angles
-    int sum = 0;
+    double sum = 0;
     for(size_t v = 0; v < n_vertices; v++) {
         sum += vec_to_vertex[v].angleBetween(vec_to_vertex[v + 1], p);
     }
     return abs(sum) > M_PI;
+}
+
+auto Polygon::numberOfPoints() const
+    -> std::size_t
+{
+    return lats_.size();
 }
 
 auto calculatePolygons(CoastlineLookup&& coastline_lookup,

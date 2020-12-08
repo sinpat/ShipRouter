@@ -9,19 +9,17 @@ class CoastlineLookup;
 class Polygon
 {
 public:
-    Polygon(std::vector<OSMNode> nodes);
-
-    auto getNodes() const
-        -> const std::vector<OSMNode>&;
-
-    auto getNodes()
-        -> std::vector<OSMNode>&;
+    Polygon(const std::vector<OSMNode>& nodes);
 
     auto pointInPolygon(double lat, double lng) const
         -> bool;
 
+    auto numberOfPoints() const
+        -> std::size_t;
+
 private:
-    std::vector<OSMNode> nodes_;
+    std::vector<double> lats_;
+    std::vector<double> lngs_;
 };
 
 
