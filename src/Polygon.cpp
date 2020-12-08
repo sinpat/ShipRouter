@@ -17,7 +17,7 @@ auto Polygon::pointInPolygon(double lat, double lng) const
     -> bool
 {
     const auto n_vertices = numberOfPoints() - 1;
-    const auto p = Vector3D(lat, lng);
+    Vector3D p{lat, lng};
     // get vectors from p to each vertex
     std::vector<Vector3D> vec_to_vertex(n_vertices);
     for(size_t v = 0; v < n_vertices; v++) {
