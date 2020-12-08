@@ -10,8 +10,8 @@
 Polygon::Polygon(const std::vector<OSMNode>& nodes)
 {
     for(const auto& n : nodes) {
-        auto lat = n.getLat();
-        auto lng = n.getLon();
+        auto lat = toRadian(n.getLat());
+        auto lng = toRadian(n.getLon());
         auto [x, y, z] = latLngTo3D(lat, lng);
         x_.emplace_back(x);
         y_.emplace_back(y);
@@ -59,7 +59,8 @@ auto Polygon::getLatAndLng() const
                    std::end(range),
                    std::back_inserter(ret_vec),
                    [&](auto idx) {
-                       return vec3DtoLatLong(x_[idx], y_[idx], z_[idx]);
+                       auto [lat, lng] = vec3DtoLatLong(x_[idx], y_[idx], z_[idx]);
+                       return std::pair{toDegree(lat), toDegree(lng)};
                    });
 
     return ret_vec;

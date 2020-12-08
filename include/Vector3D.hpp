@@ -5,11 +5,21 @@
 #include <cmath>
 #include <tuple>
 
+constexpr auto toDegree(double value) noexcept
+    -> double
+{
+    return value * PI / 180;
+}
+
+constexpr auto toRadian(double value) noexcept
+    -> double
+{
+    return value * 180 / PI;
+}
+
 inline auto latLngTo3D(double lat, double lng) noexcept
     -> std::tuple<double, double, double>
 {
-    lat *= PI / 180;
-    lng *= PI / 180;
     return std::tuple{std::cos(lat) * std::cos(lng),
                       std::cos(lat) * std::sin(lng),
                       std::sin(lat)};
@@ -19,9 +29,6 @@ inline auto vec3DtoLatLong(double x, double y, double z) noexcept
 {
     auto lat = std::atan2(z, std::sqrt(x * x + y * y));
     auto lng = std::atan2(y, x);
-
-    lat *= 180 / PI;
-    lng *= 180 / PI;
 
     return std::pair{lat,
                      lng};
