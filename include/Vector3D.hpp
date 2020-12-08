@@ -12,6 +12,12 @@ inline auto latLngTo3D(double lat, double lng) noexcept
                       std::sin(lat)};
 }
 
+inline auto vec3DtoLatLong(double x, double y, double z) noexcept
+{
+    return std::pair{std::atan2(z, std::sqrt(x * x + y * y)),
+                     std::atan2(y, x)};
+}
+
 class Vector3D
 {
 public:
@@ -56,18 +62,6 @@ public:
             x_ - other.x_,
             y_ - other.y_,
             z_ - other.z_};
-    }
-
-    auto getLat() const noexcept
-        -> double
-    {
-        return std::atan2(z_, std::sqrt(x_ * x_ + y_ * y_));
-    }
-
-    auto getLng() const noexcept
-        -> double
-    {
-        return std::atan2(y_, x_);
     }
 
     auto angleBetween(const Vector3D& other,

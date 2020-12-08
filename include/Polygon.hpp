@@ -17,6 +17,9 @@ public:
     auto numberOfPoints() const
         -> std::size_t;
 
+    auto getLatAndLng() const
+        -> std::vector<std::pair<double, double>>;
+
 private:
     std::vector<double> x_;
     std::vector<double> y_;

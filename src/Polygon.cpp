@@ -42,6 +42,22 @@ auto Polygon::pointInPolygon(double lat, double lng) const
     return std::abs(sum) > M_PI;
 }
 
+auto Polygon::getLatAndLng() const
+    -> std::vector<std::pair<double, double>>
+{
+    std::vector<std::pair<double, double>> ret_vec;
+    auto range = utils::range(numberOfPoints());
+
+    std::transform(std::begin(range),
+                   std::end(range),
+                   std::back_inserter(ret_vec),
+                   [&](auto idx) {
+                       return vec3DtoLatLong(x_[idx], y_[idx], z_[idx]);
+                   });
+
+    return ret_vec;
+}
+
 auto Polygon::numberOfPoints() const
     -> std::size_t
 {
