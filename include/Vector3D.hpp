@@ -4,6 +4,14 @@
 #include <cmath>
 #include <tuple>
 
+inline auto latLngTo3D(double lat, double lng) noexcept
+    -> std::tuple<double, double, double>
+{
+    return std::tuple{std::cos(lat) * std::cos(lng),
+                      std::cos(lat) * std::sin(lng),
+                      std::sin(lat)};
+}
+
 class Vector3D
 {
 public:

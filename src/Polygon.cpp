@@ -8,8 +8,12 @@
 Polygon::Polygon(const std::vector<OSMNode>& nodes)
 {
     for(const auto& n : nodes) {
-        lats_.emplace_back(n.getLat());
-        lngs_.emplace_back(n.getLon());
+        auto lat = n.getLat();
+        auto lng = n.getLon();
+        auto [x, y, z] = latLngTo3D(lat, lng);
+        x_.emplace_back(x);
+        y_.emplace_back(y);
+        z_.emplace_back(z);
     }
 }
 
@@ -21,7 +25,7 @@ auto Polygon::pointInPolygon(double lat, double lng) const
     // get vectors from p to each vertex
     std::vector<Vector3D> vec_to_vertex(n_vertices);
     for(size_t v = 0; v < n_vertices; v++) {
-        vec_to_vertex[v] = p - Vector3D{lats_[v], lngs_[v]};
+        vec_to_vertex[v] = p - Vector3D{x_[v], y_[v], z_[v]};
     }
     vec_to_vertex.emplace_back(vec_to_vertex[0]);
 
@@ -36,7 +40,7 @@ auto Polygon::pointInPolygon(double lat, double lng) const
 auto Polygon::numberOfPoints() const
     -> std::size_t
 {
-    return lats_.size();
+    return x_.size();
 }
 
 auto calculatePolygons(CoastlineLookup&& coastline_lookup,
