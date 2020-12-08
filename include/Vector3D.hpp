@@ -15,6 +15,12 @@ public:
           y_(std::cos(lat) * std::sin(lng)),
           z_(std::sin(lat)) {}
 
+    Vector3D() = default;
+    Vector3D(const Vector3D&) = default;
+    Vector3D(Vector3D&&) = default;
+    auto operator=(const Vector3D&) -> Vector3D& = default;
+    auto operator=(Vector3D&&) -> Vector3D& = default;
+
     constexpr Vector3D(double x, double y, double z)
         : x_(x), y_(y), z_(z) {}
 
