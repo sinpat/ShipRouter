@@ -8,13 +8,13 @@
 constexpr auto toDegree(double value) noexcept
     -> double
 {
-    return value * PI / 180;
+    return value * 180 / PI;
 }
 
 constexpr auto toRadian(double value) noexcept
     -> double
 {
-    return value * 180 / PI;
+    return value * PI / 180;
 }
 
 inline auto latLngTo3D(double lat, double lng) noexcept
