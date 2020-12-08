@@ -1,7 +1,7 @@
+#include <CoastlineLookup.hpp>
+#include <NodeLookup.hpp>
 #include <OSMNode.hpp>
 #include <Polygon.hpp>
-#include <NodeLookup.hpp>
-#include <CoastlineLookup.hpp>
 
 Polygon::Polygon(std::vector<OSMNode> nodes)
     : nodes_(std::move(nodes)) {}
@@ -16,6 +16,12 @@ auto Polygon::getNodes()
     -> std::vector<OSMNode>&
 {
     return nodes_;
+}
+
+auto Polygon::pointInPolygon(double lng, double lat) const
+    -> bool
+{
+  
 }
 
 auto calculatePolygons(CoastlineLookup&& coastline_lookup,
