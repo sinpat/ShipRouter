@@ -2,6 +2,7 @@
 #include <NodeLookup.hpp>
 #include <OSMNode.hpp>
 #include <Polygon.hpp>
+#include <Range.hpp>
 #include <SphericalPoint.hpp>
 #include <Vector3D.hpp>
 
@@ -23,10 +24,14 @@ auto Polygon::pointInPolygon(double lat, double lng) const
     const auto n_vertices = numberOfPoints() - 1;
     Vector3D p{lat, lng};
     // get vectors from p to each vertex
-    std::vector<Vector3D> vec_to_vertex(n_vertices);
-    for(size_t v = 0; v < n_vertices; v++) {
-        vec_to_vertex[v] = p - Vector3D{x_[v], y_[v], z_[v]};
-    }
+    std::vector<Vector3D> vec_to_vertex;
+    std::transform(std::begin(utils::range(n_vertices)),
+                   std::end(utils::range(n_vertices)),
+                   std::back_inserter(vec_to_vertex),
+                   [&](auto idx) {
+                       return p - Vector3D{x_[idx], y_[idx], z_[idx]};
+                   });
+
     vec_to_vertex.emplace_back(vec_to_vertex[0]);
 
     // sum angles
