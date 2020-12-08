@@ -58,6 +58,18 @@ public:
             z_ - other.z_};
     }
 
+    auto getLat() const noexcept
+        -> double
+    {
+        return std::atan2(z_, std::sqrt(x_ * x_ + y_ * y_));
+    }
+
+    auto getLng() const noexcept
+        -> double
+    {
+        return std::atan2(y_, x_);
+    }
+
     auto angleBetween(const Vector3D& other,
                       const Vector3D& plain_normal) const noexcept
         -> double
