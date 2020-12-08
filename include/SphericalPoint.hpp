@@ -2,6 +2,8 @@
 
 #include <cmath>
 #include <tuple>
+#include <Constants.hpp>
+
 
 class SphericalPoint
 {
