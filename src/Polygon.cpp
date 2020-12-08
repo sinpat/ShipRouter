@@ -25,7 +25,7 @@ auto Polygon::pointInPolygon(double lng, double lat) const
     // create ray with given point and random other point
     const auto ray = SphericalLine(
         SphericalPoint(lng, lat),
-        SphericalPoint(0, 0));
+        SphericalPoint(lng + 1 % 180, 0)); // make sure points are not antipodal
     // iterate over all edges of polygon and count intersections with ray
     const auto n_nodes = nodes_.size();
     auto hits = 0;
