@@ -34,7 +34,7 @@ auto Polygon::pointInPolygon(double lat, double lng) const
     vec_to_vertex.emplace_back(vec_to_vertex[0]);
 
     // sum angles
-    int sum = 0;
+    double sum = 0;
     for(size_t v = 0; v < n_vertices; v++) {
         sum += vec_to_vertex[v].angleBetween(vec_to_vertex[v + 1], p);
     }
