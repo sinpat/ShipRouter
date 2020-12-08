@@ -50,22 +50,15 @@ public:
             z_ - other.z_};
     }
 
-    auto angleBetween(const Vector3D& first,
-                      const Vector3D& second,
-                      const Vector3D& plain_normal) noexcept
+    auto angleBetween(const Vector3D& other,
+                      const Vector3D& plain_normal) const noexcept
         -> double
     {
-        // const auto sign = dotProduct(crossProduct(first, second),
-        //                              plain_normal)
-        //         >= 0
-        //     ? 1.0
-        //     : -1.0;
+        const auto sign = crossProduct(other).dotProduct(plain_normal) >= 0 ? 1.0 : -1.0;
+        const auto sin_theta = crossProduct(other).length() * sign;
+        const auto cos_theta = dotProduct(other);
 
-        // const auto sin_theta = length(crossProduct(first, second)) * sign;
-
-        // const auto cos_theta = dotProduct(first, second);
-
-        // return std::atan2(sin_theta, cos_theta);
+        return std::atan2(sin_theta, cos_theta);
     }
 
 private:
