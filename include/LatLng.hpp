@@ -27,6 +27,11 @@ public:
     auto operator=(Latitude&&) noexcept -> Latitude& = default;
     auto operator=(const Latitude&) -> Latitude& = default;
 
+    operator double() const
+    {
+        return value_;
+    }
+
     template<class Q = Tag>
     auto toDegree() const noexcept
         -> std::enable_if_t<std::is_same_v<Q, Radian>, Latitude<Degree>>
@@ -79,6 +84,11 @@ public:
     Longitude(const Longitude&) = default;
     auto operator=(Longitude&&) noexcept -> Longitude& = default;
     auto operator=(const Longitude&) -> Longitude& = default;
+
+    operator double() const
+    {
+        return value_;
+    }
 
     auto operator-(double other) const noexcept
         -> Longitude<Tag>
