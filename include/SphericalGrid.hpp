@@ -21,6 +21,12 @@ public:
     auto getLngs() noexcept
         -> std::vector<Lng>&;
 
+    auto indexIsWater(std::size_t idx) const noexcept
+        -> bool;
+
+    auto indexIsLand(std::size_t idx) const noexcept
+        -> bool;
+
     auto filter(const std::vector<Polygon>& polygons) noexcept
         -> void;
 

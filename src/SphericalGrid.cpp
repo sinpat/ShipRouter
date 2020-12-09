@@ -46,6 +46,18 @@ auto SphericalGrid::getLngs() noexcept
     return lngs_;
 }
 
+auto SphericalGrid::indexIsWater(std::size_t idx) const noexcept
+    -> bool
+{
+    return is_water_[idx];
+}
+
+auto SphericalGrid::indexIsLand(std::size_t idx) const noexcept
+    -> bool
+{
+    return !is_water_[idx];
+}
+
 auto SphericalGrid::filter(const std::vector<Polygon>& polygons) noexcept
     -> void
 {
