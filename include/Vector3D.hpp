@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <Constants.hpp>
@@ -14,9 +13,7 @@ public:
     Vector3D(Latitude<Radian> lat, Longitude<Radian> lng)
         : x_(std::cos(lat.getValue()) * std::cos(lng.getValue())),
           y_(std::cos(lat.getValue()) * std::sin(lng.getValue())),
-          z_(std::sin(lat.getValue()))
-    {
-    }
+          z_(std::sin(lat.getValue())) {}
 
     Vector3D() = default;
     Vector3D(const Vector3D&) = default;
@@ -101,3 +98,30 @@ private:
     double y_;
     double z_;
 };
+
+
+template<class Tag>
+auto distanceBetween(Latitude<Tag> lat_start,
+                     Longitude<Tag> lng_start,
+                     Latitude<Tag> lat_dest,
+                     Longitude<Tag> lng_dest) noexcept
+    -> std::enable_if_t<is_tag<Tag>, double>
+{
+    auto [first_vec, second_vec] = [&]() constexpr
+    {
+        if constexpr(std::is_same_v<Tag, Degree>) {
+            return std::pair{Vector3D{lat_start.toRadian(),
+                                      lng_start.toRadian()},
+                             Vector3D{lat_dest.toRadian(),
+                                      lng_dest.toRadian()}};
+        } else {
+            return std::pair{Vector3D{lat_start,
+                                      lng_start},
+                             Vector3D{lat_dest,
+                                      lng_dest}};
+        }
+    }
+    ();
+
+	return first_vec.distanceTo(second_vec);
+}
