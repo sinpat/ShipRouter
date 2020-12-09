@@ -46,46 +46,22 @@ auto SphericalGrid::getLngs() noexcept
     return lngs_;
 }
 
-auto filterLandNodes(const std::vector<Polygon>& polygons,
-                     SphericalGrid&& grid) noexcept
-    -> SphericalGrid
+auto SphericalGrid::filter(const std::vector<Polygon>& polygons) noexcept
+    -> void
 {
-    std::vector<std::size_t> indices;
+    auto range = utils::range(lats_.size());
+    is_water_.reserve(range.size());
 
-    auto range = utils::range(grid.lats_.size());
-
-    std::copy_if(std::begin(range),
-                 std::end(range),
-                 std::back_inserter(indices),
-                 [&](auto idx) {
-                     auto lat = grid.lats_[idx];
-                     auto lng = grid.lngs_[idx];
-                     return std::none_of(std::begin(polygons),
-                                         std::end(polygons),
-                                         [&](const Polygon& polygon) {
-                                             return polygon.pointInPolygon(lat, lng);
-                                         });
-                 });
-
-    std::vector<Lat> new_lats;
-    std::vector<Lng> new_lngs;
-
-    std::transform(std::begin(indices),
-                   std::end(indices),
-                   std::back_inserter(new_lats),
+    std::transform(std::begin(range),
+                   std::end(range),
+                   std::back_inserter(is_water_),
                    [&](auto idx) {
-                       return grid.lats_[idx];
+                       auto lat = lats_[idx];
+                       auto lng = lngs_[idx];
+                       return std::none_of(std::begin(polygons),
+                                           std::end(polygons),
+                                           [&](const Polygon& polygon) {
+                                               return polygon.pointInPolygon(lat, lng);
+                                           });
                    });
-
-    std::transform(std::begin(indices),
-                   std::end(indices),
-                   std::back_inserter(new_lngs),
-                   [&](auto idx) {
-                       return grid.lngs_[idx];
-                   });
-
-    grid.lats_ = std::move(new_lats);
-    grid.lngs_ = std::move(new_lngs);
-
-    return std::move(grid);
 }

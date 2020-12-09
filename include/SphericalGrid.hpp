@@ -21,15 +21,11 @@ public:
     auto getLngs() noexcept
         -> std::vector<Lng>&;
 
-private:
-    friend auto filterLandNodes(const std::vector<Polygon>& polygons,
-                                SphericalGrid&& grid) noexcept
-        -> SphericalGrid;
+    auto filter(const std::vector<Polygon>& polygons) noexcept
+        -> void;
 
+private:
     std::vector<Lat> lats_;
     std::vector<Lng> lngs_;
+    std::vector<bool> is_water_;
 };
-
-auto filterLandNodes(const std::vector<Polygon>& polygons,
-                     SphericalGrid&& grid) noexcept
-    -> SphericalGrid;
