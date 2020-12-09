@@ -71,6 +71,13 @@ public:
             z_ - other.z_};
     }
 
+    auto distanceTo(const Vector3D& other) const noexcept
+        -> double
+    {
+        const auto a = std::atan2(crossProduct(other).length(), dotProduct(other));
+        return EARTH_RADIUS_IN_METERS * a;
+    }
+
     auto angleBetween(const Vector3D& other,
                       const Vector3D& plain_normal) const noexcept
         -> double
@@ -81,6 +88,7 @@ public:
 
         return std::atan2(sin_theta, cos_theta);
     }
+
 
     auto toString() const
         -> std::string
