@@ -40,7 +40,9 @@ auto Polygon::pointInPolygon(Lat lat, Lng lng) const
 {
     const auto size = numberOfPoints();
     const auto range = utils::range(size);
-    const Vector3D p{lat.toRadian(), lng.toRadian()};
+    const auto p = Vector3D{lat.toRadian(), lng.toRadian()}
+                       .normalize();
+
     // get vectors from p to each vertex
     std::vector<Vector3D> vec_to_vertex;
     std::transform(std::begin(range),

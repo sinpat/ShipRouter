@@ -2,6 +2,7 @@
 #pragma once
 
 #include <Constants.hpp>
+#include <LatLng.hpp>
 #include <Utils.hpp>
 #include <cmath>
 #include <tuple>
@@ -22,6 +23,21 @@ public:
 
     constexpr Vector3D(double x, double y, double z)
         : x_(x), y_(y), z_(z) {}
+
+    auto normalize() const noexcept
+        -> Vector3D
+    {
+        const auto l = length();
+        if(l == 0 or l == 1) {
+            return *this;
+        }
+
+        const auto x = x_ / l;
+        const auto y = y_ / l;
+        const auto z = z_ / l;
+
+        return Vector3D{x, y, z};
+    }
 
     constexpr auto dotProduct(const Vector3D& other) const noexcept
         -> double
