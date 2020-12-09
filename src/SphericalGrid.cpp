@@ -1,14 +1,14 @@
-#include <Polygon.hpp>
 #include <LatLng.hpp>
+#include <Polygon.hpp>
 #include <Range.hpp>
 #include <SphericalGrid.hpp>
 #include <Utils.hpp>
 #include <Vector3D.hpp>
 
-SphericalGrid::SphericalGrid() noexcept
+SphericalGrid::SphericalGrid(std::size_t number_of_nodes) noexcept
 {
     std::vector<std::pair<Lat, Lng>> nodes;
-    auto a = 4 * M_PI / 500;
+    auto a = 4 * M_PI / number_of_nodes;
     auto d = sqrt(a);
     auto m_theta = round(M_PI / d);
     auto d_theta = M_PI / m_theta;

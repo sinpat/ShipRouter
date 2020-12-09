@@ -9,7 +9,7 @@
 class SphericalGrid
 {
 public:
-    SphericalGrid() noexcept;
+    SphericalGrid(std::size_t number_of_nodes) noexcept;
 
     auto getLats() const noexcept
         -> const std::vector<Lat>&;

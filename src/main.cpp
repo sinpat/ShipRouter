@@ -1,4 +1,5 @@
 #include <PBFExtractor.hpp>
+#include <SphericalGrid.hpp>
 #include <Vector3D.hpp>
 #include <fmt/core.h>
 
@@ -21,6 +22,13 @@ auto main() -> int
                              std::end(polygons),
                              [](const auto& poly) {
                                  return poly.pointInPolygon(Lat{-77.50411917973987},
-															Lng{-44.6484375}); // is in water
+                                                            Lng{-44.6484375}); // is in water
                              }));
+
+    SphericalGrid grid{500};
+
+    const auto filtered_grid = filterLandNodes(polygons, std::move(grid));
+
+    const auto& lats = filtered_grid.getLats();
+    const auto& lngs = filtered_grid.getLngs();
 }
