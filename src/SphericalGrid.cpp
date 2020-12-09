@@ -9,22 +9,36 @@
 #include <execution>
 
 SphericalGrid::SphericalGrid(std::size_t number_of_nodes) noexcept
+    : a_(4 * PI / number_of_nodes),
+      m_theta_(round(PI / sqrt(a_))),
+      d_phi_(a_ / (PI / m_theta_)),
+      first_index_of_(m_theta_, -1)
 {
-    std::vector<std::pair<Lat, Lng>> nodes;
-    auto a = 4 * PI / number_of_nodes;
-    auto d = sqrt(a);
-    auto m_theta = round(PI / d);
-    auto d_theta = PI / m_theta;
-    auto d_phi = a / d_theta;
-    for(size_t m = 0; m < m_theta; m++) {
-        auto theta = PI * (m + 0.5) / m_theta;
-        auto m_phi = round(2 * PI * sin(theta) / d_phi);
+    size_t counter = 0;
+    for(size_t m = 0; m < m_theta_; m++) {
+        first_index_of_[m] = counter;
+        auto theta = PI * (m + 0.5) / m_theta_;
+        auto m_phi = round(2 * PI * sin(theta) / d_phi_);
         for(size_t n = 0; n < m_phi; n++) {
             auto phi = 2 * PI * n / m_phi;
             lats_.emplace_back(Lat{theta}.toDegree() - 90);
             lngs_.emplace_back(Lng{phi}.toDegree() - 180);
+            counter++;
         }
     }
+}
+
+auto SphericalGrid::sphericalToGrid(double theta, double phi) -> std::pair<size_t, size_t>
+{
+    auto m_phi = round(2 * PI * sin(theta) / d_phi_);
+    auto m = static_cast<size_t>(floor(theta * m_theta_ - PI - 0.5));
+    auto n = static_cast<size_t>(floor(phi * m_phi) / (2 * PI));
+    return std::pair{m, n};
+}
+
+auto SphericalGrid::gridToID(size_t m, size_t n) -> size_t
+{
+    return first_index_of_[m] + n;
 }
 
 auto SphericalGrid::getLats() const noexcept
