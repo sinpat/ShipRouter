@@ -8,9 +8,14 @@
 #include <algorithm>
 #include <execution>
 
+size_t calc_m_phi(double theta, double d_phi)
+{
+    return static_cast<size_t>(round(2 * PI * sin(theta) / d_phi));
+}
+
 SphericalGrid::SphericalGrid(std::size_t number_of_nodes) noexcept
     : a_(4 * PI / number_of_nodes),
-      m_theta_(round(PI / sqrt(a_))),
+      m_theta_(static_cast<size_t>(round(PI / sqrt(a_)))),
       d_phi_(a_ / (PI / m_theta_)),
       first_index_of_(m_theta_, -1)
 {
@@ -18,7 +23,7 @@ SphericalGrid::SphericalGrid(std::size_t number_of_nodes) noexcept
     for(size_t m = 0; m < m_theta_; m++) {
         first_index_of_[m] = counter;
         auto theta = PI * (m + 0.5) / m_theta_;
-        auto m_phi = round(2 * PI * sin(theta) / d_phi_);
+        auto m_phi = calc_m_phi(theta, d_phi_);
         for(size_t n = 0; n < m_phi; n++) {
             auto phi = 2 * PI * n / m_phi;
             lats_.emplace_back(Latitude<Radian>{theta}.toDegree() - 90);
@@ -28,12 +33,12 @@ SphericalGrid::SphericalGrid(std::size_t number_of_nodes) noexcept
     }
 }
 
-auto SphericalGrid::sphericalToGrid(double theta, double phi) const
-  -> std::pair<size_t, size_t>
+auto SphericalGrid::sphericalToGrid(Latitude<Radian> theta, Longitude<Radian> phi) const
+    -> std::pair<size_t, size_t>
 {
-    auto m_phi = round(2 * PI * sin(theta) / d_phi_);
-    auto m = static_cast<size_t>(floor(theta * m_theta_ - PI - 0.5));
-    auto n = static_cast<size_t>(floor(phi * m_phi) / (2 * PI));
+    auto m_phi = round(2 * PI * sin(theta.getValue()) / d_phi_);
+    auto m = static_cast<size_t>(floor(theta.getValue() * m_theta_ - PI - 0.5));
+    auto n = static_cast<size_t>(floor(phi.getValue() * m_phi) / (2 * PI));
     return std::pair{m, n};
 }
 
@@ -54,24 +59,25 @@ auto SphericalGrid::IDToGrid(size_t ID) -> std::pair<size_t, size_t>
     return std::pair{m, n};
 }
 
+
 auto SphericalGrid::getLats() const noexcept
-  -> const std::vector<Latitude<Degree>>&
+    -> const std::vector<Latitude<Degree>>&
 {
     return lats_;
 }
 auto SphericalGrid::getLngs() const noexcept
-  -> const std::vector<Longitude<Degree>>&
+    -> const std::vector<Longitude<Degree>>&
 {
     return lngs_;
 }
 
 auto SphericalGrid::getLats() noexcept
-  -> std::vector<Latitude<Degree>>&
+    -> std::vector<Latitude<Degree>>&
 {
     return lats_;
 }
 auto SphericalGrid::getLngs() noexcept
-  -> std::vector<Longitude<Degree>>&
+    -> std::vector<Longitude<Degree>>&
 {
     return lngs_;
 }

@@ -21,8 +21,10 @@ public:
     auto getLngs() noexcept
         -> std::vector<Longitude<Degree>>&;
 
-    auto sphericalToGrid(double theta, double phi) const
+    auto sphericalToGrid(Latitude<Radian> theta, Longitude<Radian> phi) const
         -> std::pair<std::size_t, std::size_t>;
+
+    auto get_neighbours(size_t m, size_t n) -> std::vector<size_t>;
 
     auto gridToID(size_t m, size_t n) -> size_t;
 
@@ -39,7 +41,7 @@ public:
 
 private:
     double a_;
-    double m_theta_;
+    size_t m_theta_;
     double d_phi_;
     std::vector<size_t> first_index_of_;
     std::vector<Latitude<Degree>> lats_;
