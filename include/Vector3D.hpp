@@ -5,6 +5,7 @@
 #include <LatLng.hpp>
 #include <Utils.hpp>
 #include <cmath>
+#include <fmt/core.h>
 #include <tuple>
 
 class Vector3D
@@ -13,7 +14,9 @@ public:
     Vector3D(Lat lat, Lng lng)
         : x_(std::cos(lat.getValue()) * std::cos(lng.getValue())),
           y_(std::cos(lat.getValue()) * std::sin(lng.getValue())),
-          z_(std::sin(lat.getValue())) {}
+          z_(std::sin(lat.getValue()))
+    {
+    }
 
     Vector3D() = default;
     Vector3D(const Vector3D&) = default;
@@ -50,7 +53,7 @@ public:
     {
         return Vector3D{y_ * other.z_ - z_ * other.y_,
                         z_ * other.x_ - x_ * other.z_,
-                        x_ * other.y_ - other.y_ * other.x_};
+                        x_ * other.y_ - y_ * other.x_};
     }
 
     auto length() const noexcept
@@ -77,6 +80,12 @@ public:
         const auto cos_theta = dotProduct(other);
 
         return std::atan2(sin_theta, cos_theta);
+    }
+
+    auto toString() const
+        -> std::string
+    {
+        return fmt::format("x:{}, y:{}, z:{}", x_, y_, z_);
     }
 
 private:

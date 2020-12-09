@@ -29,9 +29,10 @@ Polygon::Polygon(const std::vector<OSMNode>& nodes)
         auto lat = n.getLat().toRadian();
         auto lng = n.getLon().toRadian();
         auto [x, y, z] = latLngTo3D(lat, lng);
-        x_.emplace_back(x);
-        y_.emplace_back(y);
-        z_.emplace_back(z);
+        auto lenght = std::sqrt(x * x + y * y + z * z);
+        x_.emplace_back(x / lenght);
+        y_.emplace_back(y / lenght);
+        z_.emplace_back(z / lenght);
     }
 }
 

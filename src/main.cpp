@@ -1,6 +1,7 @@
 #include <PBFExtractor.hpp>
 #include <SphericalGrid.hpp>
 #include <Vector3D.hpp>
+#include <execution>
 #include <fmt/core.h>
 
 auto main() -> int
@@ -10,25 +11,42 @@ auto main() -> int
     auto polygons = calculatePolygons(std::move(coastlines),
                                       std::move(nodes));
     // fmt::print("{}\n", polygons.size());
-    fmt::print("in land: {}\n",
-               std::count_if(std::begin(polygons),
+    fmt::print("should be water: {}\n",
+               std::count_if(std::execution::par,
+                             std::begin(polygons),
                              std::end(polygons),
                              [](const auto& poly) {
-                                 return poly.pointInPolygon(Lat{-76.10079606754577},
-                                                            Lng{15.8203125}); // is in land
+                                 return poly.pointInPolygon(Lat{-60},
+                                                            Lng{-80}); // is in land
                              }));
-    fmt::print("in water: {}\n",
-               std::count_if(std::begin(polygons),
+    fmt::print("should be water: {}\n",
+               std::count_if(std::execution::par,
+                             std::begin(polygons),
                              std::end(polygons),
                              [](const auto& poly) {
-                                 return poly.pointInPolygon(Lat{-77.50411917973987},
-                                                            Lng{-44.6484375}); // is in water
+                                 return poly.pointInPolygon(Lat{-70.15096965227654},
+                                                            Lng{-1.8873336911201477}); // is in water
+                             }));
+
+    fmt::print("should be land: {}\n",
+               std::count_if(std::execution::par,
+                             std::begin(polygons),
+                             std::end(polygons),
+                             [](const auto& poly) {
+                                 return poly.pointInPolygon(Lat{-70.58638474216802},
+                                                            Lng{-9.03076171875}); // is in water
+                             }));
+
+    fmt::print("should be land: {}\n",
+               std::count_if(std::execution::par,
+                             std::begin(polygons),
+                             std::end(polygons),
+                             [](const auto& poly) {
+                                 return poly.pointInPolygon(Lat{-64.19442343702701},
+                                                            Lng{-57.81005859375}); // is in water
                              }));
 
     SphericalGrid grid{500};
+    grid.filter(polygons);
 
-    const auto filtered_grid = filterLandNodes(polygons, std::move(grid));
-
-    const auto& lats = filtered_grid.getLats();
-    const auto& lngs = filtered_grid.getLngs();
 }
