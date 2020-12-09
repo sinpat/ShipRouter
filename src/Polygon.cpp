@@ -1,10 +1,12 @@
 #include <CoastlineLookup.hpp>
+#include <Constants.hpp>
 #include <NodeLookup.hpp>
 #include <OSMNode.hpp>
 #include <Polygon.hpp>
 #include <Range.hpp>
 #include <SphericalPoint.hpp>
 #include <Vector3D.hpp>
+#include <fmt/core.h>
 #include <numeric>
 
 Polygon::Polygon(const std::vector<OSMNode>& nodes)
@@ -22,9 +24,9 @@ Polygon::Polygon(const std::vector<OSMNode>& nodes)
 auto Polygon::pointInPolygon(double lat, double lng) const
     -> bool
 {
-    const auto n_vertices = numberOfPoints() - 1;
-    const auto range = utils::range(n_vertices);
-    Vector3D p{toRadian(lat), toRadian(lng)};
+    const auto size = numberOfPoints();
+    const auto range = utils::range(size);
+    const Vector3D p{toRadian(lat), toRadian(lng)};
     // get vectors from p to each vertex
     std::vector<Vector3D> vec_to_vertex;
     std::transform(std::begin(range),
@@ -34,19 +36,20 @@ auto Polygon::pointInPolygon(double lat, double lng) const
                        return p - Vector3D{x_[idx], y_[idx], z_[idx]};
                    });
 
-    vec_to_vertex.emplace_back(vec_to_vertex[0]);
-
 
     auto sum = std::accumulate(std::begin(range),
                                std::end(range),
                                0.0,
                                [&](auto current, auto idx) {
-                                   const auto& first = vec_to_vertex[idx];
-                                   const auto& second = vec_to_vertex[idx + 1];
+                                   const auto& first = vec_to_vertex[idx % size];
+                                   const auto& second = vec_to_vertex[(idx + 1) % size];
                                    return current + first.angleBetween(second, p);
                                });
 
-    return std::abs(sum) > M_PI;
+	// external points should sum up to something close to 0
+	// internal points should sum up to something smaller than
+
+    return std::abs(sum) > PI;
 }
 
 auto Polygon::getLatAndLng() const
