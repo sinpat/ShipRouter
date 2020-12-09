@@ -18,8 +18,8 @@ SphericalGrid::SphericalGrid(std::size_t number_of_nodes) noexcept
         auto m_phi = round(2 * M_PI * sin(theta) / d_phi);
         for(size_t n = 0; n < m_phi; n++) {
             auto phi = 2 * M_PI * n / m_phi;
-            lats_.emplace_back(Lat{theta}.toDegree());
-            lngs_.emplace_back(Lng{phi}.toDegree());
+            lats_.emplace_back(Lat{theta}.toDegree() - 90);
+            lngs_.emplace_back(Lng{phi}.toDegree() - 180);
         }
     }
 }
