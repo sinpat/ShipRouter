@@ -21,6 +21,9 @@ public:
     auto getLngs() noexcept
         -> std::vector<Lng>&;
 
+
+    auto sphericalToGrid(double theta, double phi) -> std::pair<std::size_t, std::size_t>;
+
     auto indexIsWater(std::size_t idx) const noexcept
         -> bool;
 
@@ -31,6 +34,9 @@ public:
         -> void;
 
 private:
+    double a_;
+    double m_theta_;
+    double d_phi_;
     std::vector<Lat> lats_;
     std::vector<Lng> lngs_;
     std::vector<bool> is_water_;
