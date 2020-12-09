@@ -64,7 +64,7 @@ auto Polygon::pointInPolygon(Lat lat, Lng lng) const
                                });
 
     // external points should sum up to something close to 0
-    // internal points should sum up to something smaller than
+    // internal points should sum up to something smaller than pi
 
     return std::abs(sum) > PI;
 }
