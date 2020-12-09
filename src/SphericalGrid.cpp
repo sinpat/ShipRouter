@@ -8,24 +8,20 @@
 #include <algorithm>
 #include <execution>
 
-size_t calc_m_phi(double theta, double d_phi)
-{
-    return static_cast<size_t>(round(2 * PI * sin(theta) / d_phi));
-}
-
 SphericalGrid::SphericalGrid(std::size_t number_of_nodes) noexcept
     : a_(4 * PI / number_of_nodes),
-      m_theta_(static_cast<size_t>(round(PI / sqrt(a_)))),
-      d_phi_(a_ / (PI / m_theta_)),
-      first_index_of_(m_theta_, -1)
+      n_rows_(static_cast<size_t>(round(PI / sqrt(a_)))),
+      d_phi_(a_ / (PI / n_rows_)),
+      first_index_of_(n_rows_, -1)
 {
     size_t counter = 0;
-    for(size_t m = 0; m < m_theta_; m++) {
+    for(size_t m = 0; m < n_rows_; m++) {
         first_index_of_[m] = counter;
-        auto theta = PI * (m + 0.5) / m_theta_;
-        auto m_phi = calc_m_phi(theta, d_phi_);
-        for(size_t n = 0; n < m_phi; n++) {
-            auto phi = 2 * PI * n / m_phi;
+        auto theta = PI * (m + 0.5) / n_rows_;
+        // auto m_phi = calc_m_phi(theta, d_phi_);
+        auto n_cols = nCols(m);
+        for(size_t n = 0; n < n_cols; n++) {
+            auto phi = 2 * PI * n / n_cols;
             lats_.emplace_back(Latitude<Radian>{theta}.toDegree() - 90);
             lngs_.emplace_back(Longitude<Radian>{phi}.toDegree() - 180);
             counter++;
@@ -36,9 +32,9 @@ SphericalGrid::SphericalGrid(std::size_t number_of_nodes) noexcept
 auto SphericalGrid::sphericalToGrid(Latitude<Radian> theta, Longitude<Radian> phi) const
     -> std::pair<size_t, size_t>
 {
-    auto m_phi = round(2 * PI * sin(theta.getValue()) / d_phi_);
-    auto m = static_cast<size_t>(floor(theta.getValue() * m_theta_ - PI - 0.5));
-    auto n = static_cast<size_t>(floor(phi.getValue() * m_phi) / (2 * PI));
+    auto m_phi = round(2 * PI * sin(theta) / d_phi_);
+    auto m = static_cast<size_t>(floor(theta * n_rows_ - PI - 0.5));
+    auto n = static_cast<size_t>(floor(phi * m_phi) / (2 * PI));
     return std::pair{m, n};
 }
 
@@ -59,6 +55,58 @@ auto SphericalGrid::IDToGrid(size_t ID) -> std::pair<size_t, size_t>
     return std::pair{m, n};
 }
 
+
+auto SphericalGrid::get_neighbours(size_t m, size_t n) -> std::vector<size_t>
+{
+    std::vector<std::pair<size_t, size_t>> grid_neighbours;
+
+    // wrap both row indices
+    auto m_idx_upper = m + n_rows_ - 1 % n_rows_;
+    auto m_idx_lower = m + 1 % n_rows_;
+
+    // get number of columns for each row
+    auto n_cols_in_this = nCols(m);
+    auto n_cols_in_upper = nCols(m_idx_upper);
+    auto n_cols_in_lower = nCols(m_idx_lower);
+
+    // calculate ratios for upper and lower row
+    auto upper_row_ratio = n_cols_in_upper / n_cols_in_this;
+    auto lower_row_ratio = n_cols_in_lower / n_cols_in_this;
+
+    // add nodes to the left and right
+    grid_neighbours.emplace_back(m, n + n_cols_in_this - 1 % n_cols_in_this);
+    grid_neighbours.emplace_back(m, n + 1 % n_cols_in_this);
+
+    for(size_t i = floor((n - 1) * upper_row_ratio); i < ceil((n + 1) * upper_row_ratio); i++) {
+        grid_neighbours.emplace_back(m_idx_upper, i + n_cols_in_upper % n_cols_in_upper);
+    }
+    for(size_t i = floor((n - 1) * lower_row_ratio); i < ceil((n + 1) * lower_row_ratio); i++) {
+        grid_neighbours.emplace_back(m_idx_lower, i + n_cols_in_lower % n_cols_in_lower);
+    }
+
+
+    std::vector<size_t> id_neighbours;
+
+    // map (m,n) to IDs
+    std::transform(
+        grid_neighbours.begin(),
+        grid_neighbours.end(),
+        std::back_inserter(id_neighbours),
+        [&](auto neighbour) {
+            return gridToID(neighbour.first, neighbour.second);
+        });
+
+    // filter out land nodes
+    id_neighbours.erase(
+        std::remove_if(
+            id_neighbours.begin(),
+            id_neighbours.end(),
+            [&](auto id) {
+                return indexIsLand(id);
+            }),
+        std::end(id_neighbours));
+    return id_neighbours;
+}
 
 auto SphericalGrid::getLats() const noexcept
     -> const std::vector<Latitude<Degree>>&
@@ -113,4 +161,10 @@ auto SphericalGrid::filter(const std::vector<Polygon>& polygons) noexcept
                                                return polygon.pointInPolygon(lat, lng);
                                            });
                    });
+}
+
+size_t SphericalGrid::nCols(size_t rowIdx)
+{
+    auto theta = PI * (rowIdx + 0.5) / n_rows_;
+    return static_cast<size_t>(round(2 * PI * sin(theta) / d_phi_));
 }
