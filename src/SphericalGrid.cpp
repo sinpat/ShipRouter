@@ -4,6 +4,8 @@
 #include <SphericalGrid.hpp>
 #include <Utils.hpp>
 #include <Vector3D.hpp>
+#include <algorithm>
+#include <execution>
 
 SphericalGrid::SphericalGrid(std::size_t number_of_nodes) noexcept
 {
@@ -62,16 +64,17 @@ auto SphericalGrid::filter(const std::vector<Polygon>& polygons) noexcept
     -> void
 {
     auto range = utils::range(lats_.size());
-    is_water_.reserve(range.size());
+    is_water_.resize(range.size());
 
-    std::transform(std::begin(range),
-                   std::end(range),
-                   std::back_inserter(is_water_),
+    std::transform(std::execution::par,
+                   std::cbegin(range),
+                   std::cend(range),
+                   std::begin(is_water_),
                    [&](auto idx) {
-                       auto lat = lats_[idx];
-                       auto lng = lngs_[idx];
-                       return std::none_of(std::begin(polygons),
-                                           std::end(polygons),
+                       const auto lat = lats_[idx];
+                       const auto lng = lngs_[idx];
+                       return std::none_of(std::cbegin(polygons),
+                                           std::cend(polygons),
                                            [&](const Polygon& polygon) {
                                                return polygon.pointInPolygon(lat, lng);
                                            });
