@@ -41,10 +41,12 @@ public:
 
 private:
     double a_;
-    size_t m_theta_;
+    size_t n_rows_;
     double d_phi_;
     std::vector<size_t> first_index_of_;
     std::vector<Latitude<Degree>> lats_;
     std::vector<Longitude<Degree>> lngs_;
     std::vector<bool> is_water_;
+
+    size_t nCols(size_t rowIdx);
 };
