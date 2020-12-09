@@ -12,10 +12,10 @@ public:
             double lat);
 
     auto getLon() const noexcept
-        -> double;
+        -> Lng;
 
     auto getLat() const noexcept
-        -> double;
+        -> Lat;
 
     auto getId() const noexcept
         -> std::uint64_t;
@@ -28,8 +28,8 @@ public:
 
 private:
     std::uint64_t id_;
-    double lon_;
-    double lat_;
+    Lng lon_;
+    Lat lat_;
 };
 
 namespace std {
@@ -40,8 +40,8 @@ struct hash<OSMNode>
     auto operator()(const OSMNode& node) const noexcept
         -> std::size_t
     {
-        auto h1 = std::hash<double>()(node.getLat());
-        auto h2 = std::hash<double>()(node.getLon());
+        auto h1 = std::hash<double>()(node.getLat().getValue());
+        auto h2 = std::hash<double>()(node.getLon().getValue());
         return (h1 ^ (h2 << 1));
     }
 };

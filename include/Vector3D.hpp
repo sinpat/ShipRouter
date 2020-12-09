@@ -2,45 +2,17 @@
 #pragma once
 
 #include <Constants.hpp>
+#include <Utils.hpp>
 #include <cmath>
 #include <tuple>
-
-constexpr auto toDegree(double value) noexcept
-    -> double
-{
-    return value * 180 / PI;
-}
-
-constexpr auto toRadian(double value) noexcept
-    -> double
-{
-    return value * PI / 180;
-}
-
-inline auto latLngTo3D(double lat, double lng) noexcept
-    -> std::tuple<double, double, double>
-{
-    return std::tuple{std::cos(lat) * std::cos(lng),
-                      std::cos(lat) * std::sin(lng),
-                      std::sin(lat)};
-}
-
-inline auto vec3DtoLatLong(double x, double y, double z) noexcept
-{
-    auto lat = std::atan2(z, std::sqrt(x * x + y * y));
-    auto lng = std::atan2(y, x);
-
-    return std::pair{lat,
-                     lng};
-}
 
 class Vector3D
 {
 public:
-    Vector3D(double lat, double lng)
-        : x_(std::cos(lat) * std::cos(lng)),
-          y_(std::cos(lat) * std::sin(lng)),
-          z_(std::sin(lat)) {}
+    Vector3D(Lat lat, Lng lng)
+        : x_(std::cos(lat.getValue()) * std::cos(lng.getValue())),
+          y_(std::cos(lat.getValue()) * std::sin(lng.getValue())),
+          z_(std::sin(lat.getValue())) {}
 
     Vector3D() = default;
     Vector3D(const Vector3D&) = default;

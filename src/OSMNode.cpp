@@ -9,13 +9,13 @@ OSMNode::OSMNode(std::uint64_t id,
       lat_(lat) {}
 
 auto OSMNode::getLon() const noexcept
-    -> double
+    -> Lng
 {
     return lon_;
 }
 
 auto OSMNode::getLat() const noexcept
-    -> double
+    -> Lat
 {
     return lat_;
 }
@@ -29,7 +29,8 @@ auto OSMNode::getId() const noexcept
 auto OSMNode::operator==(const OSMNode& other) const noexcept
     -> bool
 {
-    return lon_ == other.lon_ and lat_ == other.lat_;
+    return lon_.getValue() == other.lon_.getValue()
+        and lat_.getValue() == other.lat_.getValue();
 }
 
 auto OSMNode::operator!=(const OSMNode& other) const noexcept

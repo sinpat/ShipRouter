@@ -1,13 +1,34 @@
 #pragma once
+
+#include <Polygon.hpp>
+#include <Utils.hpp>
 #include <cmath>
 #include <vector>
 
 class SphericalGrid
 {
 public:
-    SphericalGrid();
-    auto get_nodes() const -> std::vector<std::pair<double, double>>;
+    SphericalGrid() noexcept;
+
+    auto getLats() const noexcept
+        -> const std::vector<Lat>&;
+    auto getLngs() const noexcept
+        -> const std::vector<Lng>&;
+
+    auto getLats() noexcept
+        -> std::vector<Lat>&;
+    auto getLngs() noexcept
+        -> std::vector<Lng>&;
 
 private:
-    std::vector<std::pair<double, double>> nodes_;
+    friend auto filterLandNodes(const std::vector<Polygon>& polygons,
+                         SphericalGrid&& grid) noexcept
+        -> SphericalGrid;
+
+    std::vector<Lat> lats_;
+    std::vector<Lng> lngs_;
 };
+
+auto filterLandNodes(const std::vector<Polygon>& polygons,
+                     SphericalGrid&& grid) noexcept
+    -> SphericalGrid;

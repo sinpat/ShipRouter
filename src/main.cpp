@@ -9,10 +9,19 @@ auto main() -> int
     auto polygons = calculatePolygons(std::move(coastlines),
                                       std::move(nodes));
     // fmt::print("{}\n", polygons.size());
-    fmt::print("in land: {}\n", std::count_if(std::begin(polygons), std::end(polygons), [](const auto& poly) {
-                   return poly.pointInPolygon(-76.10079606754577, 15.8203125); // is in land
-               }));
-    fmt::print("in water: {}\n", std::count_if(std::begin(polygons), std::end(polygons), [](const auto& poly) {
-                   return poly.pointInPolygon(-77.50411917973987, -44.6484375); // is in water
-               }));
+    fmt::print("in land: {}\n",
+               std::count_if(std::begin(polygons),
+                             std::end(polygons),
+                             [](const auto& poly) {
+                                 return poly.pointInPolygon(Lat{-76.10079606754577},
+                                                            Lng{15.8203125}); // is in land
+                             }));
+    fmt::print("in water: {}\n",
+               std::count_if(std::begin(polygons),
+                             std::end(polygons),
+                             [](const auto& poly) {
+                                 return poly.pointInPolygon(Lat{-77.50411917973987},
+															Lng{-44.6484375}); // is in water
+                             }));
+
 }

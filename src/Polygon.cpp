@@ -9,11 +9,24 @@
 #include <fmt/core.h>
 #include <numeric>
 
+
+namespace {
+
+auto latLngTo3D(Lat lat, Lng lng) noexcept
+    -> std::tuple<double, double, double>
+{
+    return std::tuple{std::cos(lat.getValue()) * std::cos(lng.getValue()),
+                      std::cos(lat.getValue()) * std::sin(lng.getValue()),
+                      std::sin(lat.getValue())};
+}
+
+} // namespace
+
 Polygon::Polygon(const std::vector<OSMNode>& nodes)
 {
     for(const auto& n : nodes) {
-        auto lat = toRadian(n.getLat());
-        auto lng = toRadian(n.getLon());
+        auto lat = n.getLat().toRadian();
+        auto lng = n.getLon().toRadian();
         auto [x, y, z] = latLngTo3D(lat, lng);
         x_.emplace_back(x);
         y_.emplace_back(y);
@@ -21,12 +34,12 @@ Polygon::Polygon(const std::vector<OSMNode>& nodes)
     }
 }
 
-auto Polygon::pointInPolygon(double lat, double lng) const
+auto Polygon::pointInPolygon(Lat lat, Lng lng) const
     -> bool
 {
     const auto size = numberOfPoints();
     const auto range = utils::range(size);
-    const Vector3D p{toRadian(lat), toRadian(lng)};
+    const Vector3D p{lat.toRadian(), lng.toRadian()};
     // get vectors from p to each vertex
     std::vector<Vector3D> vec_to_vertex;
     std::transform(std::begin(range),
@@ -46,12 +59,25 @@ auto Polygon::pointInPolygon(double lat, double lng) const
                                    return current + first.angleBetween(second, p);
                                });
 
-	// external points should sum up to something close to 0
-	// internal points should sum up to something smaller than
+    // external points should sum up to something close to 0
+    // internal points should sum up to something smaller than
 
     return std::abs(sum) > PI;
 }
 
+
+namespace {
+
+auto vec3DtoLatLong(double x, double y, double z) noexcept
+{
+    auto lat = std::atan2(z, std::sqrt(x * x + y * y));
+    auto lng = std::atan2(y, x);
+
+    return std::pair{Lat{lat},
+                     Lng{lng}};
+}
+
+} // namespace
 auto Polygon::getLatAndLng() const
     -> std::vector<std::pair<double, double>>
 {
@@ -63,7 +89,8 @@ auto Polygon::getLatAndLng() const
                    std::back_inserter(ret_vec),
                    [&](auto idx) {
                        auto [lat, lng] = vec3DtoLatLong(x_[idx], y_[idx], z_[idx]);
-                       return std::pair{toDegree(lat), toDegree(lng)};
+                       return std::pair{lat.toDegree().getValue(),
+                                        lng.toDegree().getValue()};
                    });
 
     return ret_vec;
