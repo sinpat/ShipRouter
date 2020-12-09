@@ -1,6 +1,6 @@
+#include <LatLng.hpp>
 #include <OSMNode.hpp>
 #include <unordered_map>
-#include <LatLng.hpp>
 
 OSMNode::OSMNode(std::uint64_t id,
                  double lon,
@@ -10,13 +10,13 @@ OSMNode::OSMNode(std::uint64_t id,
       lat_(lat) {}
 
 auto OSMNode::getLon() const noexcept
-    -> Lng
+    -> Lng<DegreeTag>
 {
     return lon_;
 }
 
 auto OSMNode::getLat() const noexcept
-    -> Lat
+    -> Lat<DegreeTag>
 {
     return lat_;
 }

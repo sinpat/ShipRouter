@@ -13,7 +13,7 @@
 
 namespace {
 
-auto latLngTo3D(Lat lat, Lng lng) noexcept
+auto latLngTo3D(Lat<RadianTag> lat, Lng<RadianTag> lng) noexcept
     -> std::tuple<double, double, double>
 {
     return std::tuple{std::cos(lat.getValue()) * std::cos(lng.getValue()),
@@ -36,7 +36,7 @@ Polygon::Polygon(const std::vector<OSMNode>& nodes)
     }
 }
 
-auto Polygon::pointInPolygon(Lat lat, Lng lng) const
+auto Polygon::pointInPolygon(Lat<DegreeTag> lat, Lng<DegreeTag> lng) const
     -> bool
 {
     const auto size = numberOfPoints();
@@ -77,8 +77,8 @@ auto vec3DtoLatLong(double x, double y, double z) noexcept
     auto lat = std::atan2(z, std::sqrt(x * x + y * y));
     auto lng = std::atan2(y, x);
 
-    return std::pair{Lat{lat},
-                     Lng{lng}};
+    return std::pair{Lat<RadianTag>{lat},
+                     Lng<RadianTag>{lng}};
 }
 
 } // namespace

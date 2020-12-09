@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include <Utils.hpp>
 #include <LatLng.hpp>
+#include <Utils.hpp>
 #include <unordered_map>
 
 class OSMNode
@@ -13,10 +13,10 @@ public:
             double lat);
 
     auto getLon() const noexcept
-        -> Lng;
+        -> Lng<DegreeTag>;
 
     auto getLat() const noexcept
-        -> Lat;
+        -> Lat<DegreeTag>;
 
     auto getId() const noexcept
         -> std::uint64_t;
@@ -29,8 +29,8 @@ public:
 
 private:
     std::uint64_t id_;
-    Lng lon_;
-    Lat lat_;
+    Lng<DegreeTag> lon_;
+    Lat<DegreeTag> lat_;
 };
 
 namespace std {
