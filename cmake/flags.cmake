@@ -42,6 +42,8 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
           -pipe\
           -Wall\
           -flto\
+          -ffunction-sections\
+          -fdata-sections\
           -O3\
           -march=native")
 endif()
