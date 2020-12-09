@@ -1,3 +1,4 @@
+#include <Constants.hpp>
 #include <LatLng.hpp>
 #include <Polygon.hpp>
 #include <Range.hpp>
@@ -10,16 +11,16 @@
 SphericalGrid::SphericalGrid(std::size_t number_of_nodes) noexcept
 {
     std::vector<std::pair<Lat, Lng>> nodes;
-    auto a = 4 * M_PI / number_of_nodes;
+    auto a = 4 * PI / number_of_nodes;
     auto d = sqrt(a);
-    auto m_theta = round(M_PI / d);
-    auto d_theta = M_PI / m_theta;
+    auto m_theta = round(PI / d);
+    auto d_theta = PI / m_theta;
     auto d_phi = a / d_theta;
     for(size_t m = 0; m < m_theta; m++) {
-        auto theta = M_PI * (m + 0.5) / m_theta;
-        auto m_phi = round(2 * M_PI * sin(theta) / d_phi);
+        auto theta = PI * (m + 0.5) / m_theta;
+        auto m_phi = round(2 * PI * sin(theta) / d_phi);
         for(size_t n = 0; n < m_phi; n++) {
-            auto phi = 2 * M_PI * n / m_phi;
+            auto phi = 2 * PI * n / m_phi;
             lats_.emplace_back(Lat{theta}.toDegree() - 90);
             lngs_.emplace_back(Lng{phi}.toDegree() - 180);
         }
