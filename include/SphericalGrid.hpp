@@ -25,6 +25,8 @@ public:
 
     auto gridToID(size_t m, size_t n) -> size_t;
 
+    auto IDToGrid(size_t ID) -> std::pair<size_t, size_t>;
+
     auto indexIsWater(std::size_t idx) const noexcept
         -> bool;
 
