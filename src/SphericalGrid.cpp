@@ -1,4 +1,5 @@
 #include <Polygon.hpp>
+#include <LatLng.hpp>
 #include <Range.hpp>
 #include <SphericalGrid.hpp>
 #include <Utils.hpp>

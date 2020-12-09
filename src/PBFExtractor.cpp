@@ -5,6 +5,7 @@
 #include <fmt/ranges.h>
 #include <osmpbfreader.h>
 #include <string_view>
+#include <LatLng.hpp>
 
 
 

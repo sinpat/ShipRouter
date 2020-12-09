@@ -1,5 +1,6 @@
 #include <OSMNode.hpp>
 #include <unordered_map>
+#include <LatLng.hpp>
 
 OSMNode::OSMNode(std::uint64_t id,
                  double lon,

@@ -23,5 +23,4 @@ auto main() -> int
                                  return poly.pointInPolygon(Lat{-77.50411917973987},
 															Lng{-44.6484375}); // is in water
                              }));
-
 }

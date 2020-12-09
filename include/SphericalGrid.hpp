@@ -1,5 +1,6 @@
 #pragma once
 
+#include <LatLng.hpp>
 #include <Polygon.hpp>
 #include <Utils.hpp>
 #include <cmath>
@@ -22,7 +23,7 @@ public:
 
 private:
     friend auto filterLandNodes(const std::vector<Polygon>& polygons,
-                         SphericalGrid&& grid) noexcept
+                                SphericalGrid&& grid) noexcept
         -> SphericalGrid;
 
     std::vector<Lat> lats_;

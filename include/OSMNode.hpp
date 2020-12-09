@@ -2,6 +2,7 @@
 #pragma once
 
 #include <Utils.hpp>
+#include <LatLng.hpp>
 #include <unordered_map>
 
 class OSMNode

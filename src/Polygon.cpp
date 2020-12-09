@@ -1,5 +1,6 @@
 #include <CoastlineLookup.hpp>
 #include <Constants.hpp>
+#include <LatLng.hpp>
 #include <NodeLookup.hpp>
 #include <OSMNode.hpp>
 #include <Polygon.hpp>
