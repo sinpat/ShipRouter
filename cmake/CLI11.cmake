@@ -6,14 +6,18 @@ set(CMAKE_ARGS
   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
   -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
   -DCLI11_TESTING=OFF
+  -DCLI11_BUILD_TESTS=OFF
+  -DCLI11_BUILD_EXAMPLES=OFF
+  -DCLI11_BUILD_DOCS=OFF
+  -DCLI11_SINGLE_FILE_TESTS=OFF
   -DCLI11_SINGLE_FILE=OFF
   -DCLI11_EXAMPLES=OFF)
 
 ExternalProject_Add(CLI11-project
   PREFIX deps/CLI11
-  DOWNLOAD_NAME CLI11-1.8.0.tar.gz
+  DOWNLOAD_NAME CLI11-1.9.1.tar.gz
   DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/downloads
-  URL https://github.com/CLIUtils/CLI11/archive/v1.8.0.tar.gz
+  URL https://github.com/CLIUtils/CLI11/archive/v1.9.1.tar.gz
   CMAKE_ARGS ${CMAKE_ARGS}
   # Overwtire build and install commands to force Release build on MSVC.
   BUILD_COMMAND cmake --build <BINARY_DIR> --config Release
