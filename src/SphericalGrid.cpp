@@ -21,8 +21,8 @@ SphericalGrid::SphericalGrid(std::size_t number_of_nodes) noexcept
         auto m_phi = round(2 * PI * sin(theta) / d_phi_);
         for(size_t n = 0; n < m_phi; n++) {
             auto phi = 2 * PI * n / m_phi;
-            lats_.emplace_back(Lat<RadianTag>{theta}.toDegree() - 90);
-            lngs_.emplace_back(Lng<RadianTag>{phi}.toDegree() - 180);
+            lats_.emplace_back(Latitude<Radian>{theta}.toDegree() - 90);
+            lngs_.emplace_back(Longitude<Radian>{phi}.toDegree() - 180);
             counter++;
         }
     }
@@ -55,23 +55,23 @@ auto SphericalGrid::IDToGrid(size_t ID) -> std::pair<size_t, size_t>
 }
 
 auto SphericalGrid::getLats() const noexcept
-  -> const std::vector<Lat<DegreeTag>>&
+  -> const std::vector<Latitude<Degree>>&
 {
     return lats_;
 }
 auto SphericalGrid::getLngs() const noexcept
-  -> const std::vector<Lng<DegreeTag>>&
+  -> const std::vector<Longitude<Degree>>&
 {
     return lngs_;
 }
 
 auto SphericalGrid::getLats() noexcept
-  -> std::vector<Lat<DegreeTag>>&
+  -> std::vector<Latitude<Degree>>&
 {
     return lats_;
 }
 auto SphericalGrid::getLngs() noexcept
-  -> std::vector<Lng<DegreeTag>>&
+  -> std::vector<Longitude<Degree>>&
 {
     return lngs_;
 }

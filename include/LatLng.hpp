@@ -4,55 +4,55 @@
 #include <cmath>
 
 // clang-format off
-struct RadianTag{};
-struct DegreeTag{};
+struct Radian{};
+struct Degree{};
 // clang-format on
 
 template<class T>
-constexpr static inline auto is_tag = std::is_same_v<T, RadianTag> or std::is_same_v<T, DegreeTag>;
+constexpr static inline auto is_tag = std::is_same_v<T, Radian> or std::is_same_v<T, Degree>;
 
 
 template<class Tag>
-class Lat
+class Latitude
 {
     static_assert(is_tag<Tag>, "lat template needs to be a tag");
 
 public:
-    explicit Lat(double value) noexcept
+    explicit Latitude(double value) noexcept
         : value_(value) {}
 
-    Lat() = default;
-    Lat(Lat&&) noexcept = default;
-    Lat(const Lat&) = default;
-    auto operator=(Lat&&) noexcept -> Lat& = default;
-    auto operator=(const Lat&) -> Lat& = default;
+    Latitude() = default;
+    Latitude(Latitude&&) noexcept = default;
+    Latitude(const Latitude&) = default;
+    auto operator=(Latitude&&) noexcept -> Latitude& = default;
+    auto operator=(const Latitude&) -> Latitude& = default;
 
     template<class Q = Tag>
     auto toDegree() const noexcept
-        -> std::enable_if_t<std::is_same_v<Q, RadianTag>, Lat<DegreeTag>>
+        -> std::enable_if_t<std::is_same_v<Q, Radian>, Latitude<Degree>>
     {
-        return Lat<DegreeTag>{value_ * 180 / PI};
+        return Latitude<Degree>{value_ * 180 / PI};
     }
 
     template<class Q = Tag>
     auto toRadian() const noexcept
-        -> std::enable_if_t<std::is_same_v<Q, DegreeTag>, Lat<RadianTag>>
+        -> std::enable_if_t<std::is_same_v<Q, Degree>, Latitude<Radian>>
     {
-        return Lat<RadianTag>{value_ * PI / 180};
+        return Latitude<Radian>{value_ * PI / 180};
     }
 
     template<class Q = Tag>
     auto normalizeDegree() const noexcept
-        -> std::enable_if_t<std::is_same_v<Q, DegreeTag>,
-                            Lat<DegreeTag>>
+        -> std::enable_if_t<std::is_same_v<Q, Degree>,
+                            Latitude<Degree>>
     {
-        return Lat<DegreeTag>{std::fmod(value_, 90) - 90};
+        return Latitude<Degree>{std::fmod(value_, 90) - 90};
     }
 
     auto operator-(double other) const noexcept
-        -> Lat<Tag>
+        -> Latitude<Tag>
     {
-        return Lat<Tag>{value_ - other};
+        return Latitude<Tag>{value_ - other};
     }
 
     auto getValue() const
@@ -66,48 +66,48 @@ private:
 };
 
 template<class Tag>
-class Lng
+class Longitude
 {
     static_assert(is_tag<Tag>, "lng template needs to be a tag");
 
 public:
-    explicit Lng(double value)
+    explicit Longitude(double value)
         : value_(value) {}
 
-    Lng() = default;
-    Lng(Lng&&) noexcept = default;
-    Lng(const Lng&) = default;
-    auto operator=(Lng&&) noexcept -> Lng& = default;
-    auto operator=(const Lng&) -> Lng& = default;
+    Longitude() = default;
+    Longitude(Longitude&&) noexcept = default;
+    Longitude(const Longitude&) = default;
+    auto operator=(Longitude&&) noexcept -> Longitude& = default;
+    auto operator=(const Longitude&) -> Longitude& = default;
 
     auto operator-(double other) const noexcept
-        -> Lng<Tag>
+        -> Longitude<Tag>
     {
-        return Lng<Tag>{value_ - other};
+        return Longitude<Tag>{value_ - other};
     }
 
     template<class Q = Tag>
     auto toDegree() const noexcept
-        -> std::enable_if_t<std::is_same_v<Q, RadianTag>,
-                            Lng<DegreeTag>>
+        -> std::enable_if_t<std::is_same_v<Q, Radian>,
+                            Longitude<Degree>>
     {
-        return Lng<DegreeTag>{value_ * 180 / PI};
+        return Longitude<Degree>{value_ * 180 / PI};
     }
 
     template<class Q = Tag>
     auto normalizeDegree() const noexcept
-        -> std::enable_if_t<std::is_same_v<Q, DegreeTag>,
-                            Lng<DegreeTag>>
+        -> std::enable_if_t<std::is_same_v<Q, Degree>,
+                            Longitude<Degree>>
     {
-        return Lng<DegreeTag>{std::fmod(value_, 180) - 180};
+        return Longitude<Degree>{std::fmod(value_, 180) - 180};
     }
 
     template<class Q = Tag>
     auto toRadian() const noexcept
-        -> std::enable_if_t<std::is_same_v<Q, DegreeTag>,
-                            Lng<RadianTag>>
+        -> std::enable_if_t<std::is_same_v<Q, Degree>,
+                            Longitude<Radian>>
     {
-        return Lng<RadianTag>{value_ * PI / 180};
+        return Longitude<Radian>{value_ * PI / 180};
     }
 
     auto getValue() const

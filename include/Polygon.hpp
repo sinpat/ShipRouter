@@ -11,7 +11,7 @@ class Polygon
 public:
     Polygon(const std::vector<OSMNode>& nodes);
 
-    auto pointInPolygon(Lat<DegreeTag> lat, Lng<DegreeTag> lng) const
+    auto pointInPolygon(Latitude<Degree> lat, Longitude<Degree> lng) const
         -> bool;
 
     auto numberOfPoints() const

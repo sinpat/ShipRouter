@@ -13,10 +13,10 @@ public:
             double lat);
 
     auto getLon() const noexcept
-        -> Lng<DegreeTag>;
+        -> Longitude<Degree>;
 
     auto getLat() const noexcept
-        -> Lat<DegreeTag>;
+        -> Latitude<Degree>;
 
     auto getId() const noexcept
         -> std::uint64_t;
@@ -29,8 +29,8 @@ public:
 
 private:
     std::uint64_t id_;
-    Lng<DegreeTag> lon_;
-    Lat<DegreeTag> lat_;
+    Longitude<Degree> lon_;
+    Latitude<Degree> lat_;
 };
 
 namespace std {

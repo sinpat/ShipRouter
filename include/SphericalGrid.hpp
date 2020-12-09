@@ -12,14 +12,14 @@ public:
     SphericalGrid(std::size_t number_of_nodes) noexcept;
 
     auto getLats() const noexcept
-        -> const std::vector<Lat<DegreeTag>>&;
+        -> const std::vector<Latitude<Degree>>&;
     auto getLngs() const noexcept
-        -> const std::vector<Lng<DegreeTag>>&;
+        -> const std::vector<Longitude<Degree>>&;
 
     auto getLats() noexcept
-        -> std::vector<Lat<DegreeTag>>&;
+        -> std::vector<Latitude<Degree>>&;
     auto getLngs() noexcept
-        -> std::vector<Lng<DegreeTag>>&;
+        -> std::vector<Longitude<Degree>>&;
 
     auto sphericalToGrid(double theta, double phi) const
         -> std::pair<std::size_t, std::size_t>;
@@ -42,7 +42,7 @@ private:
     double m_theta_;
     double d_phi_;
     std::vector<size_t> first_index_of_;
-    std::vector<Lat<DegreeTag>> lats_;
-    std::vector<Lng<DegreeTag>> lngs_;
+    std::vector<Latitude<Degree>> lats_;
+    std::vector<Longitude<Degree>> lngs_;
     std::vector<bool> is_water_;
 };

@@ -11,7 +11,7 @@
 class Vector3D
 {
 public:
-    Vector3D(Lat<RadianTag> lat, Lng<RadianTag> lng)
+    Vector3D(Latitude<Radian> lat, Longitude<Radian> lng)
         : x_(std::cos(lat.getValue()) * std::cos(lng.getValue())),
           y_(std::cos(lat.getValue()) * std::sin(lng.getValue())),
           z_(std::sin(lat.getValue()))

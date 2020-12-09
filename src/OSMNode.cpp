@@ -10,13 +10,13 @@ OSMNode::OSMNode(std::uint64_t id,
       lat_(lat) {}
 
 auto OSMNode::getLon() const noexcept
-    -> Lng<DegreeTag>
+    -> Longitude<Degree>
 {
     return lon_;
 }
 
 auto OSMNode::getLat() const noexcept
-    -> Lat<DegreeTag>
+    -> Latitude<Degree>
 {
     return lat_;
 }
