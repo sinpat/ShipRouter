@@ -1,9 +1,10 @@
 #include <SphericalGrid.hpp>
+#include <Vector3D.hpp>
 
 SphericalGrid::SphericalGrid()
 {
     std::vector<std::pair<double, double>> nodes;
-    auto a = 4 * M_PI / 5000;
+    auto a = 4 * M_PI / 500;
     auto d = sqrt(a);
     auto M_theta = round(M_PI / d);
     auto d_theta = M_PI / M_theta;
@@ -13,7 +14,7 @@ SphericalGrid::SphericalGrid()
         auto M_phi = round(2 * M_PI * sin(theta) / d_phi);
         for(size_t n = 0; n < M_phi; n++) {
             auto phi = 2 * M_PI * n / M_phi;
-            nodes.emplace_back(theta, phi);
+            nodes.emplace_back(toDegree(theta), toDegree(phi));
         }
     }
     nodes_ = nodes;
