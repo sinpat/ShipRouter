@@ -24,7 +24,7 @@ auto Polygon::pointInPolygon(double lat, double lng) const
 {
     const auto n_vertices = numberOfPoints() - 1;
     const auto range = utils::range(n_vertices);
-    Vector3D p{lat, lng};
+    Vector3D p{toRadian(lat), toRadian(lng)};
     // get vectors from p to each vertex
     std::vector<Vector3D> vec_to_vertex;
     std::transform(std::begin(range),

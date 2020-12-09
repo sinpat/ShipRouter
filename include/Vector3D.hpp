@@ -38,9 +38,9 @@ class Vector3D
 {
 public:
     Vector3D(double lat, double lng)
-        : x_(std::cos(toRadian(lat)) * std::cos(toRadian(lng))),
-          y_(std::cos(toRadian(lat) * std::sin(toRadian(lng)))),
-          z_(std::sin(toRadian(lat))) {}
+        : x_(std::cos(lat) * std::cos(lng)),
+          y_(std::cos(lat) * std::sin(lng)),
+          z_(std::sin(lat)) {}
 
     Vector3D() = default;
     Vector3D(const Vector3D&) = default;
