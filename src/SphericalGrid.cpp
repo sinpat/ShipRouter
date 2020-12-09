@@ -56,34 +56,46 @@ auto SphericalGrid::IDToGrid(size_t ID) -> std::pair<size_t, size_t>
 }
 
 
+auto SphericalGrid::get_row_neighbours(size_t m, size_t n)
+    -> std::vector<std::pair<std::size_t, std::size_t>>
+{
+    const auto n_cols_in_this = nCols(m);
+    return std::vector<std::pair<std::size_t, std::size_t>>{
+        std::pair<std::size_t, std::size_t>{m, (n + n_cols_in_this - 1) % n_cols_in_this},
+        std::pair<std::size_t, std::size_t>{m, (n + 1) % n_cols_in_this}};
+}
+auto SphericalGrid::get_lower_neighbours(size_t m, size_t n)
+    -> std::vector<std::pair<std::size_t, std::size_t>>
+{
+    std::vector<std::pair<size_t, size_t>> neighbours;
+    const auto m_idx_lower = (m + n_rows_ - 1) % n_rows_;
+    const auto n_cols_in_this = nCols(m);
+    const auto n_cols_in_lower = nCols(m_idx_lower);
+    const auto lower_row_ratio = static_cast<double>(n_cols_in_lower) / n_cols_in_this;
+    for(int i = floor((static_cast<int>(n) - 1) * lower_row_ratio); i <= ceil((n + 1) * lower_row_ratio); i++) {
+        neighbours.emplace_back(m_idx_lower, (i + n_cols_in_lower) % n_cols_in_lower);
+    }
+    return neighbours;
+}
+auto SphericalGrid::get_upper_neighbours(size_t m, size_t n)
+    -> std::vector<std::pair<std::size_t, std::size_t>>
+{
+    std::vector<std::pair<size_t, size_t>> neighbours;
+    const auto m_idx_upper = (m + 1) % n_rows_;
+    const auto n_cols_in_this = nCols(m);
+    const auto n_cols_in_upper = nCols(m_idx_upper);
+    const auto upper_row_ratio = static_cast<double>(n_cols_in_upper) / n_cols_in_this;
+    for(int i = floor((static_cast<int>(n) - 1) * upper_row_ratio); i <= ceil((n + 1) * upper_row_ratio); i++) {
+        neighbours.emplace_back(m_idx_upper, (i + n_cols_in_upper) % n_cols_in_upper);
+    }
+    return neighbours;
+}
 auto SphericalGrid::get_neighbours(size_t m, size_t n) -> std::vector<size_t>
 {
-    std::vector<std::pair<size_t, size_t>> grid_neighbours;
-
-    // wrap both row indices
-    auto m_idx_upper = m + n_rows_ - 1 % n_rows_;
-    auto m_idx_lower = m + 1 % n_rows_;
-
-    // get number of columns for each row
-    auto n_cols_in_this = nCols(m);
-    auto n_cols_in_upper = nCols(m_idx_upper);
-    auto n_cols_in_lower = nCols(m_idx_lower);
-
-    // calculate ratios for upper and lower row
-    auto upper_row_ratio = n_cols_in_upper / n_cols_in_this;
-    auto lower_row_ratio = n_cols_in_lower / n_cols_in_this;
-
-    // add nodes to the left and right
-    grid_neighbours.emplace_back(m, n + n_cols_in_this - 1 % n_cols_in_this);
-    grid_neighbours.emplace_back(m, n + 1 % n_cols_in_this);
-
-    for(size_t i = floor((n - 1) * upper_row_ratio); i < ceil((n + 1) * upper_row_ratio); i++) {
-        grid_neighbours.emplace_back(m_idx_upper, i + n_cols_in_upper % n_cols_in_upper);
-    }
-    for(size_t i = floor((n - 1) * lower_row_ratio); i < ceil((n + 1) * lower_row_ratio); i++) {
-        grid_neighbours.emplace_back(m_idx_lower, i + n_cols_in_lower % n_cols_in_lower);
-    }
-
+    auto grid_neighbours = concat(
+        get_row_neighbours(m, n),
+        get_upper_neighbours(m, n),
+        get_lower_neighbours(m, n));
 
     std::vector<size_t> id_neighbours;
 

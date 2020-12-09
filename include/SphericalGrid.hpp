@@ -24,7 +24,14 @@ public:
     auto sphericalToGrid(Latitude<Radian> theta, Longitude<Radian> phi) const
         -> std::pair<std::size_t, std::size_t>;
 
-    auto get_neighbours(size_t m, size_t n) -> std::vector<size_t>;
+    auto get_row_neighbours(size_t m, size_t n)
+        -> std::vector<std::pair<std::size_t, std::size_t>>;
+    auto get_upper_neighbours(size_t m, size_t n)
+        -> std::vector<std::pair<std::size_t, std::size_t>>;
+    auto get_lower_neighbours(size_t m, size_t n)
+        -> std::vector<std::pair<std::size_t, std::size_t>>;
+    auto get_neighbours(size_t m, size_t n)
+        -> std::vector<size_t>;
 
     auto gridToID(size_t m, size_t n) -> size_t;
 
