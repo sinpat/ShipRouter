@@ -42,6 +42,18 @@ auto SphericalGrid::gridToID(size_t m, size_t n) -> size_t
     return first_index_of_[m] + n;
 }
 
+auto SphericalGrid::IDToGrid(size_t ID) -> std::pair<size_t, size_t>
+{
+    auto m_iter = std::upper_bound(
+                      first_index_of_.begin(),
+                      first_index_of_.end(),
+                      ID)
+        - 1;
+    auto m = std::distance(first_index_of_.begin(), m_iter);
+    auto n = ID - *m_iter;
+    return std::pair{m, n};
+}
+
 auto SphericalGrid::getLats() const noexcept
   -> const std::vector<Lat<DegreeTag>>&
 {
