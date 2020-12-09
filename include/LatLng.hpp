@@ -33,6 +33,12 @@ public:
         return Lat{std::fmod(value_, 90) - 90};
     }
 
+    auto operator-(double other) const noexcept
+        -> Lat
+    {
+        return Lat{value_ - other};
+    }
+
     auto getValue() const
         -> double
     {
@@ -54,6 +60,12 @@ public:
     Lng(const Lng&) = default;
     auto operator=(Lng&&) -> Lng& = default;
     auto operator=(const Lng&) -> Lng& = default;
+
+    auto operator-(double other) const noexcept
+        -> Lng
+    {
+        return Lng{value_ - other};
+    }
 
     auto toDegree() const noexcept
         -> Lng
