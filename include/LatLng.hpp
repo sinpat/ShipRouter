@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Constants.hpp>
+#include <cmath>
 
 class Lat
 {
@@ -24,6 +25,12 @@ public:
         -> Lat
     {
         return Lat{value_ * PI / 180};
+    }
+
+    auto normalizeDegree() const noexcept
+        -> Lat
+    {
+        return Lat{std::fmod(value_, 90) - 90};
     }
 
     auto getValue() const
@@ -52,6 +59,12 @@ public:
         -> Lng
     {
         return Lng{value_ * 180 / PI};
+    }
+
+    auto normalizeDegree() const noexcept
+        -> Lng
+    {
+        return Lng{std::fmod(value_, 180) - 180};
     }
 
     auto toRadian() const noexcept
