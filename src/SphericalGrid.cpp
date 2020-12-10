@@ -27,6 +27,7 @@ SphericalGrid::SphericalGrid(std::size_t number_of_nodes) noexcept
             counter++;
         }
     }
+    first_index_of_.emplace_back(counter); // add last dummy entry
 }
 
 auto SphericalGrid::sphericalToGrid(Latitude<Radian> theta, Longitude<Radian> phi) const
@@ -68,6 +69,12 @@ auto SphericalGrid::get_lower_neighbours(size_t m, size_t n)
     -> std::vector<std::pair<std::size_t, std::size_t>>
 {
     std::vector<std::pair<size_t, size_t>> neighbours;
+    if(m == 0) {
+        for(size_t i = 0; i < first_index_of_[1]; i++) {
+            neighbours.emplace_back(0, i);
+        }
+        return neighbours;
+    }
     const auto m_idx_lower = (m + n_rows_ - 1) % n_rows_;
     const auto n_cols_in_this = nCols(m);
     const auto n_cols_in_lower = nCols(m_idx_lower);
@@ -81,6 +88,12 @@ auto SphericalGrid::get_upper_neighbours(size_t m, size_t n)
     -> std::vector<std::pair<std::size_t, std::size_t>>
 {
     std::vector<std::pair<size_t, size_t>> neighbours;
+    if(m == n_rows_ - 1) {
+        for(size_t i = 0; i < first_index_of_[m + 1] - first_index_of_[m]; i++) {
+            neighbours.emplace_back(m, i);
+        }
+        return neighbours;
+    }
     const auto m_idx_upper = (m + 1) % n_rows_;
     const auto n_cols_in_this = nCols(m);
     const auto n_cols_in_upper = nCols(m_idx_upper);

@@ -46,7 +46,20 @@ auto main() -> int
                                                             Longitude<Degree>{-57.81005859375}); // is in water
                              }));
 
-    SphericalGrid grid{500};
+    SphericalGrid grid{3000};
     grid.filter(polygons);
 
+    const auto& lats = grid.getLats();
+    const auto& lngs = grid.getLngs();
+
+    const auto neighbours = grid.get_neighbours(47, 4);
+
+    for(size_t i = 0; i < neighbours.size(); i++) {
+        const auto n_id = neighbours[i];
+        fmt::print("[{},{}],\n", lats[n_id], lngs[n_id]);
+
+        // if(grid.indexIsWater(i)) {
+        //     fmt::print("[{},{}],\n", lats[i].getValue(), lngs[i].getValue());
+        // }
+    }
 }
