@@ -11,13 +11,55 @@ Dijkstra::Dijkstra(const SphericalGrid& graph) noexcept
     : graph_(graph),
       distances_(graph_.size(), UNREACHABLE),
       settled_(graph_.size(), false),
+      previous_nodes_(graph_.size(), NON_EXISTENT),
       pq_(DijkstraQueueComparer{}) {}
 
 
 auto Dijkstra::findRoute(NodeId source, NodeId target) noexcept
-    -> std::optional<Path>
+    -> std::optional<std::pair<Path, Distance>>
 {
-    [[maybe_unused]] auto _ = computeDistance(source, target);
+    if(source == last_source_
+       and isSettled(target)
+       and previous_nodes_[target] != NON_EXISTENT) {
+        return extractShortestPath(source, target);
+    }
+
+    if(source != last_source_ or previous_nodes_[target] == NON_EXISTENT) {
+        last_source_ = source;
+        reset();
+        pq_.emplace(source, 0l);
+        setDistanceTo(source, 0);
+        touched_.emplace_back(source);
+    }
+
+    while(!pq_.empty()) {
+        auto [current_node, current_dist] = pq_.top();
+
+        settle(current_node);
+
+        if(current_node == target) {
+            return extractShortestPath(source, target);
+        }
+
+        //pop after the return, otherwise we loose a value
+        //when reusing the pq
+        pq_.pop();
+
+        auto neigbours = graph_.getNeighbours(current_node);
+
+        for(auto&& neig : neigbours) {
+            auto neig_dist = getDistanceTo(neig);
+            auto new_dist = current_dist + graph_.distanceBetween(current_node, neig);
+
+            if(UNREACHABLE != current_dist and neig_dist > new_dist) {
+                touched_.emplace_back(neig);
+                setDistanceTo(neig, new_dist);
+                pq_.emplace(neig, new_dist);
+                previous_nodes_[neig] = current_node;
+            }
+        }
+    }
+
     return extractShortestPath(source, target);
 }
 
@@ -40,7 +82,7 @@ auto Dijkstra::setDistanceTo(NodeId n, Distance distance) noexcept
 }
 
 auto Dijkstra::extractShortestPath(NodeId source, NodeId target) const noexcept
-    -> std::optional<Path>
+    -> std::optional<std::pair<Path, Distance>>
 {
     //check if a path exists
     if(UNREACHABLE == getDistanceTo(target)) {
@@ -48,34 +90,12 @@ auto Dijkstra::extractShortestPath(NodeId source, NodeId target) const noexcept
     }
 
     Path path{target};
-
-    while(path.front() != source) {
-        const auto& last_inserted = path.front();
-        auto neigbours = graph_.getNeighbours(last_inserted);
-
-        auto min_iter = std::min_element(
-            std::begin(neigbours),
-            std::end(neigbours),
-            [&](const auto& lhs, const auto& rhs) {
-                return getDistanceTo(lhs) < getDistanceTo(rhs);
-            });
-
-        //this can never happen
-        if(std::end(neigbours) == min_iter) {
-            return std::nullopt;
-        }
-
-        auto min_neig = *min_iter;
-
-        //this can also never happen
-        if(getDistanceTo(min_neig) == UNREACHABLE) {
-            return std::nullopt;
-        }
-
-        path.insert(std::begin(path), min_neig);
+    while(path[0] != source) {
+        path.insert(std::begin(path),
+                    previous_nodes_[path[0]]);
     }
 
-    return path;
+    return std::pair{path, getDistanceTo(target)};
 }
 
 auto Dijkstra::reset() noexcept
@@ -84,6 +104,7 @@ auto Dijkstra::reset() noexcept
     for(auto n : touched_) {
         unSettle(n);
         setDistanceTo(n, UNREACHABLE);
+        previous_nodes_[n] = NON_EXISTENT;
     }
     touched_.clear();
     pq_ = DijkstraQueue{DijkstraQueueComparer{}};
@@ -140,7 +161,7 @@ auto Dijkstra::computeDistance(NodeId source, NodeId target) noexcept
 
         for(auto&& neig : neigbours) {
             auto neig_dist = getDistanceTo(neig);
-            auto new_dist = current_dist + 1;
+            auto new_dist = current_dist + graph_.distanceBetween(current_node, neig);
 
             if(UNREACHABLE != current_dist and neig_dist > new_dist) {
                 touched_.emplace_back(neig);

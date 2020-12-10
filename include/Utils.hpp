@@ -34,3 +34,4 @@ using NodeId = std::uint64_t;
 using Path = std::vector<NodeId>;
 
 constexpr static inline auto UNREACHABLE = std::numeric_limits<Distance>::max();
+constexpr static inline auto NON_EXISTENT = std::numeric_limits<NodeId>::max();

@@ -144,6 +144,14 @@ auto SphericalGrid::getNeighbours(size_t m, size_t n) const noexcept
     return id_neighbours;
 }
 
+auto SphericalGrid::getNeighbours(std::size_t id) const noexcept
+    -> std::vector<size_t>
+{
+
+    auto [m, n] = idToGrid(id);
+    return getNeighbours(m, n);
+}
+
 
 auto SphericalGrid::distanceBetween(NodeId from, NodeId to) const noexcept
     -> Distance

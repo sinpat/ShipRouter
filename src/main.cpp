@@ -1,8 +1,10 @@
+#include <Dijkstra.hpp>
 #include <PBFExtractor.hpp>
 #include <SphericalGrid.hpp>
 #include <Vector3D.hpp>
 #include <execution>
 #include <fmt/core.h>
+#include <fmt/ranges.h>
 
 auto main() -> int
 {
@@ -57,4 +59,10 @@ auto main() -> int
     for(auto n_id : neighbours) {
         fmt::print("[{},{}],\n", lats[n_id], lngs[n_id]);
     }
+
+    Dijkstra dijk{grid};
+
+    auto [path, distance] = dijk.findRoute(100, 150).value();
+
+    fmt::print("Route: {}\n", fmt::join(path, ","));
 }
