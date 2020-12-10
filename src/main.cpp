@@ -48,16 +48,25 @@ auto main() -> int
                                                             Longitude<Degree>{-57.81005859375}); // is in water
                              }));
 
-    SphericalGrid grid{3000};
+    SphericalGrid grid{1000};
     grid.filter(polygons);
 
     const auto& lats = grid.getLats();
     const auto& lngs = grid.getLngs();
 
-    const auto neighbours = grid.getNeighbours(47, 4);
+    // const auto neighbours = grid.getNeighbours(47, 4);
 
-    for(auto n_id : neighbours) {
-        fmt::print("[{},{}],\n", lats[n_id], lngs[n_id]);
+    // for(auto n_id : neighbours) {
+    //     fmt::print("[{},{}],\n", lats[n_id], lngs[n_id]);
+    // }
+
+    for(size_t i = 0; i < lats.size(); i++) {
+        // const auto n_id = neighbours[i];
+        // fmt::print("[{},{}],\n", lats[n_id], lngs[n_id]);
+
+        if(grid.indexIsWater(i)) {
+            fmt::print("[{},{}],\n", lats[i].getValue(), lngs[i].getValue());
+        }
     }
 
     Dijkstra dijk{grid};

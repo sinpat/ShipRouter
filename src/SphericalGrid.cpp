@@ -7,38 +7,46 @@
 #include <Vector3D.hpp>
 #include <algorithm>
 #include <execution>
+#include <queue>
 
 SphericalGrid::SphericalGrid(std::size_t number_of_nodes) noexcept
     : a_(4 * PI / number_of_nodes),
       n_rows_(static_cast<size_t>(round(PI / sqrt(a_)))),
       d_phi_(a_ / (PI / n_rows_)),
-      first_index_of_(n_rows_, -1)
+      first_index_of_(n_rows_ + 1, -1)
 {
     size_t counter = 0;
     for(size_t m = 0; m < n_rows_; m++) {
         first_index_of_[m] = counter;
-        auto theta = PI * (m + 0.5) / n_rows_;
-        // auto m_phi = calc_m_phi(theta, d_phi_);
-        auto n_cols = nCols(m);
-        for(size_t n = 0; n < n_cols; n++) {
-            auto phi = 2 * PI * n / n_cols;
+        auto theta = calcTheta(m);
+        for(size_t n = 0; n < nCols(m); n++) {
+            auto phi = calcPhi(m, n);
             lats_.emplace_back(Latitude<Radian>{theta}.toDegree() - 90);
             lngs_.emplace_back(Longitude<Radian>{phi}.toDegree() - 180);
             counter++;
         }
     }
-    first_index_of_.emplace_back(counter); // add last dummy entry
+    first_index_of_[n_rows_] = (counter); // add last dummy entry
 }
 
 auto SphericalGrid::sphericalToGrid(Latitude<Radian> theta, Longitude<Radian> phi) const noexcept
     -> std::pair<size_t, size_t>
 {
-    const auto m_phi = round(2 * PI * sin(theta) / d_phi_);
+    const auto m_phi = nCols(theta);
     const auto m = static_cast<size_t>(floor(theta * n_rows_ - PI - 0.5));
     const auto n = static_cast<size_t>(floor(phi * m_phi) / (2 * PI));
     return std::pair{m, n};
 }
 
+auto SphericalGrid::gridToSpherical(size_t m, size_t n) const
+    -> std::pair<Latitude<Degree>, Longitude<Degree>>
+{
+    const auto theta = calcTheta(m);
+    const auto phi = calcPhi(m, n);
+    return std::pair{
+        Latitude<Radian>{theta}.toDegree(),
+        Longitude<Radian>{phi}.toDegree()};
+}
 
 auto SphericalGrid::size() const noexcept
     -> std::size_t
@@ -165,6 +173,28 @@ auto SphericalGrid::distanceBetween(NodeId from, NodeId to) const noexcept
     return ::distanceBetween(from_lat, from_lng, to_lat, to_lng);
 }
 
+auto SphericalGrid::snap_to_node(Latitude<Degree> lat, Longitude<Degree> lng) const
+    -> size_t
+{
+    const auto [m, n] = sphericalToGrid(lat.toRadian(), lng.toRadian());
+    const auto source_id = gridToID(m, n);
+
+    const std::priority_queue candidates(
+        [&](const size_t id1, const size_t id2) {
+            return distanceBetween(source_id, id1) > distanceBetween(source_id, id2);
+        },
+        std::vector{std::pair{m, n}});
+    while(true) {
+        const auto best_before_insert = candidates.top();
+        // TODO: get neighbours and add neighbours
+        const auto best_after_insert = candidates.top();
+        if(best_before_insert == best_after_insert) {
+            break;
+        }
+    }
+    const auto best = candidates.top();
+}
+
 auto SphericalGrid::getLats() const noexcept
     -> const std::vector<Latitude<Degree>>&
 {
@@ -220,9 +250,21 @@ auto SphericalGrid::filter(const std::vector<Polygon>& polygons) noexcept
                    });
 }
 
-auto SphericalGrid::nCols(size_t row_idx) const
+auto SphericalGrid::nCols(size_t m) const
     -> std::size_t
 {
-    auto theta = PI * (row_idx + 0.5) / n_rows_;
+    auto theta = calcTheta(m);
+    return nCols(theta);
+}
+auto SphericalGrid::nCols(double theta) const -> std::size_t
+{
     return static_cast<size_t>(round(2 * PI * sin(theta) / d_phi_));
+}
+auto SphericalGrid::calcTheta(size_t m) const -> double
+{
+    return PI * (m + 0.5) / n_rows_;
+}
+auto SphericalGrid::calcPhi(size_t m, size_t n) const -> double
+{
+    return 2 * PI * n / nCols(m);
 }
