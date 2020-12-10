@@ -10,7 +10,6 @@
 
 
 
-
 struct DijkstraQueueComparer
 {
     auto operator()(const std::pair<NodeId, Distance>& lhs,
@@ -38,23 +37,23 @@ public:
     auto operator=(const Dijkstra&) -> Dijkstra& = delete;
     auto operator=(Dijkstra&&) -> Dijkstra& = delete;
 
-    [[nodiscard]] auto findRoute(NodeId source, NodeId target) noexcept
+    auto findRoute(NodeId source, NodeId target) noexcept
         -> std::optional<Path>;
 
-    [[nodiscard]] auto findDistance(NodeId source, NodeId target) noexcept
+    auto findDistance(NodeId source, NodeId target) noexcept
         -> Distance;
 
 private:
-    [[nodiscard]] auto getDistanceTo(NodeId n) const noexcept
+    auto getDistanceTo(NodeId n) const noexcept
         -> Distance;
 
     auto setDistanceTo(NodeId n, Distance distance) noexcept
         -> void;
 
-    [[nodiscard]] auto computeDistance(NodeId source, NodeId target) noexcept
+    auto computeDistance(NodeId source, NodeId target) noexcept
         -> Distance;
 
-    [[nodiscard]] auto extractShortestPath(NodeId source, NodeId target) const noexcept
+    auto extractShortestPath(NodeId source, NodeId target) const noexcept
         -> std::optional<Path>;
 
     auto unSettle(NodeId n)
@@ -63,7 +62,7 @@ private:
     auto settle(NodeId n) noexcept
         -> void;
 
-    [[nodiscard]] auto isSettled(NodeId n)
+    auto isSettled(NodeId n)
         -> bool;
 
     auto reset() noexcept

@@ -21,7 +21,7 @@ public:
     auto getLngs() noexcept
         -> std::vector<Longitude<Degree>>&;
 
-    auto sphericalToGrid(Latitude<Radian> theta, Longitude<Radian> phi) const
+    auto sphericalToGrid(Latitude<Radian> theta, Longitude<Radian> phi) const noexcept
         -> std::pair<std::size_t, std::size_t>;
 
     auto getRowNeighbours(size_t m, size_t n) const noexcept
@@ -33,13 +33,18 @@ public:
     auto getNeighbours(size_t m, size_t n) const noexcept
         -> std::vector<size_t>;
 
-    auto getNeighbours(std::size_t id) const
+    auto getNeighbours(std::size_t id) const noexcept
         -> std::vector<size_t>;
 
-    auto gridToID(size_t m, size_t n) const
+    auto gridToID(size_t m, size_t n) const noexcept
         -> size_t;
 
-    auto idToGrid(size_t id) const -> std::pair<size_t, size_t>;
+    //only valid if from and to are neigbours
+    auto distanceBetween(NodeId from, NodeId to) const noexcept
+        -> Distance;
+
+    auto idToGrid(size_t id) const noexcept
+	  -> std::pair<size_t, size_t>;
 
     auto indexIsWater(std::size_t idx) const noexcept
         -> bool;
