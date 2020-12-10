@@ -172,7 +172,7 @@ auto SphericalGrid::distanceBetween(NodeId from, NodeId to) const noexcept
     return ::distanceBetween(from_lat, from_lng, to_lat, to_lng);
 }
 
-auto SphericalGrid::snap_to_node(Latitude<Degree> lat, Longitude<Degree> lng) const
+auto SphericalGrid::snapToNode(Latitude<Degree> lat, Longitude<Degree> lng) const
     -> size_t
 {
     const auto [m, n] = sphericalToGrid(lat.toRadian(), lng.toRadian());

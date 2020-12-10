@@ -23,18 +23,23 @@ public:
 
     auto sphericalToGrid(Latitude<Radian> theta, Longitude<Radian> phi) const noexcept
         -> std::pair<std::size_t, std::size_t>;
+
     auto gridToSpherical(size_t m, size_t n) const
         -> std::pair<Latitude<Degree>, Longitude<Degree>>;
 
     auto getRowNeighbours(size_t m, size_t n) const noexcept
         -> std::vector<std::pair<std::size_t, std::size_t>>;
+
     auto getUpperNeighbours(size_t m, size_t n) const noexcept
         -> std::vector<std::pair<std::size_t, std::size_t>>;
+
     auto getLowerNeighbours(size_t m, size_t n) const noexcept
         -> std::vector<std::pair<std::size_t, std::size_t>>;
+
     auto getNeighbours(size_t m, size_t n) const noexcept
         -> std::vector<size_t>;
-    auto snap_to_node(Latitude<Degree> lat, Longitude<Degree> lng) const
+
+    auto snapToNode(Latitude<Degree> lat, Longitude<Degree> lng) const
         -> size_t;
 
     auto getNeighbours(std::size_t id) const noexcept
