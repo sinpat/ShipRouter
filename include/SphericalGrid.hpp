@@ -23,6 +23,8 @@ public:
 
     auto sphericalToGrid(Latitude<Radian> theta, Longitude<Radian> phi) const noexcept
         -> std::pair<std::size_t, std::size_t>;
+    auto gridToSpherical(size_t m, size_t n) const
+        -> std::pair<Latitude<Degree>, Longitude<Degree>>;
 
     auto getRowNeighbours(size_t m, size_t n) const noexcept
         -> std::vector<std::pair<std::size_t, std::size_t>>;
@@ -32,6 +34,8 @@ public:
         -> std::vector<std::pair<std::size_t, std::size_t>>;
     auto getNeighbours(size_t m, size_t n) const noexcept
         -> std::vector<size_t>;
+    auto snap_to_node(Latitude<Degree> lat, Longitude<Degree> lng) const
+        -> size_t;
 
     auto getNeighbours(std::size_t id) const noexcept
         -> std::vector<size_t>;
@@ -67,6 +71,8 @@ private:
     std::vector<Longitude<Degree>> lngs_;
     std::vector<bool> is_water_;
 
-    auto nCols(size_t row_idx) const
-        -> std::size_t;
+    auto nCols(size_t m) const -> std::size_t;
+    auto nCols(double theta) const -> std::size_t;
+    auto calcTheta(size_t m) const -> double;
+    auto calcPhi(size_t m, size_t n) const -> double;
 };
