@@ -2,6 +2,7 @@
 #include <PBFExtractor.hpp>
 #include <SphericalGrid.hpp>
 #include <Vector3D.hpp>
+#include <ServiceManager.hpp>
 #include <execution>
 #include <fmt/core.h>
 #include <fmt/ranges.h>
@@ -48,30 +49,18 @@ auto main() -> int
                                                             Longitude<Degree>{-57.81005859375}); // is in water
                              }));
 
-    SphericalGrid grid{1000};
+    SphericalGrid grid{10000};
     grid.filter(polygons);
 
     const auto& lats = grid.getLats();
     const auto& lngs = grid.getLngs();
 
-    // const auto neighbours = grid.getNeighbours(47, 4);
-
-    // for(auto n_id : neighbours) {
-    //     fmt::print("[{},{}],\n", lats[n_id], lngs[n_id]);
-    // }
-
-    for(size_t i = 0; i < lats.size(); i++) {
-        // const auto n_id = neighbours[i];
-        // fmt::print("[{},{}],\n", lats[n_id], lngs[n_id]);
-
-        if(grid.indexIsWater(i)) {
-            fmt::print("[{},{}],\n", lats[i].getValue(), lngs[i].getValue());
-        }
-    }
-
     Dijkstra dijk{grid};
 
-    auto [path, distance] = dijk.findRoute(100, 150).value();
+    auto [path, distance] = dijk.findRoute(1000, 1500).value();
 
     fmt::print("Route: {}\n", fmt::join(path, ","));
+    for(auto id : path) {
+        fmt::print("[{},{}],\n", lngs[id].getValue(), lats[id].getValue());
+    }
 }

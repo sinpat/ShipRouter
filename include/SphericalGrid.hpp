@@ -48,6 +48,9 @@ public:
     auto gridToID(size_t m, size_t n) const noexcept
         -> size_t;
 
+    auto idToLatLng(NodeId n) const noexcept
+        -> std::pair<Latitude<Degree>, Longitude<Degree>>;
+
     //only valid if from and to are neigbours
     auto distanceBetween(NodeId from, NodeId to) const noexcept
         -> Distance;

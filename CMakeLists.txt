@@ -55,6 +55,7 @@ target_sources(ShipRouterSrc
   ${CMAKE_CURRENT_LIST_DIR}/include/LatLng.hpp
   ${CMAKE_CURRENT_LIST_DIR}/include/Range.hpp
   ${CMAKE_CURRENT_LIST_DIR}/include/SphericalGrid.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/ServiceManager.hpp
 
   PRIVATE
   src/Graph.cpp
@@ -66,6 +67,7 @@ target_sources(ShipRouterSrc
   src/Polygon.cpp
   src/SphericalGrid.cpp
   src/Dijkstra.cpp
+  src/ServiceManager.cpp
   )
 
 # add the dependencies of the target to enforce
@@ -85,6 +87,8 @@ target_include_directories(ShipRouterSrc PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/vendor/libosmpbfreader/include
   fmt
   tbb
+  ${JSON_INCLUDE_DIR}
+  pistache
   ${CLI11_INCLUDE_DIR}
   ${PROGRESS_CPP_INCLUDE_DIR}
   ${SPAN_LITE_INCLUDE_DIR}
@@ -93,6 +97,7 @@ target_include_directories(ShipRouterSrc PUBLIC
 #link against libarys
 target_link_libraries(ShipRouterSrc LINK_PUBLIC
   fmt
+  pistache
   tbb)
 
 target_link_libraries(ShipRouterSrc PRIVATE
@@ -120,6 +125,8 @@ target_include_directories(ShipRouter PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/vendor/libosmpbfreader/include
   fmt
   tbb
+  pistache
+  ${JSON_INCLUDE_DIR}
   ZLIB::ZLIB
   ${CLI11_INCLUDE_DIR}
   ${PROGRESS_CPP_INCLUDE_DIR}
