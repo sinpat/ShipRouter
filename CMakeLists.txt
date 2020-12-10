@@ -23,6 +23,7 @@ include(cmake/CLI11.cmake)
 include(cmake/gtest.cmake)
 include(cmake/progress.cmake)
 include(cmake/pistache.cmake)
+include(cmake/json.cmake)
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
@@ -75,6 +76,7 @@ add_dependencies(ShipRouterSrc span-lite-project)
 add_dependencies(ShipRouterSrc CLI11-project)
 add_dependencies(ShipRouterSrc progress-cpp-project)
 add_dependencies(ShipRouterSrc pistache-project)
+add_dependencies(ShipRouterSrc json-project)
 
 # make headers available
 target_include_directories(ShipRouterSrc PUBLIC
