@@ -179,20 +179,23 @@ auto SphericalGrid::snap_to_node(Latitude<Degree> lat, Longitude<Degree> lng) co
     const auto [m, n] = sphericalToGrid(lat.toRadian(), lng.toRadian());
     const auto source_id = gridToID(m, n);
 
-    const std::priority_queue candidates(
+    std::priority_queue candidates(
         [&](const size_t id1, const size_t id2) {
             return distanceBetween(source_id, id1) > distanceBetween(source_id, id2);
         },
-        std::vector{std::pair{m, n}});
+        std::vector{source_id});
+
     while(true) {
         const auto best_before_insert = candidates.top();
-        // TODO: get neighbours and add neighbours
+        for(auto neig : getNeighbours(best_before_insert)) {
+            candidates.emplace(neig);
+        }
         const auto best_after_insert = candidates.top();
         if(best_before_insert == best_after_insert) {
             break;
         }
     }
-    const auto best = candidates.top();
+    return candidates.top();
 }
 
 auto SphericalGrid::getLats() const noexcept
