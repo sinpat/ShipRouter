@@ -52,14 +52,9 @@ auto main() -> int
     const auto& lats = grid.getLats();
     const auto& lngs = grid.getLngs();
 
-    const auto neighbours = grid.get_neighbours(47, 4);
+    const auto neighbours = grid.getNeighbours(47, 4);
 
-    for(size_t i = 0; i < neighbours.size(); i++) {
-        const auto n_id = neighbours[i];
+    for(auto n_id : neighbours) {
         fmt::print("[{},{}],\n", lats[n_id], lngs[n_id]);
-
-        // if(grid.indexIsWater(i)) {
-        //     fmt::print("[{},{}],\n", lats[i].getValue(), lngs[i].getValue());
-        // }
     }
 }

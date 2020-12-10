@@ -49,6 +49,9 @@ target_sources(ShipRouterSrc
   ${CMAKE_CURRENT_LIST_DIR}/include/Coastline.hpp
   ${CMAKE_CURRENT_LIST_DIR}/include/CoastlineLookup.hpp
   ${CMAKE_CURRENT_LIST_DIR}/include/Polygon.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/Dijkstra.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/LatLng.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/Range.hpp
   ${CMAKE_CURRENT_LIST_DIR}/include/SphericalGrid.hpp
 
   PRIVATE
@@ -60,6 +63,7 @@ target_sources(ShipRouterSrc
   src/CoastlineLookup.cpp
   src/Polygon.cpp
   src/SphericalGrid.cpp
+  src/Dijkstra.cpp
   )
 
 # add the dependencies of the target to enforce

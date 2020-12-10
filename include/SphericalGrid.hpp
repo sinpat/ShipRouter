@@ -24,18 +24,22 @@ public:
     auto sphericalToGrid(Latitude<Radian> theta, Longitude<Radian> phi) const
         -> std::pair<std::size_t, std::size_t>;
 
-    auto get_row_neighbours(size_t m, size_t n)
+    auto getRowNeighbours(size_t m, size_t n) const noexcept
         -> std::vector<std::pair<std::size_t, std::size_t>>;
-    auto get_upper_neighbours(size_t m, size_t n)
+    auto getUpperNeighbours(size_t m, size_t n) const noexcept
         -> std::vector<std::pair<std::size_t, std::size_t>>;
-    auto get_lower_neighbours(size_t m, size_t n)
+    auto getLowerNeighbours(size_t m, size_t n) const noexcept
         -> std::vector<std::pair<std::size_t, std::size_t>>;
-    auto get_neighbours(size_t m, size_t n)
+    auto getNeighbours(size_t m, size_t n) const noexcept
         -> std::vector<size_t>;
 
-    auto gridToID(size_t m, size_t n) -> size_t;
+    auto getNeighbours(std::size_t id) const
+        -> std::vector<size_t>;
 
-    auto IDToGrid(size_t ID) -> std::pair<size_t, size_t>;
+    auto gridToID(size_t m, size_t n) const
+        -> size_t;
+
+    auto idToGrid(size_t id) const -> std::pair<size_t, size_t>;
 
     auto indexIsWater(std::size_t idx) const noexcept
         -> bool;
@@ -46,6 +50,9 @@ public:
     auto filter(const std::vector<Polygon>& polygons) noexcept
         -> void;
 
+    auto size() const noexcept
+        -> std::size_t;
+
 private:
     double a_;
     size_t n_rows_;
@@ -55,5 +62,6 @@ private:
     std::vector<Longitude<Degree>> lngs_;
     std::vector<bool> is_water_;
 
-    size_t nCols(size_t rowIdx);
+    auto nCols(size_t row_idx) const
+        -> std::size_t;
 };

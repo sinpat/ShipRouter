@@ -39,25 +39,32 @@ auto SphericalGrid::sphericalToGrid(Latitude<Radian> theta, Longitude<Radian> ph
     return std::pair{m, n};
 }
 
-auto SphericalGrid::gridToID(size_t m, size_t n) -> size_t
+
+auto SphericalGrid::size() const noexcept
+    -> std::size_t
+{
+    return lats_.size();
+}
+
+auto SphericalGrid::gridToID(size_t m, size_t n) const -> size_t
 {
     return first_index_of_[m] + n;
 }
 
-auto SphericalGrid::IDToGrid(size_t ID) -> std::pair<size_t, size_t>
+auto SphericalGrid::idToGrid(size_t id) const -> std::pair<size_t, size_t>
 {
     auto m_iter = std::upper_bound(
                       first_index_of_.begin(),
                       first_index_of_.end(),
-                      ID)
+                      id)
         - 1;
     auto m = std::distance(first_index_of_.begin(), m_iter);
-    auto n = ID - *m_iter;
+    auto n = id - *m_iter;
     return std::pair{m, n};
 }
 
 
-auto SphericalGrid::get_row_neighbours(size_t m, size_t n)
+auto SphericalGrid::getRowNeighbours(size_t m, size_t n) const noexcept
     -> std::vector<std::pair<std::size_t, std::size_t>>
 {
     const auto n_cols_in_this = nCols(m);
@@ -65,7 +72,8 @@ auto SphericalGrid::get_row_neighbours(size_t m, size_t n)
         std::pair<std::size_t, std::size_t>{m, (n + n_cols_in_this - 1) % n_cols_in_this},
         std::pair<std::size_t, std::size_t>{m, (n + 1) % n_cols_in_this}};
 }
-auto SphericalGrid::get_lower_neighbours(size_t m, size_t n)
+
+auto SphericalGrid::getLowerNeighbours(size_t m, size_t n) const noexcept
     -> std::vector<std::pair<std::size_t, std::size_t>>
 {
     std::vector<std::pair<size_t, size_t>> neighbours;
@@ -84,7 +92,8 @@ auto SphericalGrid::get_lower_neighbours(size_t m, size_t n)
     }
     return neighbours;
 }
-auto SphericalGrid::get_upper_neighbours(size_t m, size_t n)
+
+auto SphericalGrid::getUpperNeighbours(size_t m, size_t n) const noexcept
     -> std::vector<std::pair<std::size_t, std::size_t>>
 {
     std::vector<std::pair<size_t, size_t>> neighbours;
@@ -103,12 +112,13 @@ auto SphericalGrid::get_upper_neighbours(size_t m, size_t n)
     }
     return neighbours;
 }
-auto SphericalGrid::get_neighbours(size_t m, size_t n) -> std::vector<size_t>
+auto SphericalGrid::getNeighbours(size_t m, size_t n) const noexcept
+    -> std::vector<size_t>
 {
     auto grid_neighbours = concat(
-        get_row_neighbours(m, n),
-        get_upper_neighbours(m, n),
-        get_lower_neighbours(m, n));
+        getRowNeighbours(m, n),
+        getUpperNeighbours(m, n),
+        getLowerNeighbours(m, n));
 
     std::vector<size_t> id_neighbours;
 
@@ -188,8 +198,9 @@ auto SphericalGrid::filter(const std::vector<Polygon>& polygons) noexcept
                    });
 }
 
-size_t SphericalGrid::nCols(size_t rowIdx)
+auto SphericalGrid::nCols(size_t row_idx) const
+    -> std::size_t
 {
-    auto theta = PI * (rowIdx + 0.5) / n_rows_;
+    auto theta = PI * (row_idx + 0.5) / n_rows_;
     return static_cast<size_t>(round(2 * PI * sin(theta) / d_phi_));
 }
