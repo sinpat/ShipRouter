@@ -221,6 +221,12 @@ auto SphericalGrid::getLngs() noexcept
     return lngs_;
 }
 
+auto SphericalGrid::isValidId(NodeId from) const noexcept
+    -> bool
+{
+    return from < lngs_.size();
+}
+
 auto SphericalGrid::indexIsWater(std::size_t idx) const noexcept
     -> bool
 {

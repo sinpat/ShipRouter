@@ -52,8 +52,11 @@ public:
     auto distanceBetween(NodeId from, NodeId to) const noexcept
         -> Distance;
 
+    auto isValidId(NodeId from) const noexcept
+        -> bool;
+
     auto idToGrid(size_t id) const noexcept
-	  -> std::pair<size_t, size_t>;
+        -> std::pair<size_t, size_t>;
 
     auto indexIsWater(std::size_t idx) const noexcept
         -> bool;
