@@ -73,7 +73,6 @@ auto SphericalGrid::idToGrid(size_t id) const noexcept
     return std::pair{m, n};
 }
 
-
 auto SphericalGrid::getRowNeighbours(size_t m, size_t n) const noexcept
     -> std::vector<std::pair<std::size_t, std::size_t>>
 {
@@ -121,6 +120,7 @@ auto SphericalGrid::getUpperNeighbours(size_t m, size_t n) const noexcept
     }
     return neighbours;
 }
+
 auto SphericalGrid::getNeighbours(size_t m, size_t n) const noexcept
     -> std::vector<size_t>
 {
@@ -159,7 +159,6 @@ auto SphericalGrid::getNeighbours(std::size_t id) const noexcept
     auto [m, n] = idToGrid(id);
     return getNeighbours(m, n);
 }
-
 
 auto SphericalGrid::distanceBetween(NodeId from, NodeId to) const noexcept
     -> Distance
@@ -203,6 +202,7 @@ auto SphericalGrid::getLats() const noexcept
 {
     return lats_;
 }
+
 auto SphericalGrid::getLngs() const noexcept
     -> const std::vector<Longitude<Degree>>&
 {
@@ -214,6 +214,7 @@ auto SphericalGrid::getLats() noexcept
 {
     return lats_;
 }
+
 auto SphericalGrid::getLngs() noexcept
     -> std::vector<Longitude<Degree>>&
 {
@@ -259,14 +260,17 @@ auto SphericalGrid::nCols(size_t m) const
     auto theta = calcTheta(m);
     return nCols(theta);
 }
+
 auto SphericalGrid::nCols(double theta) const -> std::size_t
 {
     return static_cast<size_t>(round(2 * PI * sin(theta) / d_phi_));
 }
+
 auto SphericalGrid::calcTheta(size_t m) const -> double
 {
     return PI * (m + 0.5) / n_rows_;
 }
+
 auto SphericalGrid::calcPhi(size_t m, size_t n) const -> double
 {
     return 2 * PI * n / nCols(m);
