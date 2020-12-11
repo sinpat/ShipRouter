@@ -38,6 +38,13 @@ auto SphericalGrid::sphericalToGrid(Latitude<Radian> theta, Longitude<Radian> ph
     return std::pair{m, n};
 }
 
+
+auto SphericalGrid::idToLatLng(NodeId n) const noexcept
+    -> std::pair<Latitude<Degree>, Longitude<Degree>>
+{
+    return std::pair{lats_[n], lngs_[n]};
+}
+
 auto SphericalGrid::gridToSpherical(size_t m, size_t n) const
     -> std::pair<Latitude<Degree>, Longitude<Degree>>
 {
