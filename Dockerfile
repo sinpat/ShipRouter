@@ -18,7 +18,7 @@ RUN apt install autoconf automake libtool curl make g++ unzip -y &&\
 	git submodule update --init --recursive &&\
 	./autogen.sh &&\
 	./configure &&\
-	make &&\
+	make -j4 &&\
 	make install &&\
 	ldconfig 
 
@@ -26,23 +26,11 @@ WORKDIR /app
 COPY . /app
 
 RUN cmake -DCMAKE_BUILD_TYPE=Release .
-RUN make -j3
+RUN make -j4
 
 
 FROM ubuntu:rolling
 LABEL description="Running container - ShipRouter"
-
-# RUN apt update && apt -y install \
-#     cmake gcc-8 g++-8 libssl-dev \
-#     make binutils build-essential git \
-#     zlib1g
-
-# RUN apt-get -y --purge remove libboost-all-dev libboost-doc libboost-dev
-# RUN apt-get -y install build-essential g++ python-dev autotools-dev libicu-dev libbz2-dev
-# RUN wget http://downloads.sourceforge.net/project/boost/boost/1.65.0/boost_1_65_0.tar.gz
-# RUN tar -zxvf boost_1_65_0.tar.gz
-# RUN cd boost_1_65_0
-# RUN ./b2 --with=all -j 6 install
 
 WORKDIR /ShipRouter
 
