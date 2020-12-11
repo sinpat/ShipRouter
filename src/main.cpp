@@ -1,4 +1,5 @@
 #include <Dijkstra.hpp>
+#include <Environment.hpp>
 #include <PBFExtractor.hpp>
 #include <ServiceManager.hpp>
 #include <SphericalGrid.hpp>
@@ -12,9 +13,7 @@
 static std::condition_variable condition;
 static std::mutex mutex;
 
-constexpr static inline auto PORT = 9999;
-
-static auto handleUserInterrupt(int signal)
+static auto handleUserInterrupt(int signal) noexcept
     -> void
 {
     if(signal == SIGINT) {
@@ -22,7 +21,7 @@ static auto handleUserInterrupt(int signal)
     }
 }
 
-static auto waitForUserInterrupt()
+static auto waitForUserInterrupt() noexcept
     -> void
 {
     std::unique_lock lock{mutex};
@@ -31,29 +30,45 @@ static auto waitForUserInterrupt()
     lock.unlock();
 }
 
+
 auto main() -> int
 {
     std::signal(SIGINT, handleUserInterrupt);
     std::signal(SIGPIPE, [](int /**/) {});
 
-    auto [nodes, coastlines] = parsePBFFile("../data/antarctica-latest.osm.pbf");
+    auto environment = [] {
+        auto environment_opt = loadEnv();
+        if(!environment_opt) {
+            fmt::print("the environment variables could not be understood\n");
+            fmt::print("using default values\n");
+
+            return Environment{9090,
+                               "../data/antarctica-latest.osm.pbf",
+                               1000};
+        }
+
+        return environment_opt.value();
+    }();
+
+
+    auto [nodes, coastlines] = parsePBFFile(environment.getDataFile());
     fmt::print("calculating polygons...\n");
 
     auto polygons = calculatePolygons(std::move(coastlines),
                                       std::move(nodes));
 
     fmt::print("building the grid...\n");
-    SphericalGrid grid{10};
+    SphericalGrid grid{environment.getNumberOfSphereNodes()};
 
     fmt::print("filtering land nodes...\n");
     grid.filter(polygons);
 
     ServiceManager manager{Pistache::Address{Pistache::IP::any(),
-                                             PORT},
+                                             environment.getPort()},
                            grid};
     try {
         fmt::print("started server, listening at: {}\n",
-                   PORT);
+                   environment.getPort());
         std::cout << std::flush;
 
         manager.serveThreaded();
