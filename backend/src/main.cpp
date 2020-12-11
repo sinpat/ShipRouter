@@ -33,8 +33,6 @@ static auto waitForUserInterrupt() noexcept
 
 auto main() -> int
 {
-    std::signal(SIGINT, handleUserInterrupt);
-    std::signal(SIGPIPE, [](int /**/) {});
 
     auto environment = [] {
         auto environment_opt = loadEnv();
@@ -64,6 +62,11 @@ auto main() -> int
     grid.filter(polygons);
 
     Graph graph{std::move(grid)};
+
+	
+	//handle sigint such that the user can stop the server
+    std::signal(SIGINT, handleUserInterrupt);
+    std::signal(SIGPIPE, [](int /**/) {});
 
     ServiceManager manager{Pistache::Address{Pistache::IP::any(),
                                              environment.getPort()},
