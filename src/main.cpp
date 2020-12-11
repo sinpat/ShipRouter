@@ -1,8 +1,8 @@
 #include <Dijkstra.hpp>
 #include <PBFExtractor.hpp>
+#include <ServiceManager.hpp>
 #include <SphericalGrid.hpp>
 #include <Vector3D.hpp>
-#include <ServiceManager.hpp>
 #include <execution>
 #include <fmt/core.h>
 #include <fmt/ranges.h>
@@ -49,7 +49,7 @@ auto main() -> int
                                                             Longitude<Degree>{-57.81005859375}); // is in water
                              }));
 
-    SphericalGrid grid{10000};
+    SphericalGrid grid{1000};
     grid.filter(polygons);
 
     const auto& lats = grid.getLats();
@@ -57,10 +57,11 @@ auto main() -> int
 
     Dijkstra dijk{grid};
 
-    auto [path, distance] = dijk.findRoute(1000, 1500).value();
+    auto [path, distance] = dijk.findRoute(100, 150).value();
 
     fmt::print("Route: {}\n", fmt::join(path, ","));
     for(auto id : path) {
         fmt::print("[{},{}],\n", lngs[id].getValue(), lats[id].getValue());
     }
+    ServiceManager{Pistache::Address{"localhost", Pistache::Port{8000}}, grid};
 }
