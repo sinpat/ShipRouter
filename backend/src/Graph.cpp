@@ -43,7 +43,17 @@ Graph::Graph(SphericalGrid&& grid)
     //insert dummy at the end
     neigbours_.emplace_back(std::numeric_limits<NodeId>::max());
 
-    first_index_of_ = std::move(grid.first_index_of_);
+    auto current = ms_[0];
+    auto counter = 0;
+
+    first_index_of_.emplace_back(0);
+    for(auto row : ms_) {
+        if(row != current) {
+            first_index_of_.emplace_back(counter);
+        }
+        counter++;
+    }
+    first_index_of_.emplace_back(counter);
 }
 
 auto Graph::idToLat(NodeId id) const noexcept
@@ -110,9 +120,9 @@ auto Graph::sphericalToGrid(Latitude<Radian> theta,
                             Longitude<Radian> phi) const noexcept
     -> std::pair<size_t, size_t>
 {
-    const auto m = static_cast<size_t>(round((theta + PI / 4) * n_rows_ / PI - 0.5));
-    const auto m_phi = static_cast<size_t>(round(2 * PI * sin(m) / d_phi_));
-    const auto n = static_cast<size_t>(round((phi + PI / 2) * m_phi / (2 * PI)));
+    const auto m = static_cast<size_t>(std::round((theta + PI / 4) * n_rows_ / PI - 0.5));
+    const auto m_phi = static_cast<size_t>(std::round(2 * PI * sin(m) / d_phi_));
+    const auto n = static_cast<size_t>(std::round((phi + PI / 2) * m_phi / (2 * PI)));
 
     return std::pair{m, n};
 }
@@ -140,10 +150,11 @@ auto Graph::snapToGridNode(Latitude<Degree> lat,
 
     while(true) {
         const auto best_before_insert = candidates.top();
-        for(const auto neig : getNeigboursOf(best_before_insert)) {
+        for(auto neig : getNeigboursOf(best_before_insert)) {
             candidates.emplace(neig);
         }
         const auto best_after_insert = candidates.top();
+
         if(best_before_insert == best_after_insert) {
             break;
         }
