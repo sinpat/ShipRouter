@@ -176,7 +176,10 @@ auto SphericalGrid::distanceBetween(NodeId from, NodeId to) const noexcept
     auto from_lng = lngs_[from];
     auto to_lng = lngs_[to];
 
-    return ::distanceBetween(from_lat, from_lng, to_lat, to_lng);
+    auto distance_double = ::distanceBetween(from_lat, from_lng, to_lat, to_lng);
+    auto distance_in_cm = std::round(distance_double * 100);
+
+    return static_cast<Distance>(distance_in_cm);
 }
 
 auto SphericalGrid::snapToNode(Latitude<Degree> lat, Longitude<Degree> lng) const

@@ -29,7 +29,7 @@ constexpr auto concat(Head0&& head0, Head1&& head1, Tail&&... tail) noexcept
 }
 
 
-using Distance = double;
+using Distance = std::uint64_t;
 using NodeId = std::uint64_t;
 using Path = std::vector<NodeId>;
 

@@ -30,8 +30,7 @@ auto OSMNode::getId() const noexcept
 auto OSMNode::operator==(const OSMNode& other) const noexcept
     -> bool
 {
-    return lon_.getValue() == other.lon_.getValue()
-        and lat_.getValue() == other.lat_.getValue();
+    return id_ == other.id_;
 }
 
 auto OSMNode::operator!=(const OSMNode& other) const noexcept

@@ -28,9 +28,6 @@ public:
         -> Vector3D
     {
         const auto l = length();
-        if(l == 0 or l == 1) {
-            return *this;
-        }
 
         const auto x = x_ / l;
         const auto y = y_ / l;
@@ -123,5 +120,5 @@ auto distanceBetween(Latitude<Tag> lat_start,
     }
     ();
 
-	return first_vec.distanceTo(second_vec);
+    return first_vec.distanceTo(second_vec);
 }
