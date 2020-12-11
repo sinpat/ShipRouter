@@ -11,15 +11,15 @@ RUN update-alternatives --install /usr/bin/gcc \
 	g++ /usr/bin/g++-9 --slave /usr/bin/gcov \
 	gcov /usr/bin/gcov-9
 
-RUN apt install autoconf automake libtool curl make g++ unzip -y \
-	git clone https://github.com/google/protobuf.git \
-	cd protobuf \
-	git checkout 3.12.x \
-	git submodule update --init --recursive \
-	./autogen.sh \
-	./configure \
-	make \
-	make install \
+RUN apt install autoconf automake libtool curl make g++ unzip -y &&\
+	git clone https://github.com/google/protobuf.git &&\
+	cd protobuf &&\
+	git checkout 3.12.x &&\
+	git submodule update --init --recursive &&\
+	./autogen.sh &&\
+	./configure &&\
+	make &&\
+	make install &&\
 	ldconfig 
 
 WORKDIR /app
