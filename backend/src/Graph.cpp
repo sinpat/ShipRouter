@@ -2,6 +2,8 @@
 #include <Range.hpp>
 #include <SphericalGrid.hpp>
 #include <Vector3D.hpp>
+#include <fmt/core.h>
+#include <fmt/ranges.h>
 #include <nonstd/span.hpp>
 #include <queue>
 
@@ -43,18 +45,7 @@ Graph::Graph(SphericalGrid&& grid)
     //insert dummy at the end
     neigbours_.emplace_back(std::numeric_limits<NodeId>::max());
 
-    auto current = ms_[0];
-    auto counter = 0;
-
-    first_index_of_.emplace_back(0);
-    for(auto row : ms_) {
-        if(row != current) {
-            first_index_of_.emplace_back(counter);
-            current = row;
-        }
-        counter++;
-    }
-    first_index_of_.emplace_back(counter);
+    first_index_of_ = std::move(grid.first_index_of_);
 }
 
 auto Graph::idToLat(NodeId id) const noexcept
@@ -139,8 +130,9 @@ auto Graph::snapToGridNode(Latitude<Degree> lat,
                            Longitude<Degree> lng) const noexcept
     -> NodeId
 {
-    const auto [m, n] = sphericalToGrid(lat.toRadian(), lng.toRadian());
-    const auto source_id = gridToId(m, n);
+    // const auto [m, n] = sphericalToGrid(lat.toRadian(), lng.toRadian());
+    // const auto source_id = gridToId(m, n);
+    const auto source_id = 0;
 
     std::priority_queue candidates(
         [&](auto id1, auto id2) {
