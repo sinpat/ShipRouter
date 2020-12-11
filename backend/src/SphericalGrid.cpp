@@ -32,9 +32,10 @@ SphericalGrid::SphericalGrid(std::size_t number_of_nodes) noexcept
 auto SphericalGrid::sphericalToGrid(Latitude<Radian> theta, Longitude<Radian> phi) const noexcept
     -> std::pair<size_t, size_t>
 {
-    const auto m_phi = nCols(theta);
-    const auto m = static_cast<size_t>(floor(theta * n_rows_ - PI - 0.5));
-    const auto n = static_cast<size_t>(floor(phi * m_phi) / (2 * PI));
+    const auto m = static_cast<size_t>(round((theta + PI / 4) * n_rows_ / PI - 0.5));
+    const auto m_phi = nCols(m);
+    const auto n = static_cast<size_t>(round((phi + PI / 2) * m_phi / (2 * PI)));
+
     return std::pair{m, n};
 }
 
@@ -190,7 +191,7 @@ auto SphericalGrid::snapToNode(Latitude<Degree> lat, Longitude<Degree> lng) cons
 
     std::priority_queue candidates(
         [&](const size_t id1, const size_t id2) {
-            return distanceBetween(source_id, id1) > distanceBetween(source_id, id2);
+            return ::distanceBetween(lat, lng, lats_[id1], lngs_[id1]) > ::distanceBetween(lat, lng, lats_[id2], lngs_[id2]);
         },
         std::vector{source_id});
 
