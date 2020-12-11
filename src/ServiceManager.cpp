@@ -72,6 +72,7 @@ auto ServiceManager::getRoute(NodeId source, NodeId target)
 
     result["lats"] = std::move(lats);
     result["lngs"] = std::move(lngs);
+    result["distance"] = distance;
 
     return result;
 }
