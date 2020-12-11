@@ -23,6 +23,7 @@ ServiceManager::ServiceManager(const Pistache::Address& address,
     init(opts);
 
     setUpGETRoutes();
+    setHandler(router_.handler());
 }
 
 
