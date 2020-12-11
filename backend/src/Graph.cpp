@@ -50,6 +50,7 @@ Graph::Graph(SphericalGrid&& grid)
     for(auto row : ms_) {
         if(row != current) {
             first_index_of_.emplace_back(counter);
+            current = row;
         }
         counter++;
     }
