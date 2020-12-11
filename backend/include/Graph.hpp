@@ -27,9 +27,6 @@ public:
     auto getNeigboursOf(NodeId node) const noexcept
         -> nonstd::span<const NodeId>;
 
-    auto getNeigboursOf(NodeId node) noexcept
-        -> nonstd::span<NodeId>;
-
     auto distanceBetween(NodeId from, NodeId to) const noexcept
         -> Distance;
 

@@ -93,17 +93,6 @@ auto Graph::getNeigboursOf(NodeId node) const noexcept
     return nonstd::span{start, end};
 }
 
-auto Graph::getNeigboursOf(NodeId node) noexcept
-    -> nonstd::span<NodeId>
-{
-    const auto start_offset = offset_[node];
-    const auto end_offset = offset_[node + 1];
-    auto* start = &neigbours_[start_offset];
-    auto* end = &neigbours_[end_offset];
-
-    return nonstd::span(start, end);
-}
-
 auto Graph::distanceBetween(NodeId from, NodeId to) const noexcept
     -> Distance
 {
