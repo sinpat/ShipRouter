@@ -58,5 +58,5 @@ private:
     const std::size_t n_rows_;
     const double d_phi_;
 
-    const std::vector<size_t> first_index_of_;
+    std::vector<size_t> first_index_of_;
 };

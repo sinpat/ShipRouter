@@ -44,7 +44,7 @@ auto main() -> int
 
             return Environment{9090,
                                "../data/antarctica-latest.osm.pbf",
-                               1000};
+                               10};
         }
 
         return environment_opt.value();

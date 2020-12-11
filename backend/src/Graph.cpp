@@ -9,8 +9,7 @@
 Graph::Graph(SphericalGrid&& grid)
     : offset_(grid.size() + 1, 0),
       n_rows_(grid.n_rows_),
-      d_phi_(grid.d_phi_),
-      first_index_of_(std::move(grid.first_index_of_))
+      d_phi_(grid.d_phi_)
 {
     for(auto id : utils::range(grid.size())) {
         if(grid.indexIsLand(id)) {
@@ -43,6 +42,8 @@ Graph::Graph(SphericalGrid&& grid)
 
     //insert dummy at the end
     neigbours_.emplace_back(std::numeric_limits<NodeId>::max());
+
+    first_index_of_ = std::move(grid.first_index_of_);
 }
 
 auto Graph::idToLat(NodeId id) const noexcept
@@ -142,7 +143,7 @@ auto Graph::snapToGridNode(Latitude<Degree> lat,
     const auto source_id = gridToId(m, n);
 
     std::priority_queue candidates(
-        [&](const size_t id1, const size_t id2) {
+        [&](auto id1, auto id2) {
             return ::distanceBetween(lat, lng, lats_[id1], lngs_[id1])
                 > ::distanceBetween(lat, lng, lats_[id2], lngs_[id2]);
         },
