@@ -1,30 +1,47 @@
 #pragma once
-#include <OSMNode.hpp>
 
-struct Edge
-{
-    size_t source;
-    size_t destination;
-};
+#include <Range.hpp>
+#include <SphericalGrid.hpp>
+#include <nonstd/span.hpp>
 
 class Graph
 {
 public:
-    Graph(const std::vector<OSMNode> nodes, const std::vector<Edge> edges)
-        : nodes_(nodes), edges_(edges)
-    {
-        std::vector<size_t> offset(nodes.size() + 1, 0);
-        for(const auto edge : edges) {
-            offset[edge.source + 1]++;
-        }
-        for(auto i = 1; i < nodes.size(); i++) {
-            offset[i] = offset[i + 1];
-        }
-        offset_ = offset;
-    }
+    Graph(SphericalGrid&& grid);
+
+    auto idToLat(NodeId id) const noexcept
+        -> Latitude<Degree>;
+
+    auto idToLng(NodeId id) const noexcept
+        -> Longitude<Degree>;
+
+    auto idToM(NodeId id) const noexcept
+        -> std::size_t;
+
+    auto idToN(NodeId id) const noexcept
+        -> std::size_t;
+
+    auto isValidId(NodeId id) const noexcept
+        -> bool;
+
+    auto getNeigboursOf(NodeId node) const noexcept
+        -> nonstd::span<const NodeId>;
+
+    auto getNeigboursOf(NodeId node) noexcept
+        -> nonstd::span<NodeId>;
+
+    auto getDistanceBetween(NodeId from, NodeId to) const noexcept
+        -> Distance;
+
+    auto size() const noexcept
+        -> std::size_t;
 
 private:
-    std::vector<OSMNode> nodes_;
-    std::vector<Edge> edges_;
+    std::vector<Latitude<Degree>> lats_;
+    std::vector<Longitude<Degree>> lngs_;
+    std::vector<std::size_t> ns_;
+    std::vector<std::size_t> ms_;
+
+    std::vector<NodeId> neigbours_;
     std::vector<size_t> offset_;
 };
