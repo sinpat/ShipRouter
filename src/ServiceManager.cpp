@@ -54,7 +54,8 @@ auto ServiceManager::getRoute(NodeId source, NodeId target)
 
     nlohmann::json result;
     if(!routing_result) {
-        result["route"] = nlohmann::json::array();
+        result["lats"] = nlohmann::json::array();
+        result["lngs"] = nlohmann::json::array();
         result["distance"] = UNREACHABLE;
 
         return result;
