@@ -1,14 +1,12 @@
 #pragma once
 
+#include <Graph.hpp>
 #include <SphericalGrid.hpp>
 #include <functional>
 #include <optional>
 #include <queue>
 #include <string_view>
 #include <vector>
-
-
-
 
 struct DijkstraQueueComparer
 {
@@ -26,11 +24,10 @@ using DijkstraQueue = std::priority_queue<std::pair<NodeId, Distance>,
 
 
 
-
 class Dijkstra
 {
 public:
-    Dijkstra(const SphericalGrid& graph) noexcept;
+    Dijkstra(const Graph& graph) noexcept;
     Dijkstra() = delete;
     Dijkstra(Dijkstra&&) = default;
     Dijkstra(const Dijkstra&) = default;
@@ -69,7 +66,7 @@ private:
         -> void;
 
 private:
-    const SphericalGrid& graph_;
+    const Graph& graph_;
     std::vector<Distance> distances_;
     std::vector<bool> settled_;
     std::vector<NodeId> touched_;

@@ -12,7 +12,7 @@ using Pistache::Http::ResponseWriter;
 
 
 ServiceManager::ServiceManager(const Pistache::Address& address,
-                               const SphericalGrid& grid)
+                               const Graph& grid)
     : Pistache::Http::Endpoint(address),
       grid_(grid),
       dijkstra_(grid_)
@@ -30,8 +30,9 @@ ServiceManager::ServiceManager(const Pistache::Address& address,
 auto ServiceManager::snapNode(Latitude<Degree> lat, Longitude<Degree> lng) const
     -> nlohmann::json
 {
-    auto snapped = grid_.snapToNode(lat, lng);
-    auto [new_lat, new_lng] = grid_.idToLatLng(snapped);
+    auto snapped = grid_.snapToGridNode(lat, lng);
+    auto new_lat = grid_.idToLat(snapped);
+    auto new_lng = grid_.idToLng(snapped);
 
     nlohmann::json result;
 
@@ -67,7 +68,8 @@ auto ServiceManager::getRoute(NodeId source, NodeId target)
     std::vector<double> lats;
     std::vector<double> lngs;
     for(auto i : path) {
-        auto [lat, lng] = grid_.idToLatLng(i);
+        auto lat = grid_.idToLat(i);
+        auto lng = grid_.idToLng(i);
         lats.emplace_back(lat);
         lngs.emplace_back(lng);
     }

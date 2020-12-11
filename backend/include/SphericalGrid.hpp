@@ -74,6 +74,7 @@ public:
         -> std::size_t;
 
 private:
+    friend class Graph;
     double a_;
     size_t n_rows_;
     double d_phi_;

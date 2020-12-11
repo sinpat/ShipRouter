@@ -63,9 +63,11 @@ auto main() -> int
     fmt::print("filtering land nodes...\n");
     grid.filter(polygons);
 
+    Graph graph{std::move(grid)};
+
     ServiceManager manager{Pistache::Address{Pistache::IP::any(),
                                              environment.getPort()},
-                           grid};
+                           graph};
     try {
         fmt::print("started server, listening at: {}\n",
                    environment.getPort());

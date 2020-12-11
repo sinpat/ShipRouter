@@ -30,11 +30,21 @@ public:
     auto getNeigboursOf(NodeId node) noexcept
         -> nonstd::span<NodeId>;
 
-    auto getDistanceBetween(NodeId from, NodeId to) const noexcept
+    auto distanceBetween(NodeId from, NodeId to) const noexcept
         -> Distance;
 
     auto size() const noexcept
         -> std::size_t;
+
+    auto snapToGridNode(Latitude<Degree> lat, Longitude<Degree> lng) const noexcept
+        -> NodeId;
+
+    auto sphericalToGrid(Latitude<Radian> theta, Longitude<Radian> phi) const noexcept
+        -> std::pair<size_t, size_t>;
+
+    auto gridToId(std::size_t m, std::size_t n) const noexcept
+        -> NodeId;
+
 
 private:
     std::vector<Latitude<Degree>> lats_;
@@ -44,4 +54,9 @@ private:
 
     std::vector<NodeId> neigbours_;
     std::vector<size_t> offset_;
+
+    const std::size_t n_rows_;
+    const double d_phi_;
+
+    const std::vector<size_t> first_index_of_;
 };

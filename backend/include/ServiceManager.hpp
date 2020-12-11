@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Dijkstra.hpp>
-#include <SphericalGrid.hpp>
+#include <Graph.hpp>
 #include <nlohmann/json.hpp>
 #include <pistache/endpoint.h>
 #include <pistache/http.h>
@@ -14,7 +14,7 @@ class ServiceManager : public Pistache::Http::Endpoint
 {
 public:
     ServiceManager(const Pistache::Address& address,
-                   const SphericalGrid& grid);
+                   const Graph& grid);
 
 private:
     auto snapNode(Latitude<Degree> lat, Longitude<Degree> lng) const
@@ -28,7 +28,7 @@ private:
 
 private:
     Pistache::Rest::Router router_;
-    const SphericalGrid& grid_;
+    const Graph& grid_;
 
     std::mutex dijkstra_mtx_;
     Dijkstra dijkstra_;

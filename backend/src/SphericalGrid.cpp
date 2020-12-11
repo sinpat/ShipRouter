@@ -191,7 +191,8 @@ auto SphericalGrid::snapToNode(Latitude<Degree> lat, Longitude<Degree> lng) cons
 
     std::priority_queue candidates(
         [&](const size_t id1, const size_t id2) {
-            return ::distanceBetween(lat, lng, lats_[id1], lngs_[id1]) > ::distanceBetween(lat, lng, lats_[id2], lngs_[id2]);
+            return ::distanceBetween(lat, lng, lats_[id1], lngs_[id1])
+                > ::distanceBetween(lat, lng, lats_[id2], lngs_[id2]);
         },
         std::vector{source_id});
 

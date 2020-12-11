@@ -1,4 +1,5 @@
 #include <Dijkstra.hpp>
+#include <Graph.hpp>
 #include <SphericalGrid.hpp>
 #include <functional>
 #include <numeric>
@@ -7,7 +8,7 @@
 #include <string_view>
 #include <vector>
 
-Dijkstra::Dijkstra(const SphericalGrid& graph) noexcept
+Dijkstra::Dijkstra(const Graph& graph) noexcept
     : graph_(graph),
       distances_(graph_.size(), UNREACHABLE),
       settled_(graph_.size(), false),
@@ -45,7 +46,7 @@ auto Dijkstra::findRoute(NodeId source, NodeId target) noexcept
         //when reusing the pq
         pq_.pop();
 
-        auto neigbours = graph_.getNeighbours(current_node);
+        auto neigbours = graph_.getNeigboursOf(current_node);
 
         for(auto&& neig : neigbours) {
             auto neig_dist = getDistanceTo(neig);
@@ -157,7 +158,7 @@ auto Dijkstra::computeDistance(NodeId source, NodeId target) noexcept
         //when reusing the pq
         pq_.pop();
 
-        auto neigbours = graph_.getNeighbours(current_node);
+        auto neigbours = graph_.getNeigboursOf(current_node);
 
         for(auto&& neig : neigbours) {
             auto neig_dist = getDistanceTo(neig);
