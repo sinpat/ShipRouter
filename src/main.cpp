@@ -37,18 +37,24 @@ auto main() -> int
     std::signal(SIGPIPE, [](int /**/) {});
 
     auto [nodes, coastlines] = parsePBFFile("../data/antarctica-latest.osm.pbf");
-    fmt::print("starting calculation of polygons...\n");
+    fmt::print("calculating polygons...\n");
+
     auto polygons = calculatePolygons(std::move(coastlines),
                                       std::move(nodes));
-    SphericalGrid grid{1000};
+
+    fmt::print("building the grid...\n");
+    SphericalGrid grid{10};
+
+    fmt::print("filtering land nodes...\n");
     grid.filter(polygons);
 
     ServiceManager manager{Pistache::Address{Pistache::IP::any(),
                                              PORT},
                            grid};
     try {
-        fmt::print("started server, listening at: {}",
+        fmt::print("started server, listening at: {}\n",
                    PORT);
+        std::cout << std::flush;
 
         manager.serveThreaded();
 
