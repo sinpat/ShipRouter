@@ -1,24 +1,22 @@
 import Axios from 'axios';
-import { Coordinate, Path } from './types';
+import { ICoordinate, IGridNode, Path } from './types';
 
-const endpoint = 'http://localhost:8000/';
+const endpoint = 'http://localhost:9090/';
+// const endpoint = 'http://backend:9090';
 
 class ApiService {
-  public async snapNode(latlng: Coordinate) {
-    return Axios.get<Coordinate>(endpoint + 'snap', {
+  public async snapNode(latlng: ICoordinate) {
+    return Axios.get<IGridNode>(endpoint + 'snap', {
       params: latlng,
     }).then(({ data }) => data);
   }
 
-  public async shortestPath(
-    start: Coordinate,
-    target: Coordinate
-  ): Promise<Path> {
-    return Axios.post<{
+  public async shortestPath(start: number, target: number): Promise<Path> {
+    return Axios.get<{
       lats: number[];
       lngs: number[];
       distance: number;
-    }>(endpoint + 'route', null, {
+    }>(endpoint + 'route', {
       params: {
         start,
         target,

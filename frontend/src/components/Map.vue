@@ -53,7 +53,7 @@ import {
   LTooltip,
 } from 'vue2-leaflet';
 
-import { Coordinate, Path } from '@/types';
+import { ICoordinate, IGridNode, Path } from '@/types';
 
 @Component({
   name: 'MapComponent',
@@ -85,20 +85,20 @@ export default class RoutingMap extends Vue {
         '&copy; <a href="http://www.thunderforest.com/">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     },
   ];
-  private zoom: number = 6;
-  private center: Coordinate = { lat: 48.74703, lng: 9.1046 };
+  private zoom: number = 2;
+  private center: ICoordinate = { lat: 48.74703, lng: 9.1046 };
 
   @InjectReactive('start')
-  private start!: Coordinate | null;
+  private start!: IGridNode | null;
   @InjectReactive('destination')
-  private destination!: Coordinate | null;
+  private destination!: IGridNode | null;
   @InjectReactive('path')
   private path!: Path | null;
 
   private updateZoom(zoomValue: number) {
     this.zoom = zoomValue;
   }
-  private updateCenter(centerValue: Coordinate) {
+  private updateCenter(centerValue: ICoordinate) {
     this.center = centerValue;
   }
   private handleLeftClick(e: LeafletMouseEvent) {

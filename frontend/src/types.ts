@@ -1,9 +1,13 @@
-export type Coordinate = {
+export interface ICoordinate {
   lat: number;
   lng: number;
-};
+}
+
+export interface IGridNode extends ICoordinate {
+  id: number;
+}
 
 export type Path = {
-  coordinates: Coordinate[];
+  coordinates: ICoordinate[];
   distance: number;
 };

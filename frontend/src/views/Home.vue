@@ -13,7 +13,7 @@ import Vue from 'vue';
 import { Component, Provide, ProvideReactive } from 'vue-property-decorator';
 
 import RoutingMap from '@/components/Map.vue';
-import { Coordinate, Path } from '@/types';
+import { ICoordinate, IGridNode, Path } from '@/types';
 import apiService from '@/api-service';
 
 @Component({
@@ -24,9 +24,9 @@ import apiService from '@/api-service';
 })
 export default class Routing extends Vue {
   @ProvideReactive('start')
-  private start: Coordinate | null = null;
+  private start: IGridNode | null = null;
   @ProvideReactive('destination')
-  private destination: Coordinate | null = null;
+  private destination: IGridNode | null = null;
   @ProvideReactive('path')
   private path: Path | null = null;
 
@@ -36,9 +36,8 @@ export default class Routing extends Vue {
     this.path = null;
   }
 
-  private async addPoint(c: Coordinate) {
-    // const { data: snappedC } = await apiService.fetchClosest(c);
-    const snappedC = c;
+  private async addPoint(c: ICoordinate) {
+    const snappedC = await apiService.snapNode(c);
     if (!this.start) {
       this.start = snappedC;
     } else if (!this.destination) {
@@ -51,13 +50,14 @@ export default class Routing extends Vue {
     if (!this.start || !this.destination) {
       return;
     }
-    // this.path = (
-    //   await apiService.shortestPath(this.start, this.destination)
-    // ).data;
-    this.path = {
-      coordinates: [this.start, this.destination],
-      distance: 0,
-    };
+    this.path = await apiService.shortestPath(
+      this.start.id,
+      this.destination.id
+    );
+    // this.path = {
+    //   coordinates: [this.start, this.destination],
+    //   distance: 0,
+    // };
   }
 }
 </script>
