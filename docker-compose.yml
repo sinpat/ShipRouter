@@ -1,8 +1,5 @@
 version: "3"
 
-networks:
-  ship-router-net:
-
 services:
   backend:
     build: ./backend
@@ -11,17 +8,15 @@ services:
       #in order to use your own data, mount your coastline file
       #here to data, instead of ./backend/data/antarctica-latest.osm.pbf
       - ./backend/data/antarctica-latest.osm.pbf:/data.pbf
-    networks:
-      - ship-router-net
     environment:
       - PORT=9090
       - DATAFILE=/data.pbf
       - NUMBER_OF_SPHERE_NODES=1000
+    ports:
+      - "9090:9090"
 
   frontend:
     build: ./frontend
     container_name: ship-router-frontend
-    ports: 
+    ports:
       - "8080:8080"
-    networks:
-      - ship-router-net
