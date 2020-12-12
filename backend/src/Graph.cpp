@@ -178,17 +178,17 @@ auto Graph::getUpperGridNeigboursOf(std::size_t m, std::size_t n) const noexcept
     -> std::vector<NodeId>
 {
     if(m == n_rows_ - 1) {
-        auto range = utils::range(first_index_of_[1]);
+        const auto range = utils::range(first_index_of_[1]);
         return std::vector(std::begin(range),
                            std::end(range));
     }
 
     const auto theta = PI * (m + 1.5) / n_rows_;
-    auto n_columns = static_cast<size_t>(round(2 * PI * sin(theta) / d_phi_));
+    const auto n_columns = static_cast<size_t>(round(2 * PI * sin(theta) / d_phi_));
 
 
-    auto first_n = (n + n_columns - 1) % n_columns;
-    auto second_n = (n + 1) % n_columns;
+    const auto first_n = (n + n_columns - 1) % n_columns;
+    const auto second_n = (n + 1) % n_columns;
 
     return std::vector{
         gridToId(m + 1, n),
@@ -220,7 +220,7 @@ auto Graph::getSnapNodeCandidate(Latitude<Degree> lat,
     auto workstack = getGridNeigboursOf(m, n);
 
     while(!workstack.empty()) {
-        auto candidate = workstack.back();
+        const auto candidate = workstack.back();
         workstack.pop_back();
         snap_selled_[candidate] = true;
         snap_touched_.emplace_back(candidate);

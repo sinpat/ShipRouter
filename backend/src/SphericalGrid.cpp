@@ -26,7 +26,7 @@ SphericalGrid::SphericalGrid(std::size_t number_of_nodes) noexcept
             counter++;
         }
     }
-    first_index_of_[n_rows_] = (counter); // add last dummy entry
+    first_index_of_[n_rows_] = counter; // add last dummy entry
 }
 
 auto SphericalGrid::sphericalToGrid(Latitude<Radian> theta, Longitude<Radian> phi) const noexcept
