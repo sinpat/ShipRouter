@@ -2,7 +2,6 @@ import Axios from 'axios';
 import { ICoordinate, IGridNode, Path } from './types';
 
 const endpoint = 'http://localhost:9090/';
-// const endpoint = 'http://backend:9090';
 
 class ApiService {
   public async snapNode(latlng: ICoordinate) {
