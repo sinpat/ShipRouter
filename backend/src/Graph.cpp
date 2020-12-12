@@ -2,8 +2,6 @@
 #include <Range.hpp>
 #include <SphericalGrid.hpp>
 #include <Vector3D.hpp>
-#include <fmt/core.h>
-#include <fmt/ranges.h>
 #include <nonstd/span.hpp>
 #include <queue>
 
@@ -171,17 +169,10 @@ auto Graph::getLowerGridNeigboursOf(std::size_t m, std::size_t n) const noexcept
     auto second_n = (n + 1) % n_columns;
 
 
-    auto ret_vec = std::vector{
+    return std::vector{
         gridToId(m - 1, n),
         gridToId(m - 1, first_n),
         gridToId(m - 1, second_n)};
-
-    fmt::print("m: {}\n", m);
-    fmt::print("n: {}\n", n);
-
-    fmt::print("candidates: {}\n", ret_vec);
-
-    return ret_vec;
 }
 
 auto Graph::getUpperGridNeigboursOf(std::size_t m, std::size_t n) const noexcept
@@ -200,12 +191,10 @@ auto Graph::getUpperGridNeigboursOf(std::size_t m, std::size_t n) const noexcept
     auto first_n = (n + n_columns - 1) % n_columns;
     auto second_n = (n + 1) % n_columns;
 
-    auto ret_vec = std::vector{
+    return std::vector{
         gridToId(m + 1, n),
         gridToId(m + 1, first_n),
         gridToId(m + 1, second_n)};
-
-    return ret_vec;
 }
 
 auto Graph::getGridNeigboursOf(std::size_t m, std::size_t n) const noexcept
