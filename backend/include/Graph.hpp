@@ -42,6 +42,25 @@ public:
     auto gridToId(std::size_t m, std::size_t n) const noexcept
         -> NodeId;
 
+    auto isLandNode(NodeId node) const noexcept
+        -> bool;
+
+private:
+    auto getSnapNodeCandidates(Latitude<Degree> lat,
+                               Longitude<Degree> lng) const noexcept
+        -> std::vector<NodeId>;
+
+    auto getUpperGridNeigboursOf(std::size_t m, std::size_t n) const noexcept
+        -> std::vector<NodeId>;
+
+    auto getLowerGridNeigboursOf(std::size_t m, std::size_t n) const noexcept
+        -> std::vector<NodeId>;
+
+    auto getRowGridNeigboursOf(std::size_t m, std::size_t n) const noexcept
+        -> std::array<NodeId, 2>;
+
+    auto getGridNeigboursOf(std::size_t m, std::size_t n) const noexcept
+        -> std::vector<NodeId>;
 
 private:
     std::vector<Latitude<Degree>> lats_;
@@ -56,4 +75,6 @@ private:
     const double d_phi_;
 
     std::vector<size_t> first_index_of_;
+    mutable std::vector<bool> snap_selled_;
+    mutable std::vector<NodeId> snap_touched_;
 };
