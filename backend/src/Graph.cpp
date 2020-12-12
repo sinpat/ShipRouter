@@ -205,9 +205,9 @@ auto Graph::getGridNeigboursOf(std::size_t m, std::size_t n) const noexcept
                   getRowGridNeigboursOf(m, n));
 }
 
-auto Graph::getSnapNodeCandidates(Latitude<Degree> lat,
-                                  Longitude<Degree> lng) const noexcept
-    -> std::vector<NodeId>
+auto Graph::getSnapNodeCandidate(Latitude<Degree> lat,
+                                 Longitude<Degree> lng) const noexcept
+    -> NodeId
 {
     const auto [m, n] = sphericalToGrid(lat.toRadian(), lng.toRadian());
 
@@ -246,15 +246,6 @@ auto Graph::getSnapNodeCandidates(Latitude<Degree> lat,
     }
     snap_touched_.clear();
 
-    return candidates;
-}
-
-auto Graph::snapToGridNode(Latitude<Degree> lat,
-                           Longitude<Degree> lng) const noexcept
-    -> NodeId
-{
-    auto candidates = getSnapNodeCandidates(lat, lng);
-
     return *std::min_element(std::cbegin(candidates),
                              std::cend(candidates),
                              [&](auto lhs, auto rhs) {
@@ -267,4 +258,34 @@ auto Graph::snapToGridNode(Latitude<Degree> lat,
                                  return ::distanceBetween(lat, lng, lhs_lat, lhs_lng)
                                      < ::distanceBetween(lat, lng, rhs_lat, rhs_lng);
                              });
+}
+
+auto Graph::snapToGridNode(Latitude<Degree> lat,
+                           Longitude<Degree> lng) const noexcept
+    -> NodeId
+{
+    auto candidate = getSnapNodeCandidate(lat, lng);
+
+    std::priority_queue candidates(
+        [&](auto id1, auto id2) {
+            return ::distanceBetween(lat, lng, lats_[id1], lngs_[id1])
+                > ::distanceBetween(lat, lng, lats_[id2], lngs_[id2]);
+        },
+        std::vector{candidate});
+
+    while(true) {
+        const auto best_before_insert = candidates.top();
+        for(auto neig : getNeigboursOf(best_before_insert)) {
+            candidates.emplace(neig);
+        }
+        const auto best_after_insert = candidates.top();
+
+        if(best_before_insert == best_after_insert) {
+            break;
+        }
+    }
+
+    fmt::print("initial: {} vs snapped: {}\n", candidate, candidates.top());
+
+    return candidates.top();
 }

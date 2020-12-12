@@ -46,9 +46,9 @@ public:
         -> bool;
 
 private:
-    auto getSnapNodeCandidates(Latitude<Degree> lat,
+    auto getSnapNodeCandidate(Latitude<Degree> lat,
                                Longitude<Degree> lng) const noexcept
-        -> std::vector<NodeId>;
+        -> NodeId;
 
     auto getUpperGridNeigboursOf(std::size_t m, std::size_t n) const noexcept
         -> std::vector<NodeId>;
