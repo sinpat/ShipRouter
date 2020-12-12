@@ -90,6 +90,7 @@ auto ServiceManager::setUpGETRoutes()
     using namespace Pistache;
     Get(router_, "/snap/",
         [=](const Request& request, ResponseWriter response) {
+            response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
             const auto& query = request.query();
             if(!query.has("lat") or !query.has("lng")) {
                 return Rest::Route::Result::Failure;
@@ -113,6 +114,7 @@ auto ServiceManager::setUpGETRoutes()
 
     Get(router_, "/route/",
         [=](const Request& request, ResponseWriter response) {
+            response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
             const auto& query = request.query();
             if(!query.has("source") or !query.has("target")) {
                 return Rest::Route::Result::Failure;
