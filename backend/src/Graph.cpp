@@ -114,13 +114,13 @@ auto Graph::sphericalToGrid(Latitude<Radian> theta,
 {
 
     // TODO: This needs to work perfecly
-    const auto raw_m = static_cast<std::int64_t>(round((theta + PI / 4) * n_rows_ / PI - 0.5));
+    const auto raw_m = static_cast<std::int64_t>(round((theta + PI / 2) * n_rows_ / PI - 0.5));
     const auto m = (raw_m + n_rows_) % n_rows_;
 
     const auto m_theta = PI * (m + 0.5) / n_rows_;
     const auto m_phi = static_cast<size_t>(round(2 * PI * sin(m_theta) / d_phi_));
 
-    const auto raw_n = static_cast<std::int64_t>(round((phi + PI / 2) * m_phi / (2 * PI)));
+    const auto raw_n = static_cast<std::int64_t>(round((phi + PI) * m_phi / (2 * PI)));
     const auto n = (raw_n + m_phi) % m_phi;
 
     return std::pair{m, n};
