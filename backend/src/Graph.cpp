@@ -13,22 +13,21 @@ Graph::Graph(SphericalGrid&& grid)
       snap_selled_(grid.size(), false)
 {
     for(auto id : utils::range(grid.size())) {
-        if(grid.indexIsLand(id)) {
-            continue;
+        if(!grid.indexIsLand(id)) {
+            auto neigs = grid.getNeighbours(id);
+
+            std::sort(std::begin(neigs),
+                      std::end(neigs));
+            auto remove_iter =
+                std::unique(std::begin(neigs),
+                            std::end(neigs));
+
+            neigs.erase(remove_iter, std::end(neigs));
+
+            neigbours_ = concat(std::move(neigbours_),
+                                std::move(neigs));
         }
 
-        auto neigs = grid.getNeighbours(id);
-
-        std::sort(std::begin(neigs),
-                  std::end(neigs));
-        auto remove_iter =
-            std::unique(std::begin(neigs),
-                        std::end(neigs));
-
-        neigs.erase(remove_iter, std::end(neigs));
-
-        neigbours_ = concat(std::move(neigbours_),
-                            std::move(neigs));
 
         offset_[id + 1] = neigbours_.size();
 
