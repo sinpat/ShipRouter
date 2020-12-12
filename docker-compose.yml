@@ -14,7 +14,7 @@ services:
     networks:
       - ship-router-net
     environment:
-      - PORT=9999
+      - PORT=9090
       - DATAFILE=/data.pbf
       - NUMBER_OF_SPHERE_NODES=1000
 
