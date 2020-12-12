@@ -85,7 +85,7 @@ export default class RoutingMap extends Vue {
         '&copy; <a href="http://www.thunderforest.com/">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     },
   ];
-  private zoom: number = 2;
+  private zoom: number = 1;
   private center: ICoordinate = { lat: 48.74703, lng: 9.1046 };
 
   @InjectReactive('start')

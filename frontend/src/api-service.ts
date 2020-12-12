@@ -11,14 +11,14 @@ class ApiService {
     }).then(({ data }) => data);
   }
 
-  public async shortestPath(start: number, target: number): Promise<Path> {
+  public async shortestPath(source: number, target: number): Promise<Path> {
     return Axios.get<{
       lats: number[];
       lngs: number[];
       distance: number;
     }>(endpoint + 'route', {
       params: {
-        start,
+        source,
         target,
       },
     }).then(({ data }) => {
