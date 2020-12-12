@@ -84,7 +84,7 @@ public:
     }
 
 
-    auto toString() const
+    auto toString() const noexcept
         -> std::string
     {
         return fmt::format("x:{}, y:{}, z:{}", x_, y_, z_);
@@ -104,7 +104,7 @@ auto distanceBetween(Latitude<Tag> lat_start,
                      Longitude<Tag> lng_dest) noexcept
     -> std::enable_if_t<is_tag<Tag>, double>
 {
-    auto [first_vec, second_vec] = [&]() constexpr
+    const auto [first_vec, second_vec] = [&]() constexpr
     {
         if constexpr(std::is_same_v<Tag, Degree>) {
             return std::pair{Vector3D{lat_start.toRadian(),

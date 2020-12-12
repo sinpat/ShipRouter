@@ -164,21 +164,21 @@ auto SphericalGrid::getNeighbours(std::size_t id) const noexcept
     -> std::vector<size_t>
 {
 
-    auto [m, n] = idToGrid(id);
+    const auto [m, n] = idToGrid(id);
     return getNeighbours(m, n);
 }
 
 auto SphericalGrid::distanceBetween(NodeId from, NodeId to) const noexcept
     -> Distance
 {
-    auto from_lat = lats_[from];
-    auto to_lat = lats_[to];
+    const auto from_lat = lats_[from];
+    const auto to_lat = lats_[to];
 
-    auto from_lng = lngs_[from];
-    auto to_lng = lngs_[to];
+    const auto from_lng = lngs_[from];
+    const auto to_lng = lngs_[to];
 
-    auto distance_double = ::distanceBetween(from_lat, from_lng, to_lat, to_lng);
-    auto distance_in_cm = std::round(distance_double * 100);
+    const auto distance_double = ::distanceBetween(from_lat, from_lng, to_lat, to_lng);
+    const auto distance_in_cm = std::round(distance_double * 100);
 
     return static_cast<Distance>(distance_in_cm);
 }
@@ -190,7 +190,7 @@ auto SphericalGrid::snapToNode(Latitude<Degree> lat, Longitude<Degree> lng) cons
     const auto source_id = gridToID(m, n);
 
     std::priority_queue candidates(
-        [&](const size_t id1, const size_t id2) {
+        [&](auto id1, auto id2) {
             return ::distanceBetween(lat, lng, lats_[id1], lngs_[id1])
                 > ::distanceBetween(lat, lng, lats_[id2], lngs_[id2]);
         },
@@ -254,7 +254,7 @@ auto SphericalGrid::indexIsLand(std::size_t idx) const noexcept
 auto SphericalGrid::filter(const std::vector<Polygon>& polygons) noexcept
     -> void
 {
-    auto range = utils::range(lats_.size());
+    const auto range = utils::range(lats_.size());
     is_water_.resize(range.size());
 
     std::transform(std::execution::par,
@@ -275,7 +275,7 @@ auto SphericalGrid::filter(const std::vector<Polygon>& polygons) noexcept
 auto SphericalGrid::nCols(size_t m) const
     -> std::size_t
 {
-    auto theta = calcTheta(m);
+    const auto theta = calcTheta(m);
     return nCols(theta);
 }
 
