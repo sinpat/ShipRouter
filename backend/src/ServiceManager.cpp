@@ -93,6 +93,8 @@ auto ServiceManager::setUpGETRoutes()
             response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
             const auto& query = request.query();
             if(!query.has("lat") or !query.has("lng")) {
+
+                response.send(Http::Code::Bad_Request);
                 return Rest::Route::Result::Failure;
             }
 
@@ -108,6 +110,8 @@ auto ServiceManager::setUpGETRoutes()
 
                 return Rest::Route::Result::Ok;
             } catch(...) {
+
+                response.send(Http::Code::Bad_Request);
                 return Rest::Route::Result::Failure;
             }
         });
@@ -117,6 +121,7 @@ auto ServiceManager::setUpGETRoutes()
             response.headers().add<Http::Header::AccessControlAllowOrigin>("*");
             const auto& query = request.query();
             if(!query.has("source") or !query.has("target")) {
+                response.send(Http::Code::Bad_Request);
                 return Rest::Route::Result::Failure;
             }
 
@@ -138,6 +143,7 @@ auto ServiceManager::setUpGETRoutes()
 
                 return Rest::Route::Result::Ok;
             } catch(...) {
+                response.send(Http::Code::Bad_Request);
                 return Rest::Route::Result::Failure;
             }
         });
