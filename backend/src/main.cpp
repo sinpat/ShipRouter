@@ -26,7 +26,7 @@ static auto waitForUserInterrupt() noexcept
 {
     std::unique_lock lock{mutex};
     condition.wait(lock);
-    fmt::print("user has signaled to interrupt the program...");
+    std::cout << "user has signaled to interrupt the program..." << std::endl;
     lock.unlock();
 }
 
@@ -37,8 +37,8 @@ auto main() -> int
     auto environment = [] {
         auto environment_opt = loadEnv();
         if(!environment_opt) {
-            fmt::print("the environment variables could not be understood\n");
-            fmt::print("using default values\n");
+            std::cout << "the environment variables could not be understood" << std::endl;
+            std::cout << "using default values" << std::endl;
 
             return Environment{9090,
                                "../data/antarctica-latest.osm.pbf",
@@ -49,22 +49,23 @@ auto main() -> int
     }();
 
 
+    std::cout << "Parsing pbf file..." << std::endl;
     auto [nodes, coastlines] = parsePBFFile(environment.getDataFile());
-    fmt::print("calculating polygons...\n");
+    std::cout << "calculating polygons..." << std::endl;
 
     auto polygons = calculatePolygons(std::move(coastlines),
                                       std::move(nodes));
 
-    fmt::print("building the grid...\n");
+    std::cout << "building the grid..." << std::endl;
     SphericalGrid grid{environment.getNumberOfSphereNodes()};
 
-    fmt::print("filtering land nodes...\n");
+    std::cout << "filtering land nodes..." << std::endl;
     grid.filter(polygons);
 
     Graph graph{std::move(grid)};
 
-	
-	//handle sigint such that the user can stop the server
+
+    //handle sigint such that the user can stop the server
     std::signal(SIGINT, handleUserInterrupt);
     std::signal(SIGPIPE, [](int /**/) {});
 
@@ -72,9 +73,9 @@ auto main() -> int
                                              environment.getPort()},
                            graph};
     try {
-        fmt::print("started server, listening at: {}\n",
+        fmt::print("started server, listening at: {}",
                    environment.getPort());
-        std::cout << std::flush;
+        std::cout << std::endl;
 
         manager.serveThreaded();
 
@@ -82,9 +83,9 @@ auto main() -> int
 
         manager.shutdown();
 
-        fmt::print("shutting down server");
+        std::cout << "shutting down server" << std::endl;
 
     } catch(const std::exception& e) {
-        fmt::print("catched exception: {}", e.what());
+        fmt::print("caught exception: {}\n", e.what());
     }
 }
