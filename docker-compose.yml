@@ -5,9 +5,9 @@ services:
     build: ./backend
     container_name: ship-router-backend
     volumes:
-      #in order to use your own data, mount your coastline file
-      #here to data, instead of ./backend/data/antarctica-latest.osm.pbf
-      - ./backend/data/antarctica-latest.osm.pbf:/data.pbf
+      # provide the path to your own coastline file here
+      # your file will be mounted to `/data.pbf`
+      - ./backend/data/planet-coastlines.pbf:/data.pbf
     environment:
       - PORT=9090
       - DATAFILE=/data.pbf
