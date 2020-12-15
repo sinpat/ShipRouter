@@ -63,6 +63,6 @@ private:
     std::vector<std::pair<NodeId, Distance>> neigbours_;
     std::vector<size_t> offset_;
 
-    mutable std::vector<bool> snap_selled_;
+    mutable std::vector<bool> snap_settled_;
     const SphericalGrid grid_;
 };
