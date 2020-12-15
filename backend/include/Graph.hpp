@@ -54,7 +54,7 @@ private:
         -> std::vector<NodeId>;
 
     auto getRowGridNeigboursOf(std::size_t m, std::size_t n) const noexcept
-        -> std::array<NodeId, 2>;
+        -> std::vector<NodeId>;
 
     auto getGridNeigboursOf(std::size_t m, std::size_t n) const noexcept
         -> std::vector<NodeId>;
@@ -71,8 +71,6 @@ private:
     const std::size_t n_rows_;
     const double d_phi_;
 
-    std::vector<size_t> first_index_of_;
     mutable std::vector<bool> snap_selled_;
-    mutable std::vector<NodeId> snap_touched_;
     const SphericalGrid grid_;
 };

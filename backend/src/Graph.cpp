@@ -6,16 +6,16 @@
 #include <queue>
 
 
-Graph::Graph(SphericalGrid&& grid)
-    : offset_(grid.size() + 1, 0),
-      n_rows_(grid.n_rows_),
-      d_phi_(grid.d_phi_),
-      snap_selled_(grid.size(), false),
-      grid_(std::move(grid))
+Graph::Graph(SphericalGrid&& g)
+    : offset_(g.size() + 1, 0),
+      n_rows_(g.n_rows_),
+      d_phi_(g.d_phi_),
+      snap_selled_(g.size(), false),
+      grid_(std::move(g))
 {
-    for(auto id : utils::range(grid.size())) {
-        if(!grid.indexIsLand(id)) {
-            auto neigs = grid.getNeighbours(id);
+    for(auto id : utils::range(grid_.size())) {
+        if(!grid_.indexIsLand(id)) {
+            auto neigs = grid_.getNeighbours(id);
 
             std::sort(std::begin(neigs),
                       std::end(neigs));
@@ -30,8 +30,8 @@ Graph::Graph(SphericalGrid&& grid)
                            std::end(neigs),
                            std::back_inserter(neig_dist),
                            [&](auto neig) {
-                               auto [start_lat, start_lng] = grid.idToLatLng(id);
-                               auto [dest_lat, dest_lng] = grid.idToLatLng(neig);
+                               auto [start_lat, start_lng] = grid_.idToLatLng(id);
+                               auto [dest_lat, dest_lng] = grid_.idToLatLng(neig);
                                auto distance = ::distanceBetween(start_lat, start_lng, dest_lat, dest_lng);
 
                                return std::pair{neig, distance};
@@ -43,19 +43,17 @@ Graph::Graph(SphericalGrid&& grid)
 
         offset_[id + 1] = neigbours_.size();
 
-        auto [m, n] = grid.idToGrid(id);
+        auto [m, n] = grid_.idToGrid(id);
         ns_.emplace_back(n);
         ms_.emplace_back(m);
 
-        auto [lat, lng] = grid.idToLatLng(id);
+        auto [lat, lng] = grid_.idToLatLng(id);
         lats_.emplace_back(lat);
         lngs_.emplace_back(lng);
     }
 
     //insert dummy at the end
     neigbours_.emplace_back(std::numeric_limits<NodeId>::max(), UNREACHABLE);
-
-    first_index_of_ = std::move(grid.first_index_of_);
 }
 
 auto Graph::idToLat(NodeId id) const noexcept
@@ -127,16 +125,19 @@ auto Graph::isLandNode(NodeId node) const noexcept
 
 
 auto Graph::getRowGridNeigboursOf(std::size_t m, std::size_t n) const noexcept
-    -> std::array<NodeId, 2>
+    -> std::vector<NodeId>
 {
-    const auto theta = PI * (m + 0.5) / n_rows_;
-    auto n_columns = static_cast<size_t>(round(2 * PI * sin(theta) / d_phi_));
+    auto on_grid = grid_.getRowNeighbours(m, n);
+    std::vector<NodeId> ids;
+    std::transform(std::begin(on_grid),
+                   std::end(on_grid),
+                   std::back_inserter(ids),
+                   [&](auto pair) {
+                       auto [m, n] = pair;
+                       return gridToId(m, m);
+                   });
 
-    auto first_n = (n + n_columns - 1) % n_columns;
-    auto second_n = (n + 1) % n_columns;
-
-    return std::array{gridToId(m, first_n),
-                      gridToId(m, second_n)};
+    return ids;
 }
 
 auto Graph::getLowerGridNeigboursOf(std::size_t m, std::size_t n) const noexcept
@@ -188,6 +189,8 @@ auto Graph::getSnapNodeCandidate(Latitude<Degree> lat,
     const auto id = gridToId(m, n);
 
     std::vector<NodeId> candidates;
+    std::vector<NodeId> touched_nodes;
+
     if(!isLandNode(id)) {
         candidates.emplace_back(id);
     }
@@ -198,7 +201,7 @@ auto Graph::getSnapNodeCandidate(Latitude<Degree> lat,
         const auto candidate = workstack.back();
         workstack.pop_back();
         snap_selled_[candidate] = true;
-        snap_touched_.emplace_back(candidate);
+        touched_nodes.emplace_back(candidate);
 
         if(!isLandNode(candidate)) {
             candidates.emplace_back(candidate);
@@ -214,10 +217,9 @@ auto Graph::getSnapNodeCandidate(Latitude<Degree> lat,
                                               ns_[candidate]));
     }
 
-    for(auto touched : snap_touched_) {
+    for(auto touched : touched_nodes) {
         snap_selled_[touched] = false;
     }
-    snap_touched_.clear();
 
     return *std::min_element(std::cbegin(candidates),
                              std::cend(candidates),
