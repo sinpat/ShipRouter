@@ -60,16 +60,11 @@ private:
         -> std::vector<NodeId>;
 
 private:
-    std::vector<Latitude<Degree>> lats_;
-    std::vector<Longitude<Degree>> lngs_;
     std::vector<std::size_t> ns_;
     std::vector<std::size_t> ms_;
 
     std::vector<std::pair<NodeId, Distance>> neigbours_;
     std::vector<size_t> offset_;
-
-    const std::size_t n_rows_;
-    const double d_phi_;
 
     mutable std::vector<bool> snap_selled_;
     const SphericalGrid grid_;
