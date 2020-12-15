@@ -13,7 +13,7 @@ SphericalGrid::SphericalGrid(std::size_t number_of_nodes) noexcept
     : a_(4 * PI / number_of_nodes),
       n_rows_(static_cast<size_t>(round(PI / sqrt(a_)))),
       d_phi_(a_ / (PI / n_rows_)),
-      first_index_of_(n_rows_ + 1, -1)
+      first_index_of_(n_rows_ + 1, std::numeric_limits<NodeId>::max())
 {
     size_t counter = 0;
     for(size_t m = 0; m < n_rows_; m++) {
@@ -32,9 +32,9 @@ SphericalGrid::SphericalGrid(std::size_t number_of_nodes) noexcept
 auto SphericalGrid::sphericalToGrid(Latitude<Radian> theta, Longitude<Radian> phi) const noexcept
     -> std::pair<size_t, size_t>
 {
-    const auto m = static_cast<size_t>(round((theta + PI / 4) * n_rows_ / PI - 0.5));
+    const auto m = static_cast<size_t>(round((theta + PI / 2) * n_rows_ / PI - 0.5));
     const auto m_phi = nCols(m);
-    const auto n = static_cast<size_t>(round((phi + PI / 2) * m_phi / (2 * PI)));
+    const auto n = static_cast<size_t>(round((phi + PI) * m_phi / (2 * PI)));
 
     return std::pair{m, n};
 }
@@ -151,8 +151,8 @@ auto SphericalGrid::getNeighbours(size_t m, size_t n) const noexcept
     // filter out land nodes
     id_neighbours.erase(
         std::remove_if(
-            id_neighbours.begin(),
-            id_neighbours.end(),
+            std::begin(id_neighbours),
+            std::end(id_neighbours),
             [&](auto id) {
                 return indexIsLand(id);
             }),

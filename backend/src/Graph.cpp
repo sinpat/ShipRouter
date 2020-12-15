@@ -2,6 +2,8 @@
 #include <Range.hpp>
 #include <SphericalGrid.hpp>
 #include <Vector3D.hpp>
+#include <fmt/ranges.h>
+#include <iostream>
 #include <nonstd/span.hpp>
 #include <queue>
 
@@ -101,7 +103,12 @@ auto Graph::sphericalToGrid(Latitude<Radian> theta,
                             Longitude<Radian> phi) const noexcept
     -> std::pair<size_t, size_t>
 {
-    return grid_.sphericalToGrid(theta, phi);
+    fmt::print("lat: {}, lng: {}\n", theta.getValue(), phi.getValue());
+    auto pair = grid_.sphericalToGrid(theta, phi);
+
+    fmt::print("m: {}, n: {}\n", pair.first, pair.second);
+
+    return pair;
 }
 
 
@@ -114,7 +121,7 @@ auto Graph::gridToId(std::size_t m, std::size_t n) const noexcept
 auto Graph::isLandNode(NodeId node) const noexcept
     -> bool
 {
-    return offset_[node] == offset_[node + 1];
+    return !grid_.is_water_[node];
 }
 
 
@@ -180,7 +187,11 @@ auto Graph::getSnapNodeCandidate(Latitude<Degree> lat,
 {
     const auto [m, n] = sphericalToGrid(lat.toRadian(), lng.toRadian());
 
+    fmt::print("m: {}, n:{}\n", m, n);
+
     const auto id = gridToId(m, n);
+
+    fmt::print("index: {}\n", id);
 
     std::vector<NodeId> candidates;
     std::vector<NodeId> touched_nodes;
@@ -192,6 +203,10 @@ auto Graph::getSnapNodeCandidate(Latitude<Degree> lat,
     auto workstack = getGridNeigboursOf(m, n);
 
     while(!workstack.empty()) {
+        fmt::print("workstack: {}", workstack);
+        std::cout << std::endl;
+        fmt::print("candidates: {}", candidates);
+        std::cout << std::endl;
         const auto candidate = workstack.back();
         workstack.pop_back();
         snap_selled_[candidate] = true;
