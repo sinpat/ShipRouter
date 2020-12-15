@@ -7,7 +7,7 @@
 class Environment
 {
 public:
-    Environment(std::int16_t port,
+    Environment(std::uint16_t port,
                 std::string data_file,
                 std::uint64_t number_of_nodes)
         : port_(port),
@@ -33,7 +33,7 @@ public:
     }
 
 private:
-    std::int16_t port_;
+    std::uint16_t port_;
     std::string data_file_;
     std::uint64_t number_of_sphere_nodes_;
 };
@@ -73,7 +73,7 @@ inline auto loadEnv()
         auto port = std::stoi(port_str);
         auto nodes_on_sphere = std::stoul(nodes_on_sphere_str);
 
-        return Environment{static_cast<int16_t>(port),
+        return Environment{static_cast<std::uint16_t>(port),
                            datafile_str,
                            nodes_on_sphere};
     } catch(...) {
