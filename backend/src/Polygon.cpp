@@ -7,6 +7,7 @@
 #include <Range.hpp>
 #include <SphericalPoint.hpp>
 #include <Vector3D.hpp>
+#include <execution>
 #include <fmt/core.h>
 #include <numeric>
 
@@ -54,14 +55,31 @@ auto Polygon::pointInPolygon(Latitude<Degree> lat, Longitude<Degree> lng) const
                    });
 
 
-    auto sum = std::accumulate(std::begin(range),
-                               std::end(range),
-                               0.0,
-                               [&](auto current, auto idx) {
-                                   const auto& first = vec_to_vertex[idx % size];
-                                   const auto& second = vec_to_vertex[(idx + 1) % size];
-                                   return current + first.angleBetween(second, p);
-                               });
+    // auto sum = std::accumulate(std::begin(range),
+    //                            std::end(range),
+    //                            0.0,
+    //                            [&](auto current, auto idx) {
+    //                                const auto& first = vec_to_vertex[idx % size];
+    //                                const auto& second = vec_to_vertex[(idx + 1) % size];
+    //                                return current + first.angleBetween(second, p);
+    //                            });
+
+    auto sum = std::transform_reduce(
+        std::execution::par_unseq,
+        std::begin(range),
+        std::end(range),
+        0.0,
+        [&](auto current, auto idx) {
+            const auto& first = vec_to_vertex[idx % size];
+            const auto& second = vec_to_vertex[(idx + 1) % size];
+            return current + first.angleBetween(second, p);
+        },
+        [&](auto idx) {
+            const auto& first = vec_to_vertex[idx % size];
+            const auto& second = vec_to_vertex[(idx + 1) % size];
+            return first.angleBetween(second, p);
+        });
+
 
     // external points should sum up to something close to 0
     // internal points should sum up to something smaller than pi
@@ -82,6 +100,7 @@ auto vec3DtoLatLong(double x, double y, double z) noexcept
 }
 
 } // namespace
+
 auto Polygon::getLatAndLng() const
     -> std::vector<std::pair<double, double>>
 {
