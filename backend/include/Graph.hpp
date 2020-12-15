@@ -33,9 +33,6 @@ public:
     auto snapToGridNode(Latitude<Degree> lat, Longitude<Degree> lng) const noexcept
         -> NodeId;
 
-    auto sphericalToGrid(Latitude<Radian> theta, Longitude<Radian> phi) const noexcept
-        -> std::pair<size_t, size_t>;
-
     auto gridToId(std::size_t m, std::size_t n) const noexcept
         -> NodeId;
 

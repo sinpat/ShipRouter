@@ -99,19 +99,6 @@ auto Graph::getNeigboursOf(NodeId node) const noexcept
     return nonstd::span{start, end};
 }
 
-auto Graph::sphericalToGrid(Latitude<Radian> theta,
-                            Longitude<Radian> phi) const noexcept
-    -> std::pair<size_t, size_t>
-{
-    fmt::print("lat: {}, lng: {}\n", theta.getValue(), phi.getValue());
-    auto pair = grid_.sphericalToGrid(theta, phi);
-
-    fmt::print("m: {}, n: {}\n", pair.first, pair.second);
-
-    return pair;
-}
-
-
 auto Graph::gridToId(std::size_t m, std::size_t n) const noexcept
     -> NodeId
 {
@@ -135,7 +122,7 @@ auto Graph::getRowGridNeigboursOf(std::size_t m, std::size_t n) const noexcept
                    std::back_inserter(ids),
                    [&](auto pair) {
                        auto [m, n] = pair;
-                       return gridToId(m, m);
+                       return gridToId(m, n);
                    });
 
     return ids;
@@ -151,7 +138,7 @@ auto Graph::getLowerGridNeigboursOf(std::size_t m, std::size_t n) const noexcept
                    std::back_inserter(ids),
                    [&](auto pair) {
                        auto [m, n] = pair;
-                       return gridToId(m, m);
+                       return gridToId(m, n);
                    });
 
     return ids;
@@ -167,7 +154,7 @@ auto Graph::getUpperGridNeigboursOf(std::size_t m, std::size_t n) const noexcept
                    std::back_inserter(ids),
                    [&](auto pair) {
                        auto [m, n] = pair;
-                       return gridToId(m, m);
+                       return gridToId(m, n);
                    });
 
     return ids;
@@ -185,9 +172,7 @@ auto Graph::getSnapNodeCandidate(Latitude<Degree> lat,
                                  Longitude<Degree> lng) const noexcept
     -> NodeId
 {
-    const auto [m, n] = sphericalToGrid(lat.toRadian(), lng.toRadian());
-
-    fmt::print("m: {}, n:{}\n", m, n);
+    const auto [m, n] = grid_.sphericalToGrid(lat.toRadian(), lng.toRadian());
 
     const auto id = gridToId(m, n);
 
