@@ -10,7 +10,8 @@ Graph::Graph(SphericalGrid&& grid)
     : offset_(grid.size() + 1, 0),
       n_rows_(grid.n_rows_),
       d_phi_(grid.d_phi_),
-      snap_selled_(grid.size(), false)
+      snap_selled_(grid.size(), false),
+      grid_(std::move(grid))
 {
     for(auto id : utils::range(grid.size())) {
         if(!grid.indexIsLand(id)) {
@@ -24,10 +25,21 @@ Graph::Graph(SphericalGrid&& grid)
 
             neigs.erase(remove_iter, std::end(neigs));
 
-            neigbours_ = concat(std::move(neigbours_),
-                                std::move(neigs));
-        }
+            std::vector<std::pair<NodeId, Distance>> neig_dist;
+            std::transform(std::begin(neigs),
+                           std::end(neigs),
+                           std::back_inserter(neig_dist),
+                           [&](auto neig) {
+                               auto [start_lat, start_lng] = grid.idToLatLng(id);
+                               auto [dest_lat, dest_lng] = grid.idToLatLng(neig);
+                               auto distance = ::distanceBetween(start_lat, start_lng, dest_lat, dest_lng);
 
+                               return std::pair{neig, distance};
+                           });
+
+            neigbours_ = concat(std::move(neigbours_),
+                                std::move(neig_dist));
+        }
 
         offset_[id + 1] = neigbours_.size();
 
@@ -41,7 +53,7 @@ Graph::Graph(SphericalGrid&& grid)
     }
 
     //insert dummy at the end
-    neigbours_.emplace_back(std::numeric_limits<NodeId>::max());
+    neigbours_.emplace_back(std::numeric_limits<NodeId>::max(), UNREACHABLE);
 
     first_index_of_ = std::move(grid.first_index_of_);
 }
@@ -49,13 +61,13 @@ Graph::Graph(SphericalGrid&& grid)
 auto Graph::idToLat(NodeId id) const noexcept
     -> Latitude<Degree>
 {
-    return lats_[id];
+    return grid_.lats_[id];
 }
 
 auto Graph::idToLng(NodeId id) const noexcept
     -> Longitude<Degree>
 {
-    return lngs_[id];
+    return grid_.lngs_[id];
 }
 
 auto Graph::idToM(NodeId id) const noexcept
@@ -79,11 +91,11 @@ auto Graph::isValidId(NodeId id) const noexcept
 auto Graph::size() const noexcept
     -> std::size_t
 {
-    return lats_.size();
+    return grid_.lats_.size();
 }
 
 auto Graph::getNeigboursOf(NodeId node) const noexcept
-    -> nonstd::span<const NodeId>
+    -> nonstd::span<const std::pair<NodeId, Distance>>
 {
     const auto start_offset = offset_[node];
     const auto end_offset = offset_[node + 1];
@@ -93,43 +105,18 @@ auto Graph::getNeigboursOf(NodeId node) const noexcept
     return nonstd::span{start, end};
 }
 
-auto Graph::distanceBetween(NodeId from, NodeId to) const noexcept
-    -> Distance
-{
-    const auto raw_distance = ::distanceBetween(lats_[from],
-                                                lngs_[from],
-                                                lats_[to],
-                                                lngs_[to]);
-
-    const auto raw_distance_cm = std::round(raw_distance * 100);
-
-    return static_cast<Distance>(raw_distance_cm);
-}
-
-
 auto Graph::sphericalToGrid(Latitude<Radian> theta,
                             Longitude<Radian> phi) const noexcept
     -> std::pair<size_t, size_t>
 {
-
-    // TODO: This needs to work perfecly
-    const auto raw_m = static_cast<std::int64_t>(round((theta + PI / 2) * n_rows_ / PI - 0.5));
-    const auto m = (raw_m + n_rows_) % n_rows_;
-
-    const auto m_theta = PI * (m + 0.5) / n_rows_;
-    const auto m_phi = static_cast<size_t>(round(2 * PI * sin(m_theta) / d_phi_));
-
-    const auto raw_n = static_cast<std::int64_t>(round((phi + PI) * m_phi / (2 * PI)));
-    const auto n = (raw_n + m_phi) % m_phi;
-
-    return std::pair{m, n};
+    return grid_.sphericalToGrid(theta, phi);
 }
 
 
 auto Graph::gridToId(std::size_t m, std::size_t n) const noexcept
     -> NodeId
 {
-    return first_index_of_[m] + n;
+    return grid_.gridToID(m, n);
 }
 
 auto Graph::isLandNode(NodeId node) const noexcept
@@ -155,45 +142,33 @@ auto Graph::getRowGridNeigboursOf(std::size_t m, std::size_t n) const noexcept
 auto Graph::getLowerGridNeigboursOf(std::size_t m, std::size_t n) const noexcept
     -> std::vector<NodeId>
 {
-    if(m == 0) {
-        auto range = utils::range(first_index_of_[1]);
-        return std::vector(std::begin(range),
-                           std::end(range));
-    }
+    auto on_grid = grid_.getLowerNeighbours(m, n);
+    std::vector<NodeId> ids;
+    std::transform(std::begin(on_grid),
+                   std::end(on_grid),
+                   std::back_inserter(ids),
+                   [&](auto pair) {
+                       auto [m, n] = pair;
+                       return gridToId(m, m);
+                   });
 
-    const auto theta = PI * (m - 0.5) / n_rows_;
-    auto n_columns = static_cast<size_t>(round(2 * PI * sin(theta) / d_phi_));
-
-    auto first_n = (n + n_columns - 1) % n_columns;
-    auto second_n = (n + 1) % n_columns;
-
-
-    return std::vector{
-        gridToId(m - 1, n),
-        gridToId(m - 1, first_n),
-        gridToId(m - 1, second_n)};
+    return ids;
 }
 
 auto Graph::getUpperGridNeigboursOf(std::size_t m, std::size_t n) const noexcept
     -> std::vector<NodeId>
 {
-    if(m == n_rows_ - 1) {
-        const auto range = utils::range(first_index_of_[1]);
-        return std::vector(std::begin(range),
-                           std::end(range));
-    }
+    auto on_grid = grid_.getUpperNeighbours(m, n);
+    std::vector<NodeId> ids;
+    std::transform(std::begin(on_grid),
+                   std::end(on_grid),
+                   std::back_inserter(ids),
+                   [&](auto pair) {
+                       auto [m, n] = pair;
+                       return gridToId(m, m);
+                   });
 
-    const auto theta = PI * (m + 1.5) / n_rows_;
-    const auto n_columns = static_cast<size_t>(round(2 * PI * sin(theta) / d_phi_));
-
-
-    const auto first_n = (n + n_columns - 1) % n_columns;
-    const auto second_n = (n + 1) % n_columns;
-
-    return std::vector{
-        gridToId(m + 1, n),
-        gridToId(m + 1, first_n),
-        gridToId(m + 1, second_n)};
+    return ids;
 }
 
 auto Graph::getGridNeigboursOf(std::size_t m, std::size_t n) const noexcept
@@ -227,7 +202,6 @@ auto Graph::getSnapNodeCandidate(Latitude<Degree> lat,
 
         if(!isLandNode(candidate)) {
             candidates.emplace_back(candidate);
-
             continue;
         }
 
@@ -274,7 +248,7 @@ auto Graph::snapToGridNode(Latitude<Degree> lat,
 
     while(true) {
         const auto best_before_insert = candidates.top();
-        for(auto neig : getNeigboursOf(best_before_insert)) {
+        for(auto [neig, _] : getNeigboursOf(best_before_insert)) {
             candidates.emplace(neig);
         }
         const auto best_after_insert = candidates.top();
@@ -283,8 +257,6 @@ auto Graph::snapToGridNode(Latitude<Degree> lat,
             break;
         }
     }
-
-    fmt::print("initial: {} vs snapped: {}\n", candidate, candidates.top());
 
     return candidates.top();
 }

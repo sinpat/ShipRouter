@@ -48,9 +48,9 @@ auto Dijkstra::findRoute(NodeId source, NodeId target) noexcept
 
         const auto neigbours = graph_.getNeigboursOf(current_node);
 
-        for(auto&& neig : neigbours) {
-            const auto neig_dist = getDistanceTo(neig);
-            const auto new_dist = current_dist + graph_.distanceBetween(current_node, neig);
+        for(auto [neig, dist] : neigbours) {
+            auto neig_dist = getDistanceTo(neig);
+            const auto new_dist = current_dist + dist;
 
             if(UNREACHABLE != current_dist and neig_dist > new_dist) {
                 touched_.emplace_back(neig);
@@ -160,9 +160,9 @@ auto Dijkstra::computeDistance(NodeId source, NodeId target) noexcept
 
         const auto neigbours = graph_.getNeigboursOf(current_node);
 
-        for(auto neig : neigbours) {
-            const auto neig_dist = getDistanceTo(neig);
-            const auto new_dist = current_dist + graph_.distanceBetween(current_node, neig);
+        for(auto [neig, dist] : neigbours) {
+            auto neig_dist = getDistanceTo(neig);
+            const auto new_dist = current_dist + dist;
 
             if(UNREACHABLE != current_dist and neig_dist > new_dist) {
                 touched_.emplace_back(neig);

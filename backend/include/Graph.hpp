@@ -25,10 +25,7 @@ public:
         -> bool;
 
     auto getNeigboursOf(NodeId node) const noexcept
-        -> nonstd::span<const NodeId>;
-
-    auto distanceBetween(NodeId from, NodeId to) const noexcept
-        -> Distance;
+        -> nonstd::span<const std::pair<NodeId, Distance>>;
 
     auto size() const noexcept
         -> std::size_t;
@@ -47,7 +44,7 @@ public:
 
 private:
     auto getSnapNodeCandidate(Latitude<Degree> lat,
-                               Longitude<Degree> lng) const noexcept
+                              Longitude<Degree> lng) const noexcept
         -> NodeId;
 
     auto getUpperGridNeigboursOf(std::size_t m, std::size_t n) const noexcept
@@ -68,7 +65,7 @@ private:
     std::vector<std::size_t> ns_;
     std::vector<std::size_t> ms_;
 
-    std::vector<NodeId> neigbours_;
+    std::vector<std::pair<NodeId, Distance>> neigbours_;
     std::vector<size_t> offset_;
 
     const std::size_t n_rows_;
@@ -77,4 +74,5 @@ private:
     std::vector<size_t> first_index_of_;
     mutable std::vector<bool> snap_selled_;
     mutable std::vector<NodeId> snap_touched_;
+    const SphericalGrid grid_;
 };
