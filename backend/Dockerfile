@@ -18,7 +18,7 @@ RUN apt install autoconf automake libtool curl make g++ unzip -y &&\
 	git submodule update --init --recursive &&\
 	./autogen.sh &&\
 	./configure &&\
-	make &&\
+	make -j5 &&\
 	make install &&\
 	ldconfig 
 
@@ -26,7 +26,7 @@ WORKDIR /app
 COPY . /app
 
 RUN cmake -DCMAKE_BUILD_TYPE=Release .
-RUN make -j3
+RUN make -j5
 
 
 FROM ubuntu:rolling
