@@ -55,15 +55,6 @@ auto Polygon::pointInPolygon(Latitude<Degree> lat, Longitude<Degree> lng) const
                    });
 
 
-    // auto sum = std::accumulate(std::begin(range),
-    //                            std::end(range),
-    //                            0.0,
-    //                            [&](auto current, auto idx) {
-    //                                const auto& first = vec_to_vertex[idx % size];
-    //                                const auto& second = vec_to_vertex[(idx + 1) % size];
-    //                                return current + first.angleBetween(second, p);
-    //                            });
-
     auto sum = std::transform_reduce(
         std::execution::par_unseq,
         std::begin(range),
