@@ -39,6 +39,18 @@ public:
     auto isLandNode(NodeId node) const noexcept
         -> bool;
 
+    /**
+     * Return edges with ids in range [0, neighbors.size()]
+     */
+    std::vector<EdgeId> edges() const noexcept
+    {
+        std::vector<EdgeId> edges(neigbours_.size());
+        for(auto i = 0; i < edges.size(); i++) {
+            edges[i] = i;
+        }
+        return edges;
+    }
+
 private:
     auto getSnapNodeCandidate(Latitude<Degree> lat,
                               Longitude<Degree> lng) const noexcept

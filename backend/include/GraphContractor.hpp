@@ -16,4 +16,5 @@ private:
     Graph g;
     std::vector<int64_t> level;
     std::int64_t numNodes;
+    std::vector<EdgeId> edges;
 };

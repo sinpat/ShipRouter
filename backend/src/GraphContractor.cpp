@@ -4,7 +4,8 @@
 GraphContractor::GraphContractor(Graph g_in)
     : g(std::move(g_in)),
       numNodes(g.size()),
-      level(numNodes, 0)
+      level(numNodes, 0),
+      edges(g.edges())
 {}
 
 CHGraph GraphContractor::contract() const
