@@ -46,17 +46,17 @@ auto Dijkstra::findRoute(NodeId source, NodeId target) noexcept
         //when reusing the pq
         pq_.pop();
 
-        const auto neigbours = graph_.getNeigboursOf(current_node);
+        const auto edges = graph_.relaxEdges(current_node);
 
-        for(auto [neig, dist] : neigbours) {
-            auto neig_dist = getDistanceTo(neig);
-            const auto new_dist = current_dist + dist;
+        for(auto e : edges) {
+            auto neig_dist = getDistanceTo(e.target);
+            const auto new_dist = current_dist + e.dist;
 
             if(UNREACHABLE != current_dist and neig_dist > new_dist) {
-                touched_.emplace_back(neig);
-                setDistanceTo(neig, new_dist);
-                pq_.emplace(neig, new_dist);
-                previous_nodes_[neig] = current_node;
+                touched_.emplace_back(e.target);
+                setDistanceTo(e.target, new_dist);
+                pq_.emplace(e.target, new_dist);
+                previous_nodes_[e.target] = current_node;
             }
         }
     }
@@ -158,16 +158,16 @@ auto Dijkstra::computeDistance(NodeId source, NodeId target) noexcept
         //when reusing the pq
         pq_.pop();
 
-        const auto neigbours = graph_.getNeigboursOf(current_node);
+        const auto edges = graph_.relaxEdges(current_node);
 
-        for(auto [neig, dist] : neigbours) {
-            auto neig_dist = getDistanceTo(neig);
-            const auto new_dist = current_dist + dist;
+        for(auto e : edges) {
+            auto neig_dist = getDistanceTo(e.target);
+            const auto new_dist = current_dist + e.dist;
 
             if(UNREACHABLE != current_dist and neig_dist > new_dist) {
-                touched_.emplace_back(neig);
-                setDistanceTo(neig, new_dist);
-                pq_.emplace(neig, new_dist);
+                touched_.emplace_back(e.target);
+                setDistanceTo(e.target, new_dist);
+                pq_.emplace(e.target, new_dist);
             }
         }
     }

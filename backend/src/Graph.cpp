@@ -28,7 +28,7 @@ Graph::Graph(SphericalGrid&& g)
 
             neigs.erase(remove_iter, std::end(neigs));
 
-            std::vector<std::pair<NodeId, Distance>> neig_dist;
+            std::vector<Edge> neig_dist;
             std::transform(std::begin(neigs),
                            std::end(neigs),
                            std::back_inserter(neig_dist),
@@ -37,14 +37,14 @@ Graph::Graph(SphericalGrid&& g)
                                auto [dest_lat, dest_lng] = grid_.idToLatLng(neig);
                                auto distance = ::distanceBetween(start_lat, start_lng, dest_lat, dest_lng);
 
-                               return std::pair{neig, distance};
+                               return Edge{neig, static_cast<Distance>(distance), std::nullopt};
                            });
 
-            neigbours_ = concat(std::move(neigbours_),
-                                std::move(neig_dist));
+            edges_ = concat(std::move(edges_),
+                            std::move(neig_dist));
         }
 
-        offset_[id + 1] = neigbours_.size();
+        offset_[id + 1] = edges_.size();
 
         auto [m, n] = grid_.idToGrid(id);
         ns_.emplace_back(n);
@@ -52,7 +52,7 @@ Graph::Graph(SphericalGrid&& g)
     }
 
     //insert dummy at the end
-    neigbours_.emplace_back(std::numeric_limits<NodeId>::max(), UNREACHABLE);
+    edges_.emplace_back(std::numeric_limits<NodeId>::max(), UNREACHABLE, std::nullopt);
 }
 
 auto Graph::idToLat(NodeId id) const noexcept
@@ -91,13 +91,13 @@ auto Graph::size() const noexcept
     return grid_.lats_.size();
 }
 
-auto Graph::getNeigboursOf(NodeId node) const noexcept
-    -> nonstd::span<const std::pair<NodeId, Distance>>
+auto Graph::relaxEdges(NodeId node) const noexcept
+    -> nonstd::span<const Edge>
 {
     const auto start_offset = offset_[node];
     const auto end_offset = offset_[node + 1];
-    const auto* start = &neigbours_[start_offset];
-    const auto* end = &neigbours_[end_offset];
+    const auto* start = &edges_[start_offset];
+    const auto* end = &edges_[end_offset];
 
     return nonstd::span{start, end};
 }
@@ -247,8 +247,8 @@ auto Graph::snapToGridNode(Latitude<Degree> lat,
 
     while(true) {
         const auto best_before_insert = candidates.top();
-        for(auto [neig, _] : getNeigboursOf(best_before_insert)) {
-            candidates.emplace(neig);
+        for(auto e : relaxEdges(best_before_insert)) {
+            candidates.emplace(e.target);
         }
         const auto best_after_insert = candidates.top();
 
@@ -292,15 +292,17 @@ void Graph::contractionStep() noexcept
     }
 
     // 2.
-    Dijkstra dijkstra{this};
-    std::vector<std::pair<int32_t, std::vector<EdgeId>>> foo{};
+    Dijkstra dijkstra{*this};
+    std::vector<std::tuple<int32_t, NodeId, std::vector<Edge>>> newEdgeCandidates{};
     for(auto node : indep_nodes) {
         std::unordered_set<EdgeId> obsolete_edges{};
         std::vector<Edge> new_edges{};
-        auto neighbors = getNeigboursOf(node);
-        for(auto [source, _] : neighbors) {
+        auto neighbors = relaxEdges(node);
+        for(auto neigh1 : neighbors) {
+            auto source = neigh1.target;
             // shortest path from neigh to all other neighbors
-            for(auto [target, _] : neighbors) {
+            for(auto neigh2 : neighbors) {
+                auto target = neigh2.target;
                 if(source == target) {
                     continue;
                 }
@@ -311,16 +313,27 @@ void Graph::contractionStep() noexcept
                 // check if shortest path contains node
                 auto [path, cost] = res.value();
                 if(path.size() == 3 and path[0] == source and path[1] == node and path[2] == target) {
-                    new_edges.emplace_back(target, cost);
+                    new_edges.emplace_back(target, cost, std::pair{420, 420});
                 }
             }
         }
         // TODO: consider alternative to just use amount of neighbors as removed edges
         auto edge_diff = new_edges.size() - obsolete_edges.size();
+        newEdgeCandidates.emplace_back(edge_diff, node, new_edges);
     }
 
     // 3.
-    // TODO: sort by edge diff ascending
+    std::sort(newEdgeCandidates.begin(), newEdgeCandidates.end(), [](auto first, auto second) {
+        return std::get<0>(first) < std::get<0>(second);
+    });
+
+    // 4.
+    for(auto i = 0; i < newEdgeCandidates.size() / 2; i++) {
+        auto entry = newEdgeCandidates[i];
+        NodeId source = std::get<1>(entry);
+        auto edges = std::get<2>(entry);
+        insertEdges(source, edges);
+    }
 
     // increment level and assign to nodes
     current_level++;
@@ -336,12 +349,17 @@ std::vector<NodeId> Graph::independentSet() const
 
     for(auto i = 0; i < size(); i++) {
         if(levels[i] == 0 && !visited[i]) {
-            auto neighbors = getNeigboursOf(i);
-            for(auto [neigh, _] : neighbors) {
-                visited[neigh] = true;
+            auto edges = relaxEdges(i);
+            for(auto e : edges) {
+                visited[e.target] = true;
             }
             indepNodes.emplace_back(i);
         }
     }
     return indepNodes;
+}
+
+void Graph::insertEdges(NodeId source, std::vector<Edge> edges)
+{
+    // TODO: Insert new edges into graph
 }

@@ -35,7 +35,18 @@ using EdgeId = std::uint64_t;
 using Level = std::uint64_t;
 using Path = std::vector<NodeId>;
 
-using Edge = std::pair<NodeId, Distance>;
+struct Edge
+{
+    Edge(NodeId target, Distance dist, std::optional<std::pair<EdgeId, EdgeId>> wrapped_edges)
+        : target(target),
+          dist(dist),
+          wrapped_edges(wrapped_edges)
+    {
+    }
+    NodeId target;
+    Distance dist;
+    std::optional<std::pair<EdgeId, EdgeId>> wrapped_edges;
+};
 
 constexpr static inline auto UNREACHABLE = std::numeric_limits<Distance>::max();
 constexpr static inline auto NON_EXISTENT = std::numeric_limits<NodeId>::max();

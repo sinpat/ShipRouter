@@ -24,8 +24,8 @@ public:
     auto isValidId(NodeId id) const noexcept
         -> bool;
 
-    auto getNeigboursOf(NodeId node) const noexcept
-        -> nonstd::span<const std::pair<NodeId, Distance>>;
+    auto relaxEdges(NodeId node) const noexcept
+        -> nonstd::span<const Edge>;
 
     auto size() const noexcept
         -> std::size_t;
@@ -61,13 +61,13 @@ private:
     // for contraction
     void contractionStep() noexcept;
     std::vector<NodeId> independentSet() const;
+    void insertEdges(NodeId source, std::vector<Edge> edges);
 
 private:
     std::vector<std::size_t> ns_;
     std::vector<std::size_t> ms_;
 
-    std::vector<Edge> neigbours_;
-    std::vector<std::optional<std::pair<EdgeId, EdgeId>>> wrapped_edges_;
+    std::vector<Edge> edges_;
     std::vector<size_t> offset_;
 
     mutable std::vector<bool> snap_settled_;
