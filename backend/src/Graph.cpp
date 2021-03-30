@@ -1,3 +1,4 @@
+#include <Dijkstra.hpp>
 #include <Graph.hpp>
 #include <Range.hpp>
 #include <SphericalGrid.hpp>
@@ -6,11 +7,13 @@
 #include <iostream>
 #include <nonstd/span.hpp>
 #include <queue>
+#include <unordered_set>
 
 
 Graph::Graph(SphericalGrid&& g)
     : offset_(g.size() + 1, 0),
       snap_settled_(g.size(), false),
+      levels(g.size(), 0),
       grid_(std::move(g))
 {
     for(auto id : utils::range(grid_.size())) {
@@ -255,4 +258,90 @@ auto Graph::snapToGridNode(Latitude<Degree> lat,
     }
 
     return candidates.top();
+}
+
+// === stuff for ch and contraction === //
+
+void Graph::contract() noexcept
+{
+    fmt::print("Starting graph contraction...");
+    while(!fully_contracted) {
+        contractionStep();
+    }
+    fmt::print("Done contracting.");
+}
+
+void Graph::contractionStep() noexcept
+{
+    fmt::print("Starting contraction step {}", current_level);
+    /*
+    * 1. create independent set of nodes
+    * 2. for each node: 
+    *      calculate distances from and to all neighbors and node edge diff
+    * 3. sort by edge diff ascending
+    * 4. Create shortcuts for the first n nodes (with lowest edge diff)
+    * 5. Insert new edges into existing graph
+      */
+
+    // 1.
+    auto indep_nodes = independentSet();
+    fmt::print("Independent set contains {} nodes", indep_nodes.size());
+    if(indep_nodes.empty()) {
+        fully_contracted = true;
+        return;
+    }
+
+    // 2.
+    Dijkstra dijkstra{this};
+    std::vector<std::pair<int32_t, std::vector<EdgeId>>> foo{};
+    for(auto node : indep_nodes) {
+        std::unordered_set<EdgeId> obsolete_edges{};
+        std::vector<Edge> new_edges{};
+        auto neighbors = getNeigboursOf(node);
+        for(auto [source, _] : neighbors) {
+            // shortest path from neigh to all other neighbors
+            for(auto [target, _] : neighbors) {
+                if(source == target) {
+                    continue;
+                }
+                auto res = dijkstra.findRoute(source, target);
+                if(!res) {
+                    continue;
+                }
+                // check if shortest path contains node
+                auto [path, cost] = res.value();
+                if(path.size() == 3 and path[0] == source and path[1] == node and path[2] == target) {
+                    new_edges.emplace_back(target, cost);
+                }
+            }
+        }
+        // TODO: consider alternative to just use amount of neighbors as removed edges
+        auto edge_diff = new_edges.size() - obsolete_edges.size();
+    }
+
+    // 3.
+    // TODO: sort by edge diff ascending
+
+    // increment level and assign to nodes
+    current_level++;
+    for(auto node : indep_nodes) {
+        levels[node] = current_level;
+    }
+}
+
+std::vector<NodeId> Graph::independentSet() const
+{
+    std::vector<bool> visited(size(), false);
+    std::vector<NodeId> indepNodes;
+
+    for(auto i = 0; i < size(); i++) {
+        if(levels[i] == 0 && !visited[i]) {
+            auto neighbors = getNeigboursOf(i);
+            for(auto [neigh, _] : neighbors) {
+                visited[neigh] = true;
+            }
+            indepNodes.emplace_back(i);
+        }
+    }
+    return indepNodes;
 }

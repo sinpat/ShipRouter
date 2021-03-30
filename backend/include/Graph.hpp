@@ -39,17 +39,7 @@ public:
     auto isLandNode(NodeId node) const noexcept
         -> bool;
 
-    /**
-     * Return edges with ids in range [0, neighbors.size()]
-     */
-    std::vector<EdgeId> edges() const noexcept
-    {
-        std::vector<EdgeId> edges(neigbours_.size());
-        for(auto i = 0; i < edges.size(); i++) {
-            edges[i] = i;
-        }
-        return edges;
-    }
+    void contract() noexcept;
 
 private:
     auto getSnapNodeCandidate(Latitude<Degree> lat,
@@ -68,13 +58,26 @@ private:
     auto getGridNeigboursOf(std::size_t m, std::size_t n) const noexcept
         -> std::vector<NodeId>;
 
+    // for contraction
+    void contractionStep() noexcept;
+    std::vector<NodeId> independentSet() const;
+
 private:
     std::vector<std::size_t> ns_;
     std::vector<std::size_t> ms_;
 
-    std::vector<std::pair<NodeId, Distance>> neigbours_;
+    std::vector<Edge> neigbours_;
+    std::vector<std::optional<std::pair<EdgeId, EdgeId>>> wrapped_edges_;
     std::vector<size_t> offset_;
 
     mutable std::vector<bool> snap_settled_;
     const SphericalGrid grid_;
+
+    // for ch-graph
+    std::vector<Level> levels;
+    /** flags for edges that have been replaced by a shortcut */
+    std::vector<bool> contracted_edges;
+
+    Level current_level = 0;
+    bool fully_contracted = false;
 };

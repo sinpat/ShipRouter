@@ -32,7 +32,10 @@ constexpr auto concat(Head0&& head0, Head1&& head1, Tail&&... tail) noexcept
 using Distance = std::uint64_t;
 using NodeId = std::uint64_t;
 using EdgeId = std::uint64_t;
+using Level = std::uint64_t;
 using Path = std::vector<NodeId>;
+
+using Edge = std::pair<NodeId, Distance>;
 
 constexpr static inline auto UNREACHABLE = std::numeric_limits<Distance>::max();
 constexpr static inline auto NON_EXISTENT = std::numeric_limits<NodeId>::max();
