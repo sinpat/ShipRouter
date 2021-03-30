@@ -102,6 +102,19 @@ auto Graph::relaxEdges(NodeId node) const noexcept
     return nonstd::span{start, end};
 }
 
+auto Graph::relaxEdgesWithIds(NodeId node) const noexcept
+    -> std::pair<nonstd::span<const Edge>, nonstd::span<const EdgeId>>
+{
+    const auto start_offset = offset_[node];
+    const auto end_offset = offset_[node + 1];
+    const auto* start = &edges_[start_offset];
+    const auto* end = &edges_[end_offset];
+
+    return std::pair{
+        nonstd::span{start, end},
+        nonstd::span{&start_offset, &end_offset}};
+}
+
 auto Graph::gridToId(std::size_t m, std::size_t n) const noexcept
     -> NodeId
 {
@@ -297,15 +310,16 @@ void Graph::contractionStep() noexcept
     for(auto node : indep_nodes) {
         std::unordered_set<EdgeId> obsolete_edges{};
         std::vector<Edge> new_edges{};
-        auto neighbors = relaxEdges(node);
-        for(auto neigh1 : neighbors) {
-            auto source = neigh1.target;
+        auto [edges, edge_ids] = relaxEdgesWithIds(node);
+
+        for(auto i = 0; i < edges.size(); i++) {
+            auto source = edges[i].target;
             // shortest path from neigh to all other neighbors
-            for(auto neigh2 : neighbors) {
-                auto target = neigh2.target;
-                if(source == target) {
+            for(auto j = 0; j < edges.size(); i++) {
+                if(i == j) {
                     continue;
                 }
+                auto target = edges[j].target;
                 auto res = dijkstra.findRoute(source, target);
                 if(!res) {
                     continue;
@@ -313,7 +327,7 @@ void Graph::contractionStep() noexcept
                 // check if shortest path contains node
                 auto [path, cost] = res.value();
                 if(path.size() == 3 and path[0] == source and path[1] == node and path[2] == target) {
-                    new_edges.emplace_back(target, cost, std::pair{420, 420});
+                    new_edges.emplace_back(target, cost, std::pair{edge_ids[i], edge_ids[j]});
                 }
             }
         }
