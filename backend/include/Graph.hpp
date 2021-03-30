@@ -75,9 +75,15 @@ private:
     std::vector<std::size_t> ms_;
 
     std::vector<Edge> edges_;
-    std::vector<size_t> offset_;
-    // holds the edgeIDs sorted by NodeID of the source
+    std::vector<size_t> offset_; // size: #nodes + 1
+    /* 
+    * holds the edgeIDs sorted by NodeID of the source
+    * size: #edges
+    */
     std::vector<EdgeId> sorted_edge_ids_;
+    /*
+    * auxiliary array 
+    */
     std::vector<std::pair<EdgeId, NodeId>> sorted_edge_ids_with_source_;
 
     mutable std::vector<bool> snap_settled_;
