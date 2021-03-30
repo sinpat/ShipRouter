@@ -62,9 +62,13 @@ private:
         -> std::vector<NodeId>;
 
     // for contraction
+
+    // do one step of contraction
     void contractionStep() noexcept;
+    // construct an independent set of nodes that have not yet been contracted
     std::vector<NodeId> independentSet() const;
-    void insertEdges(NodeId source, std::vector<Edge> edges);
+    // update graph with new edges for the given source node
+    void insertEdges(std::vector<std::pair<NodeId, std::vector<Edge>>> to_insert);
 
 private:
     std::vector<std::size_t> ns_;
@@ -72,6 +76,9 @@ private:
 
     std::vector<Edge> edges_;
     std::vector<size_t> offset_;
+    // holds the edgeIDs sorted by NodeID of the source
+    std::vector<EdgeId> sorted_edge_ids_;
+    std::vector<std::pair<EdgeId, NodeId>> sorted_edge_ids_with_source_;
 
     mutable std::vector<bool> snap_settled_;
     const SphericalGrid grid_;

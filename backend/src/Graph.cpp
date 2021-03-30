@@ -342,12 +342,16 @@ void Graph::contractionStep() noexcept
     });
 
     // 4.
+    std::vector<std::pair<NodeId, std::vector<Edge>>> toInsert;
     for(auto i = 0; i < newEdgeCandidates.size() / 2; i++) {
         auto entry = newEdgeCandidates[i];
         NodeId source = std::get<1>(entry);
         auto edges = std::get<2>(entry);
-        insertEdges(source, edges);
+        toInsert.emplace_back(source, edges);
     }
+
+    // 5.
+    insertEdges(toInsert);
 
     // increment level and assign to nodes
     current_level++;
@@ -373,7 +377,48 @@ std::vector<NodeId> Graph::independentSet() const
     return indepNodes;
 }
 
-void Graph::insertEdges(NodeId source, std::vector<Edge> edges)
+void Graph::insertEdges(std::vector<std::pair<NodeId, std::vector<Edge>>> toInsert)
 {
-    // TODO: Insert new edges into graph
+    for(auto [source, new_edges] : toInsert) {
+        // 1. insert new edges
+        // edges_.insert(edges_.end(),
+        //               new_edges.begin(),
+        //               new_edges.end());
+
+        // 2. clear sortedEdgeIds
+
+        // 3. consider new edges in offset array
+        for(auto i = source + 1; i < offset_.size(); i++) {
+            offset_[i] += new_edges.size();
+        }
+        // 3 (alt). build new offset array
+        /*
+        for(auto edge : edges_) {
+            offset_[edge.source]++;
+        }
+        for(auto i = 1; i < offset_.size(); i++) {
+            offset_[i] += offset_[i - 1];
+        }
+        offset_.emplace_back(edges_.size());
+        */
+
+        // insert new edges
+        auto numEdgesOld = edges_.size();
+        for(auto i = 0; i < new_edges.size(); ++i) {
+            auto edge_id = numEdgesOld + i;
+            edges_.emplace_back(new_edges[i]);
+            sorted_edge_ids_.emplace_back(edge_id); // only added to extend size of vector
+            sorted_edge_ids_with_source_.emplace_back(edge_id, source);
+        }
+    }
+    // sort edges
+    std::sort(
+        sorted_edge_ids_with_source_.begin(),
+        sorted_edge_ids_with_source_.end(),
+        [](auto pair1, auto pair2) {
+            return pair1.second < pair2.second;
+        });
+    for(auto i = 0; i < sorted_edge_ids_with_source_.size(); i++) {
+        sorted_edge_ids_[i] = sorted_edge_ids_with_source_[i].first;
+    }
 }
