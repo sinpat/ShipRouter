@@ -323,17 +323,24 @@ void Graph::contractionStep() noexcept
             // shortest path from neigh to all other neighbors
             for(auto j = 0; j < edges.size(); i++) {
                 if(i == j) {
+                    // TODO: I don't think we need this check
                     continue;
                 }
                 auto target = edges[j].target;
                 auto res = dijkstra.findRoute(source, target);
-                if(!res) {
-                    continue;
-                }
-                // check if shortest path contains node
-                auto [path, cost] = res.value();
-                if(path.size() == 3 and path[0] == source and path[1] == node and path[2] == target) {
-                    new_edges.emplace_back(target, cost, std::pair{edge_ids[i], edge_ids[j]});
+                if(res.has_value()) {
+                    auto [path, cost] = res.value();
+                    // check if shortest path contains node
+                    if(path.size() == 3 and path[0] == source and path[1] == node and path[2] == target) {
+                        auto wrapped_edge_1 = edge_ids[i];
+                        auto wrapped_edge_2 = edge_ids[j];
+                        obsolete_edges.emplace(wrapped_edge_1);
+                        obsolete_edges.emplace(wrapped_edge_2);
+                        new_edges.emplace_back(
+                            target,
+                            cost,
+                            std::pair{wrapped_edge_1, wrapped_edge_2});
+                    }
                 }
             }
         }
