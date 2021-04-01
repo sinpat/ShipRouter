@@ -312,10 +312,10 @@ void Graph::contractionStep() noexcept
 
     // 2.
     Dijkstra dijkstra{*this};
-    std::vector<std::tuple<int32_t, NodeId, std::vector<Edge>>> newEdgeCandidates{};
+    std::vector<std::pair<int32_t, std::vector<Edge>>> newEdgeCandidates;
     for(auto node : indep_nodes) {
-        std::unordered_set<EdgeId> obsolete_edges{};
-        std::vector<Edge> new_edges{};
+        std::unordered_set<EdgeId> obsolete_edges;
+        std::vector<Edge> new_edges;
         auto [edges, edge_ids] = relaxEdgesWithIds(node);
 
         for(auto i = 0; i < edges.size(); i++) {
@@ -346,20 +346,20 @@ void Graph::contractionStep() noexcept
         }
         // TODO: consider alternative to just use amount of neighbors as removed edges
         auto edge_diff = new_edges.size() - obsolete_edges.size();
-        newEdgeCandidates.emplace_back(edge_diff, node, new_edges);
+        newEdgeCandidates.emplace_back(edge_diff, new_edges);
     }
 
     // 3.
     std::sort(newEdgeCandidates.begin(), newEdgeCandidates.end(), [](auto first, auto second) {
-        return std::get<0>(first) < std::get<0>(second);
+        return first.first < second.first;
     });
 
     // 4.
     std::vector<std::pair<NodeId, std::vector<Edge>>> toInsert;
     for(auto i = 0; i < newEdgeCandidates.size() / 2; i++) {
         auto entry = newEdgeCandidates[i];
-        NodeId source = std::get<1>(entry);
-        auto edges = std::get<2>(entry);
+        NodeId source = -1; // TODO: get source NodeID from somewhere
+        auto edges = entry.second;
         toInsert.emplace_back(source, edges);
     }
 
