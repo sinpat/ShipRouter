@@ -312,10 +312,10 @@ void Graph::contractionStep() noexcept
 
     // 2.
     Dijkstra dijkstra{*this};
-    std::vector<std::pair<int32_t, std::vector<Edge>>> newEdgeCandidates;
+    std::vector<std::pair<int32_t, std::vector<std::pair<NodeId, Edge>>>> newEdgeCandidates;
     for(auto node : indep_nodes) {
         std::unordered_set<EdgeId> obsolete_edges;
-        std::vector<Edge> new_edges;
+        std::vector<std::pair<NodeId, Edge>> new_edges;
         auto [edges, edge_ids] = relaxEdgesWithIds(node);
 
         for(auto i = 0; i < edges.size(); i++) {
@@ -337,9 +337,10 @@ void Graph::contractionStep() noexcept
                         obsolete_edges.emplace(wrapped_edge_1);
                         obsolete_edges.emplace(wrapped_edge_2);
                         new_edges.emplace_back(
-                            target,
-                            cost,
-                            std::pair{wrapped_edge_1, wrapped_edge_2});
+                            source,
+                            Edge{target,
+                                 cost,
+                                 std::pair{wrapped_edge_1, wrapped_edge_2}});
                     }
                 }
             }
@@ -355,12 +356,10 @@ void Graph::contractionStep() noexcept
     });
 
     // 4.
-    std::vector<std::pair<NodeId, std::vector<Edge>>> toInsert;
+    std::vector<std::pair<NodeId, Edge>> toInsert;
     for(auto i = 0; i < newEdgeCandidates.size() / 2; i++) {
-        auto entry = newEdgeCandidates[i];
-        NodeId source = -1; // TODO: get source NodeID from somewhere
-        auto edges = entry.second;
-        toInsert.emplace_back(source, edges);
+        auto [_, new_edges] = newEdgeCandidates[i];
+        concat(toInsert, new_edges);
     }
 
     // 5.
@@ -390,9 +389,9 @@ std::vector<NodeId> Graph::independentSet() const
     return indepNodes;
 }
 
-void Graph::insertEdges(std::vector<std::pair<NodeId, std::vector<Edge>>> toInsert)
+void Graph::insertEdges(std::vector<std::pair<NodeId, Edge>> toInsert)
 {
-    for(auto [source, new_edges] : toInsert) {
+    for(auto [source, new_edge] : toInsert) {
         // 1. insert new edges
         // edges_.insert(edges_.end(),
         //               new_edges.begin(),
@@ -402,7 +401,7 @@ void Graph::insertEdges(std::vector<std::pair<NodeId, std::vector<Edge>>> toInse
 
         // 3. consider new edges in offset array
         for(auto i = source + 1; i < offset_.size(); i++) {
-            offset_[i] += new_edges.size();
+            offset_[i] += 1;
         }
         // 3 (alt). build new offset array
         /*
@@ -417,12 +416,12 @@ void Graph::insertEdges(std::vector<std::pair<NodeId, std::vector<Edge>>> toInse
 
         // insert new edges
         auto numEdgesOld = edges_.size();
-        for(auto i = 0; i < new_edges.size(); ++i) {
-            auto edge_id = numEdgesOld + i;
-            edges_.emplace_back(new_edges[i]);
-            sorted_edge_ids_.emplace_back(edge_id); // only added to extend size of vector
-            sorted_edge_ids_with_source_.emplace_back(edge_id, source);
-        }
+        // for(auto i = 0; i < new_edges.size(); ++i) {
+        auto edge_id = numEdgesOld + 1;
+        edges_.emplace_back(new_edge);
+        sorted_edge_ids_.emplace_back(edge_id); // only added to extend size of vector
+        sorted_edge_ids_with_source_.emplace_back(edge_id, source);
+        // }
     }
     // sort edges
     std::sort(
