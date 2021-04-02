@@ -321,7 +321,7 @@ void Graph::contractionStep() noexcept
         for(auto i = 0; i < edges.size(); i++) {
             auto source = edges[i].target;
             // shortest path from neigh to all other neighbors
-            for(auto j = 0; j < edges.size(); i++) {
+            for(auto j = 0; j < edges.size(); j++) {
                 if(i == j) {
                     // TODO: I don't think we need this check
                     continue;
@@ -391,6 +391,7 @@ std::vector<NodeId> Graph::independentSet() const
 
 void Graph::insertEdges(std::vector<std::pair<NodeId, Edge>> toInsert)
 {
+    fmt::print("Updating graph with new edges...\n");
     for(auto [source, new_edge] : toInsert) {
         // 1. insert new edges
         // edges_.insert(edges_.end(),
