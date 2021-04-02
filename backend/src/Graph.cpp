@@ -283,16 +283,16 @@ auto Graph::snapToGridNode(Latitude<Degree> lat,
 
 void Graph::contract() noexcept
 {
-    fmt::print("Starting graph contraction...");
+    fmt::print("Starting graph contraction...\n");
     while(!fully_contracted) {
         contractionStep();
     }
-    fmt::print("Done contracting.");
+    fmt::print("Done contracting\n.");
 }
 
 void Graph::contractionStep() noexcept
 {
-    fmt::print("Starting contraction step {}", current_level);
+    fmt::print("Starting contraction step {}\n", current_level);
     /*
     * 1. create independent set of nodes
     * 2. for each node: 
@@ -304,7 +304,7 @@ void Graph::contractionStep() noexcept
 
     // 1.
     auto indep_nodes = independentSet();
-    fmt::print("Independent set contains {} nodes", indep_nodes.size());
+    fmt::print("Independent set contains {} nodes\n", indep_nodes.size());
     if(indep_nodes.empty()) {
         fully_contracted = true;
         return;

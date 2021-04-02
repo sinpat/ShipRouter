@@ -1,14 +1,18 @@
+#include <CHDijkstra.hpp>
 #include <Dijkstra.hpp>
 #include <Environment.hpp>
 #include <PBFExtractor.hpp>
 #include <ServiceManager.hpp>
 #include <SphericalGrid.hpp>
 #include <Vector3D.hpp>
+#include <chrono>
 #include <csignal>
 #include <cstdint>
 #include <execution>
 #include <fmt/core.h>
 #include <fmt/ranges.h>
+#include <fstream>
+#include <iostream>
 
 static std::condition_variable condition;
 static std::mutex mutex;
@@ -28,6 +32,33 @@ static auto waitForUserInterrupt() noexcept
     condition.wait(lock);
     std::cout << "user has signaled to interrupt the program..." << std::endl;
     lock.unlock();
+}
+
+void benchmark(
+    std::string file_name,
+    std::vector<std::pair<NodeId, NodeId>> st_pairs,
+    std::function<DijkstraPath(NodeId, NodeId)> fn)
+{
+    fmt::print("Starting benchmark for {}\n", file_name);
+    std::string log;
+    for(auto [s, t] : st_pairs) {
+        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+        DijkstraPath p = fn(s, t);
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
+        std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count() << "[ns]" << std::endl;
+        log += fmt::format("{} -> {}: ", s, t);
+        if(p) {
+            log += fmt::format("{}\n", p.value());
+        } else {
+            log += "No path\n";
+        }
+    }
+
+    std::ofstream myfile;
+    myfile.open(fmt::format("../results/{}", file_name));
+    myfile << log;
+    myfile.close();
 }
 
 
@@ -59,10 +90,30 @@ auto main() -> int
     std::cout << "building the grid..." << std::endl;
     SphericalGrid grid{environment.getNumberOfSphereNodes()};
 
-    std::cout << "filtering land nodes..." << std::endl;
+    std::cout << "filtering land nodes ... ";
     grid.filter(polygons);
+    std::cout << "done" << std::endl;
 
     Graph graph{std::move(grid)};
+
+    // get n random source-target tuples
+    std::vector<std::pair<NodeId, NodeId>> st_pairs;
+    for(auto i = 0; i < 10; ++i) {
+        auto source = rand() % graph.size();
+        auto target = rand() % graph.size();
+        st_pairs.emplace_back(source, target);
+    }
+    // run normal dijkstra on these tuples and save to file
+    Dijkstra dijkstra{graph};
+    benchmark("normal", st_pairs, [&](NodeId s, NodeId t) {
+        return dijkstra.findRoute(s, t);
+    });
+    graph.contract(); // contract graph
+    // run ch-dijkstra on same tuples and save to different file
+    CHDijkstra ch_dijkstra{graph};
+    benchmark("ch", st_pairs, [&](NodeId s, NodeId t) {
+        return ch_dijkstra.findShortestPath(s, t);
+    });
 
 
     //handle sigint such that the user can stop the server

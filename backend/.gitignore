@@ -161,3 +161,6 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# output for benchmarking results
+results/
