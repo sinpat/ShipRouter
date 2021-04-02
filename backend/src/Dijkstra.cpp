@@ -17,7 +17,7 @@ Dijkstra::Dijkstra(const Graph& graph) noexcept
 
 
 auto Dijkstra::findRoute(NodeId source, NodeId target) noexcept
-    -> std::optional<std::pair<Path, Distance>>
+    -> DijkstraPath
 {
     if(source == last_source_
        and isSettled(target)
@@ -83,7 +83,7 @@ auto Dijkstra::setDistanceTo(NodeId n, Distance distance) noexcept
 }
 
 auto Dijkstra::extractShortestPath(NodeId source, NodeId target) const noexcept
-    -> std::optional<std::pair<Path, Distance>>
+    -> DijkstraPath
 {
     //check if a path exists
     if(UNREACHABLE == getDistanceTo(target)) {

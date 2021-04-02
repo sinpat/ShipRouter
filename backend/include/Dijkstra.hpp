@@ -35,7 +35,7 @@ public:
     auto operator=(Dijkstra&&) -> Dijkstra& = delete;
 
     auto findRoute(NodeId source, NodeId target) noexcept
-        -> std::optional<std::pair<Path, Distance>>;
+        -> DijkstraPath;
 
     auto findDistance(NodeId source, NodeId target) noexcept
         -> Distance;
@@ -51,7 +51,7 @@ private:
         -> Distance;
 
     auto extractShortestPath(NodeId source, NodeId target) const noexcept
-        -> std::optional<std::pair<Path, Distance>>;
+        -> DijkstraPath;
 
     auto unSettle(NodeId n)
         -> void;

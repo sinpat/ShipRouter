@@ -52,6 +52,7 @@ target_sources(ShipRouterSrc
   ${CMAKE_CURRENT_LIST_DIR}/include/CoastlineLookup.hpp
   ${CMAKE_CURRENT_LIST_DIR}/include/Polygon.hpp
   ${CMAKE_CURRENT_LIST_DIR}/include/Dijkstra.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/CHDijkstra.hpp
   ${CMAKE_CURRENT_LIST_DIR}/include/LatLng.hpp
   ${CMAKE_CURRENT_LIST_DIR}/include/Range.hpp
   ${CMAKE_CURRENT_LIST_DIR}/include/SphericalGrid.hpp
@@ -67,6 +68,7 @@ target_sources(ShipRouterSrc
   src/Polygon.cpp
   src/SphericalGrid.cpp
   src/Dijkstra.cpp
+  src/CHDijkstra.cpp
   src/ServiceManager.cpp
   )
 
