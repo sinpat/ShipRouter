@@ -87,7 +87,6 @@ private:
     std::vector<std::pair<EdgeId, NodeId>> sorted_edge_ids_with_source_;
 
     mutable std::vector<bool> snap_settled_;
-    const SphericalGrid grid_;
 
     // for ch-graph
     std::vector<Level> levels;
@@ -96,4 +95,6 @@ private:
 
     Level current_level = 0;
     bool fully_contracted = false;
+
+    const SphericalGrid grid_;
 };
