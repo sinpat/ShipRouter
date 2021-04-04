@@ -99,31 +99,44 @@ auto Graph::size() const noexcept
 }
 
 auto Graph::relaxEdges(NodeId node) const noexcept
-    -> nonstd::span<const Edge>
+    -> std::vector<Edge>
 {
+    // const auto start_offset = offset_[node];
+    // const auto end_offset = offset_[node + 1];
+    // const auto* start = &edges_[start_offset];
+    // const auto* end = &edges_[end_offset];
+    // return nonstd::span{start, end};
+
     const auto start_offset = offset_[node];
     const auto end_offset = offset_[node + 1];
-    const auto* start = &edges_[start_offset];
-    const auto* end = &edges_[end_offset];
-
-    return nonstd::span{start, end};
+    const auto start = &sorted_edge_ids_[start_offset];
+    const auto end = &sorted_edge_ids_[end_offset];
+    std::vector<Edge> edges;
+    for(auto edge_id : nonstd::span{start, end}) {
+        edges.emplace_back(edges_[edge_id]);
+    }
+    return edges;
 }
 
-auto Graph::relaxEdgesWithIds(NodeId node) const noexcept
-    -> std::pair<nonstd::span<const Edge>, std::vector<EdgeId>>
-{
-    const auto start_offset = offset_[node];
-    const auto end_offset = offset_[node + 1];
-    const auto* start = &edges_[start_offset];
-    const auto* end = &edges_[end_offset];
+// auto Graph::relaxEdgesWithIds(NodeId node) const noexcept
+//     -> std::pair<nonstd::span<const Edge>, std::vector<EdgeId>>
+// {
+//     // this is wrong! fix this before removing comment
+//
+//     const auto start_offset = offset_[node];
+//     const auto end_offset = offset_[node + 1];
+//     const auto start_edgeIDs = sorted_edge_ids_[start_offset];
+//     const auto end_edgeIDs = sorted_edge_ids_[end_offset];
+//     const auto* start = &edges_[start_edgeIDs];
+//     const auto* end = &edges_[end_edgeIDs];
 
-    std::vector<EdgeId> IDs(end_offset - start_offset);
-    std::iota(IDs.begin(), IDs.end(), start_offset);
+//     std::vector<EdgeId> IDs(end_offset - start_offset);
+//     std::iota(IDs.begin(), IDs.end(), start_offset);
 
-    return std::pair{
-        nonstd::span{start, end},
-        IDs};
-}
+//     return std::pair{
+//         nonstd::span{start, end},
+//         IDs};
+// }
 
 auto Graph::gridToId(std::size_t m, std::size_t n) const noexcept
     -> NodeId
@@ -330,7 +343,8 @@ void Graph::contractionStep() noexcept
         fmt::print("Contracting node {}\n", node);
         std::unordered_set<EdgeId> obsolete_edges;
         std::vector<std::pair<NodeId, Edge>> new_edges;
-        auto [edges, edge_ids] = relaxEdgesWithIds(node);
+        // auto [edges, edge_ids] = relaxEdgesWithIds(node);
+        auto edges = relaxEdges(node);
 
         for(auto i = 0; i < edges.size(); i++) {
             auto source = edges[i].target;
@@ -346,16 +360,16 @@ void Graph::contractionStep() noexcept
                     auto [path, cost] = res.value();
                     // check if shortest path contains node
                     if(path.size() == 3 and path[0] == source and path[1] == node and path[2] == target) {
-                        auto wrapped_edge_1 = edge_ids[i]; // this is wrong, we need the inverse edge
-                        auto wrapped_edge_2 = edge_ids[j];
-                        fmt::print("found shortcut with cost {} and path {} wrapping edges {} and {}\n", cost, path, wrapped_edge_1, wrapped_edge_2);
+                        // auto wrapped_edge_1 = edge_ids[i]; // this is wrong, we need the inverse edge
+                        // auto wrapped_edge_2 = edge_ids[j];
+                        fmt::print("found shortcut with cost {} and path {} wrapping edges {} and {}\n", cost, path, -1, -1);
                         // obsolete_edges.emplace(wrapped_edge_1);
-                        obsolete_edges.emplace(wrapped_edge_2);
+                        // obsolete_edges.emplace(wrapped_edge_2);
                         new_edges.emplace_back(
                             source,
                             Edge{target,
                                  cost,
-                                 std::pair{-1, wrapped_edge_2}});
+                                 std::pair{-1, -1}});
                     }
                 }
             }
@@ -410,6 +424,7 @@ void Graph::insertEdges(std::vector<std::pair<NodeId, Edge>> toInsert)
 {
     fmt::print("Updating graph with new edges...\n");
     for(auto [source, new_edge] : toInsert) {
+        fmt::print("adding shortcut from {} to {}\n", source, new_edge.target);
         // 1. insert new edges
         // edges_.insert(edges_.end(),
         //               new_edges.begin(),

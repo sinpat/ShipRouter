@@ -25,10 +25,10 @@ public:
         -> bool;
 
     auto relaxEdges(NodeId node) const noexcept
-        -> nonstd::span<const Edge>;
+        -> std::vector<Edge>;
 
-    auto relaxEdgesWithIds(NodeId node) const noexcept
-        -> std::pair<nonstd::span<const Edge>, std::vector<EdgeId>>;
+    // auto relaxEdgesWithIds(NodeId node) const noexcept
+    //     -> std::pair<nonstd::span<const Edge>, std::vector<EdgeId>>;
 
     auto size() const noexcept
         -> std::size_t;
