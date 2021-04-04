@@ -45,7 +45,7 @@ Graph::Graph(SphericalGrid&& g)
             for(auto i = 0; i < neig_dist.size(); ++i) {
                 auto edge_id = numEdgesOld + i;
                 sorted_edge_ids_.emplace_back(edge_id);
-                sorted_edge_ids_with_source_.emplace_back(id, edge_id);
+                sorted_edge_ids_with_source_.emplace_back(edge_id, id);
             }
             edges_ = concat(std::move(edges_),
                             std::move(neig_dist));
