@@ -6,6 +6,7 @@
 #include <fmt/ranges.h>
 #include <iostream>
 #include <nonstd/span.hpp>
+#include <numeric>
 #include <queue>
 #include <unordered_set>
 
@@ -109,16 +110,19 @@ auto Graph::relaxEdges(NodeId node) const noexcept
 }
 
 auto Graph::relaxEdgesWithIds(NodeId node) const noexcept
-    -> std::pair<nonstd::span<const Edge>, nonstd::span<const EdgeId>>
+    -> std::pair<nonstd::span<const Edge>, std::vector<EdgeId>>
 {
     const auto start_offset = offset_[node];
     const auto end_offset = offset_[node + 1];
     const auto* start = &edges_[start_offset];
     const auto* end = &edges_[end_offset];
 
+    std::vector<EdgeId> IDs(end_offset - start_offset);
+    std::iota(IDs.begin(), IDs.end(), start_offset);
+
     return std::pair{
         nonstd::span{start, end},
-        nonstd::span{&start_offset, &end_offset}};
+        IDs};
 }
 
 auto Graph::gridToId(std::size_t m, std::size_t n) const noexcept
@@ -285,6 +289,15 @@ void Graph::contract() noexcept
 {
     fmt::print("Starting graph contraction...\n");
     while(!fully_contracted) {
+        fmt::print("Graph contains {} nodes\n", size());
+        fmt::print("Edges:\n");
+        for(auto i = 0; i < size(); ++i) {
+            fmt::print("{} is water: {}\n", i, grid_.is_water_[i]);
+            for(auto edge : relaxEdges(i)) {
+                fmt::print("{} -> {}: {} {}\n", i, edge.target, edge.dist, edge.wrapped_edges.has_value());
+            }
+            fmt::print("\n");
+        }
         contractionStep();
     }
     fmt::print("Done contracting\n.");
@@ -304,7 +317,7 @@ void Graph::contractionStep() noexcept
 
     // 1.
     auto indep_nodes = independentSet();
-    fmt::print("Independent set contains {} nodes\n", indep_nodes.size());
+    fmt::print("Independent set contains {} nodes: {}\n", indep_nodes.size(), indep_nodes);
     if(indep_nodes.empty()) {
         fully_contracted = true;
         return;
@@ -314,6 +327,7 @@ void Graph::contractionStep() noexcept
     Dijkstra dijkstra{*this};
     std::vector<std::pair<int32_t, std::vector<std::pair<NodeId, Edge>>>> newEdgeCandidates;
     for(auto node : indep_nodes) {
+        fmt::print("Contracting node {}\n", node);
         std::unordered_set<EdgeId> obsolete_edges;
         std::vector<std::pair<NodeId, Edge>> new_edges;
         auto [edges, edge_ids] = relaxEdgesWithIds(node);
@@ -332,15 +346,16 @@ void Graph::contractionStep() noexcept
                     auto [path, cost] = res.value();
                     // check if shortest path contains node
                     if(path.size() == 3 and path[0] == source and path[1] == node and path[2] == target) {
-                        auto wrapped_edge_1 = edge_ids[i];
+                        auto wrapped_edge_1 = edge_ids[i]; // this is wrong, we need the inverse edge
                         auto wrapped_edge_2 = edge_ids[j];
-                        obsolete_edges.emplace(wrapped_edge_1);
+                        fmt::print("found shortcut with cost {} and path {} wrapping edges {} and {}\n", cost, path, wrapped_edge_1, wrapped_edge_2);
+                        // obsolete_edges.emplace(wrapped_edge_1);
                         obsolete_edges.emplace(wrapped_edge_2);
                         new_edges.emplace_back(
                             source,
                             Edge{target,
                                  cost,
-                                 std::pair{wrapped_edge_1, wrapped_edge_2}});
+                                 std::pair{-1, wrapped_edge_2}});
                     }
                 }
             }
@@ -349,6 +364,7 @@ void Graph::contractionStep() noexcept
         auto edge_diff = new_edges.size() - obsolete_edges.size();
         newEdgeCandidates.emplace_back(edge_diff, new_edges);
     }
+    fmt::print("Done checking for possible shortcuts\n");
 
     // 3.
     std::sort(newEdgeCandidates.begin(), newEdgeCandidates.end(), [](auto first, auto second) {
@@ -363,6 +379,7 @@ void Graph::contractionStep() noexcept
     }
 
     // 5.
+    fmt::print("adding {} new shortcuts\n", toInsert.size());
     insertEdges(toInsert);
 
     // increment level and assign to nodes
