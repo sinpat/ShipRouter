@@ -59,7 +59,7 @@ Graph::Graph(SphericalGrid&& g)
     }
 
     //insert dummy at the end
-    edges_.emplace_back(std::numeric_limits<NodeId>::max(), UNREACHABLE, std::nullopt);
+    // edges_.emplace_back(std::numeric_limits<NodeId>::max(), UNREACHABLE, std::nullopt);
 }
 
 auto Graph::idToLat(NodeId id) const noexcept
