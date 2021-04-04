@@ -450,7 +450,7 @@ void Graph::insertEdges(std::vector<std::pair<NodeId, Edge>> toInsert)
         // insert new edges
         auto numEdgesOld = edges_.size();
         // for(auto i = 0; i < new_edges.size(); ++i) {
-        auto edge_id = numEdgesOld + 1;
+        auto edge_id = numEdgesOld;
         edges_.emplace_back(new_edge);
         sorted_edge_ids_.emplace_back(edge_id); // only added to extend size of vector
         sorted_edge_ids_with_source_.emplace_back(edge_id, source);
