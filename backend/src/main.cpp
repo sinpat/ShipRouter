@@ -90,9 +90,8 @@ auto main() -> int
     std::cout << "building the grid..." << std::endl;
     SphericalGrid grid{environment.getNumberOfSphereNodes()};
 
-    std::cout << "filtering land nodes ... ";
+    std::cout << "filtering land nodes ... " << std::endl;
     grid.filter(polygons);
-    std::cout << "done" << std::endl;
 
     Graph graph{std::move(grid)};
 
