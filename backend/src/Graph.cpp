@@ -348,6 +348,9 @@ void Graph::contractionStep() noexcept
 
         for(auto i = 0; i < edges.size(); i++) {
             auto source = edges[i].target;
+            if(nodeContracted(source)) {
+                continue;
+            }
             // shortest path from neigh to all other neighbors
             for(auto j = 0; j < edges.size(); j++) {
                 if(i == j) {
@@ -355,6 +358,9 @@ void Graph::contractionStep() noexcept
                     continue;
                 }
                 auto target = edges[j].target;
+                if(nodeContracted(target)) {
+                    continue;
+                }
                 auto res = dijkstra.findRoute(source, target);
                 if(res.has_value()) {
                     auto [path, cost] = res.value();
@@ -467,4 +473,9 @@ void Graph::insertEdges(std::vector<std::pair<NodeId, Edge>> toInsert)
     for(auto i = 0; i < sorted_edge_ids_with_source_.size(); i++) {
         sorted_edge_ids_[i] = sorted_edge_ids_with_source_[i].first;
     }
+}
+
+bool Graph::nodeContracted(NodeId id)
+{
+    return levels[id] > 0;
 }
