@@ -313,7 +313,7 @@ void Graph::contract() noexcept
         }
         contractionStep();
     }
-    fmt::print("Done contracting\n.");
+    fmt::print("Done contracting\n");
 }
 
 void Graph::contractionStep() noexcept
@@ -387,7 +387,7 @@ void Graph::contractionStep() noexcept
 
     // 4.
     std::vector<std::pair<NodeId, Edge>> toInsert;
-    for(auto i = 0; i < newEdgeCandidates.size() / 2; i++) {
+    for(auto i = 0; i < newEdgeCandidates.size() / 2.0; i++) {
         auto [_, new_edges] = newEdgeCandidates[i];
         concat(toInsert, new_edges);
     }
@@ -401,6 +401,7 @@ void Graph::contractionStep() noexcept
     for(auto node : indep_nodes) {
         levels[node] = current_level;
     }
+    fmt::print("levels {}\n", levels);
 }
 
 std::vector<NodeId> Graph::independentSet() const
