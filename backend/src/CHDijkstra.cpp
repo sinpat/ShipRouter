@@ -11,22 +11,24 @@ CHDijkstra::CHDijkstra(const Graph& graph) noexcept
 DijkstraPath CHDijkstra::findShortestPath(NodeId source, NodeId target) noexcept
 {
     reset(); // TODO: remove this and try to optimize
-    q_.emplace(source, 0, 0);
-    q_.emplace(target, 0, 1);
+    q_.emplace(source, 0, FORWARD);
+    q_.emplace(target, 0, BACKWARD);
 
     while(!q_.empty()) {
         QNode q_node = q_.top();
         NodeId cur_node = q_node.node;
         q_.pop();
 
+        // TODO: handle forward and backward properly
         auto edges = graph_.relaxEdges(cur_node); // TODO: need to be filtered by level
         for(auto edge : edges) {
             NodeId target = edge.target;
             Distance combined_dist = q_node.dist + edge.dist;
-            // TODO: handle forward and backward properly
-            if(combined_dist < forward_dists_[target]) {
-                forward_dists_[target] = combined_dist;
-                forward_previous_[target] = cur_node;
+            std::array dists = {&forward_dists_, &backward_dists_};
+            std::array previous = {&forward_previous_, &backward_previous_};
+            if(combined_dist < (*dists[q_node.dir])[target]) {
+                (*dists[q_node.dir])[target] = combined_dist;
+                (*previous[q_node.dir])[target] = cur_node;
                 touched_.emplace_back(target);
                 q_.emplace(target, combined_dist, q_node.dir);
             }

@@ -5,6 +5,9 @@
 
 using Direction = uint;
 
+static constexpr auto FORWARD = 0;
+static constexpr auto BACKWARD = 1;
+
 struct QNode
 {
     QNode(NodeId node_in, Distance dist_in, Direction dir_in)
