@@ -11,35 +11,55 @@ CHDijkstra::CHDijkstra(const Graph& graph) noexcept
 DijkstraPath CHDijkstra::findShortestPath(NodeId source, NodeId target) noexcept
 {
     reset(); // TODO: remove this and try to optimize
+    std::array done = {false, false}; // indicates whether we are done with forward resp. backward search
     q_.emplace(source, 0, FORWARD);
     q_.emplace(target, 0, BACKWARD);
 
     while(!q_.empty()) {
         QNode q_node = q_.top();
         NodeId cur_node = q_node.node;
+        Direction direction = q_node.dir;
         q_.pop();
 
-        // TODO: handle forward and backward properly
-        auto edges = graph_.relaxCHEdges(cur_node);
+        // check if we have to continue exploring in this direction
+        if(done[direction]) {
+            continue;
+        } else if(q_node.dist > best_node_.second) {
+            done[direction] = true;
+            continue;
+        }
+
+        auto edges = graph_.relaxCHEdges(cur_node); // TODO: handle forward and backward properly
         for(auto edge : edges) {
             NodeId target = edge.target;
-            Distance combined_dist = q_node.dist + edge.dist;
+            Distance dist_with_edge = q_node.dist + edge.dist;
             std::array dists = {&forward_dists_, &backward_dists_};
             std::array previous = {&forward_previous_, &backward_previous_};
-            if(combined_dist < (*dists[q_node.dir])[target]) {
-                (*dists[q_node.dir])[target] = combined_dist;
-                (*previous[q_node.dir])[target] = cur_node;
+            if(dist_with_edge < (*dists[direction])[target]) {
+                (*dists[direction])[target] = dist_with_edge;
+                (*previous[direction])[target] = cur_node;
                 touched_.emplace_back(target);
-                q_.emplace(target, combined_dist, q_node.dir);
+                q_.emplace(target, dist_with_edge, direction);
+
+                // check if we have new best
+                // TODO: Is this the right place? If yes, we do not have to check both distances against unreachable
+                auto other_dist = (*dists[direction xor 1])[target];
+                auto combined_dist = dist_with_edge + other_dist;
+                if(other_dist != UNREACHABLE and combined_dist < best_node_.second) {
+                    best_node_ = std::pair{target, combined_dist};
+                }
             }
         }
     }
-    return std::nullopt;
+    return unfoldPath();
 }
 
-std::pair<Path, Distance> CHDijkstra::unfoldPath(NodeId node)
+DijkstraPath CHDijkstra::unfoldPath()
 {
-    Distance dist = forward_dists_[node] + backward_dists_[node];
+    if(best_node_.first == NON_EXISTENT) {
+        return std::nullopt;
+    }
+    auto [node, dist] = best_node_;
     // TODO: unfold
     return std::pair{
         std::vector<NodeId>{},
@@ -49,6 +69,7 @@ std::pair<Path, Distance> CHDijkstra::unfoldPath(NodeId node)
 void CHDijkstra::reset() noexcept
 {
     q_ = CHDijkstraQueue{};
+    best_node_ = std::pair{NON_EXISTENT, UNREACHABLE};
     for(auto id : touched_) {
         forward_dists_[id] = UNREACHABLE;
         backward_dists_[id] = UNREACHABLE;

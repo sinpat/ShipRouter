@@ -42,7 +42,7 @@ public:
     DijkstraPath findShortestPath(NodeId source, NodeId target) noexcept;
 
 private:
-    std::pair<Path, Distance> unfoldPath(NodeId node);
+    DijkstraPath unfoldPath();
     void reset() noexcept;
 
 private:
@@ -53,5 +53,9 @@ private:
     std::vector<Distance> backward_dists_;
     std::vector<NodeId> forward_previous_;
     std::vector<NodeId> backward_previous_;
+
+    // all nodes whose dists and previous' have been set
     std::vector<NodeId> touched_;
+    // holds the NodeId and COMBINED distance of the best node
+    std::pair<NodeId, Distance> best_node_;
 };
