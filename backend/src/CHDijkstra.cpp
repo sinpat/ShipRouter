@@ -1,4 +1,5 @@
 #include <CHDijkstra.hpp>
+#include <fmt/ranges.h>
 
 CHDijkstra::CHDijkstra(const Graph& graph) noexcept
     : graph_(graph),
@@ -13,7 +14,11 @@ DijkstraPath CHDijkstra::findShortestPath(NodeId source, NodeId target) noexcept
     reset(); // TODO: remove this and try to optimize
     std::array done = {false, false}; // indicates whether we are done with forward resp. backward search
     q_.emplace(source, 0, FORWARD);
-    q_.emplace(target, 0, BACKWARD);
+    // q_.emplace(target, 0, BACKWARD);
+    forward_dists_[source] = 0;
+    backward_dists_[target] = 0;
+    touched_.emplace_back(source);
+    touched_.emplace_back(target);
 
     while(!q_.empty()) {
         QNode q_node = q_.top();
