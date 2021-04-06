@@ -98,45 +98,38 @@ auto Graph::size() const noexcept
     return grid_.lats_.size();
 }
 
-auto Graph::relaxEdges(NodeId node) const noexcept
-    -> std::vector<Edge>
+auto Graph::relaxEdgeIds(NodeId node) const noexcept
+    -> nonstd::span<const EdgeId>
 {
-    // const auto start_offset = offset_[node];
-    // const auto end_offset = offset_[node + 1];
-    // const auto* start = &edges_[start_offset];
-    // const auto* end = &edges_[end_offset];
-    // return nonstd::span{start, end};
-
     const auto start_offset = offset_[node];
     const auto end_offset = offset_[node + 1];
     const auto start = &sorted_edge_ids_[start_offset];
     const auto end = &sorted_edge_ids_[end_offset];
+    return nonstd::span{start, end};
+}
+
+auto Graph::relaxEdges(NodeId node) const noexcept
+    -> std::vector<Edge>
+{
     std::vector<Edge> edges;
-    for(auto edge_id : nonstd::span{start, end}) {
+    for(auto edge_id : relaxEdgeIds(node)) {
         edges.emplace_back(edges_[edge_id]);
     }
     return edges;
 }
 
-// auto Graph::relaxEdgesWithIds(NodeId node) const noexcept
-//     -> std::pair<nonstd::span<const Edge>, std::vector<EdgeId>>
-// {
-//     // this is wrong! fix this before removing comment
-//
-//     const auto start_offset = offset_[node];
-//     const auto end_offset = offset_[node + 1];
-//     const auto start_edgeIDs = sorted_edge_ids_[start_offset];
-//     const auto end_edgeIDs = sorted_edge_ids_[end_offset];
-//     const auto* start = &edges_[start_edgeIDs];
-//     const auto* end = &edges_[end_edgeIDs];
-
-//     std::vector<EdgeId> IDs(end_offset - start_offset);
-//     std::iota(IDs.begin(), IDs.end(), start_offset);
-
-//     return std::pair{
-//         nonstd::span{start, end},
-//         IDs};
-// }
+auto Graph::relaxCHEdges(NodeId node) const noexcept
+    -> std::vector<Edge>
+{
+    std::vector<Edge> edges;
+    for(auto edge_id : relaxEdgeIds(node)) {
+        const auto edge = edges_[edge_id];
+        if(levels[edge.target] > levels[node]) {
+            edges.emplace_back(edge);
+        }
+    }
+    return edges;
+}
 
 auto Graph::gridToId(std::size_t m, std::size_t n) const noexcept
     -> NodeId
@@ -318,6 +311,7 @@ void Graph::contract() noexcept
 
 void Graph::contractionStep() noexcept
 {
+    // TODO: Idea: we can use the construct of half_edges -in and -out for getting edges for contraction and edges for ch dijkstra
     fmt::print("Starting contraction step {}\n", current_level);
     /*
     * 1. create independent set of nodes
@@ -353,10 +347,6 @@ void Graph::contractionStep() noexcept
             }
             // shortest path from neigh to all other neighbors
             for(auto j = 0; j < edges.size(); j++) {
-                if(i == j) {
-                    // TODO: I don't think we need this check
-                    continue;
-                }
                 auto target = edges[j].target;
                 if(nodeContracted(target)) {
                     continue;

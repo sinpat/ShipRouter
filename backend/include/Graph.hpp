@@ -24,7 +24,13 @@ public:
     auto isValidId(NodeId id) const noexcept
         -> bool;
 
+    auto relaxEdgeIds(NodeId node) const noexcept
+        -> nonstd::span<const EdgeId>;
+
     auto relaxEdges(NodeId node) const noexcept
+        -> std::vector<Edge>;
+
+    auto relaxCHEdges(NodeId node) const noexcept
         -> std::vector<Edge>;
 
     // auto relaxEdgesWithIds(NodeId node) const noexcept

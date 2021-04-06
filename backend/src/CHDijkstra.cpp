@@ -20,7 +20,7 @@ DijkstraPath CHDijkstra::findShortestPath(NodeId source, NodeId target) noexcept
         q_.pop();
 
         // TODO: handle forward and backward properly
-        auto edges = graph_.relaxEdges(cur_node); // TODO: need to be filtered by level
+        auto edges = graph_.relaxCHEdges(cur_node);
         for(auto edge : edges) {
             NodeId target = edge.target;
             Distance combined_dist = q_node.dist + edge.dist;
