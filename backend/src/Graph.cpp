@@ -377,15 +377,15 @@ void Graph::contractionStep() noexcept
     fmt::print("Done checking for possible shortcuts\n");
 
     // 3.
-    std::sort(newEdgeCandidates.begin(), newEdgeCandidates.end(), [](auto first, auto second) {
+    std::sort(newEdgeCandidates.begin(), newEdgeCandidates.end(), [](const auto& first, const auto& second) {
         return first.first < second.first;
     });
 
     // 4.
     std::vector<std::pair<NodeId, Edge>> toInsert;
     for(auto i = 0; i < newEdgeCandidates.size() / 2.0; i++) {
-        auto [_, new_edges] = newEdgeCandidates[i];
-        concat(toInsert, new_edges);
+        auto [_, new_edges] = std::move(newEdgeCandidates[i]);
+        toInsert = concat(std::move(toInsert), std::move(new_edges));
     }
 
     // 5.
@@ -395,6 +395,7 @@ void Graph::contractionStep() noexcept
     // increment level and assign to nodes
     current_level++;
     for(auto node : indep_nodes) {
+        // TODO: this is wrong, some indep_nodes have not necessarily been contracted
         levels[node] = current_level;
     }
     fmt::print("levels {}\n", levels);
