@@ -81,7 +81,6 @@ auto Polygon::pointInPolygon(Latitude<Degree> lat, Longitude<Degree> lng) const
 
 
     auto sum = std::transform_reduce(
-        std::execution::par_unseq,
         std::begin(range),
         std::end(range),
         0.0,
