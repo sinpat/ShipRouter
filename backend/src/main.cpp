@@ -45,14 +45,14 @@ void benchmark(
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         DijkstraPath p = fn(s, t);
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-        std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
-        std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count() << "[ns]" << std::endl;
+        auto time_diff_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
         log += fmt::format("{} -> {}: ", s, t);
         if(p) {
-            log += fmt::format("{}\n", p.value());
+            log += fmt::format("{} ", p.value());
         } else {
-            log += "No path\n";
+            log += "No path ";
         }
+        log += fmt::format("in {}ms\n", time_diff_ms);
     }
 
     std::ofstream myfile;
@@ -64,7 +64,6 @@ void benchmark(
 
 auto main() -> int
 {
-
     auto environment = [] {
         auto environment_opt = loadEnv();
         if(!environment_opt) {
@@ -91,7 +90,10 @@ auto main() -> int
     SphericalGrid grid{environment.getNumberOfSphereNodes()};
 
     std::cout << "filtering land nodes ... " << std::endl;
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     grid.filter(polygons);
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    std::cout << "Filtering took " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << "[s]" << std::endl;
 
     Graph graph{std::move(grid)};
 
