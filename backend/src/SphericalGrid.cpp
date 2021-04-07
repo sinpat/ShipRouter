@@ -102,7 +102,7 @@ auto SphericalGrid::getLowerNeighbours(size_t m, size_t n) const noexcept
     const auto m_idx_lower = (m + n_rows_ - 1) % n_rows_;
     const auto n_cols_in_this = nCols(m);
     const auto n_cols_in_lower = nCols(m_idx_lower);
-    const auto lower_row_ratio = static_cast<double>(n_cols_in_lower) / n_cols_in_this;
+    const auto lower_row_ratio = static_cast<long double>(n_cols_in_lower) / n_cols_in_this;
     for(int i = floor((static_cast<int>(n) - 1) * lower_row_ratio); i <= ceil((n + 1) * lower_row_ratio); i++) {
         neighbours.emplace_back(m_idx_lower, (i + n_cols_in_lower) % n_cols_in_lower);
     }
@@ -122,7 +122,7 @@ auto SphericalGrid::getUpperNeighbours(size_t m, size_t n) const noexcept
     const auto m_idx_upper = (m + 1) % n_rows_;
     const auto n_cols_in_this = nCols(m);
     const auto n_cols_in_upper = nCols(m_idx_upper);
-    const auto upper_row_ratio = static_cast<double>(n_cols_in_upper) / n_cols_in_this;
+    const auto upper_row_ratio = static_cast<long double>(n_cols_in_upper) / n_cols_in_this;
     for(int i = floor((static_cast<int>(n) - 1) * upper_row_ratio); i <= ceil((n + 1) * upper_row_ratio); i++) {
         neighbours.emplace_back(m_idx_upper, (i + n_cols_in_upper) % n_cols_in_upper);
     }
