@@ -5,6 +5,7 @@
 #include <SphericalGrid.hpp>
 #include <Utils.hpp>
 #include <Vector3D.hpp>
+#include <SeaRectangle.hpp>
 #include <algorithm>
 #include <execution>
 #include <queue>
@@ -264,6 +265,18 @@ auto SphericalGrid::filter(const std::vector<Polygon>& polygons) noexcept
                    [&](auto idx) {
                        const auto lat = lats_[idx];
                        const auto lng = lngs_[idx];
+
+                       if(lat < -79.0) {
+                           return false;
+                       }
+                       
+                       //check the predefined rectangles if
+					             //the node is definitly in the ocean
+					             //if so, the polygon check can be avoided 
+                       if(isDefinitlySea(lat, lng)) {
+                           return true;
+                       }
+
                        const auto p = Vector3D{lat.toRadian(), lng.toRadian()}.normalize();
                        return std::none_of(std::cbegin(polygons),
                                            std::cend(polygons),
