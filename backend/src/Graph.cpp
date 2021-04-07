@@ -333,7 +333,7 @@ void Graph::contractionStep() noexcept
     // 2.
     Dijkstra dijkstra{*this};
     // holds the edge_diff and new_edges for every node in the independent set
-    std::vector<std::pair<int32_t, std::vector<Edge>>> newEdgeCandidates;
+    std::vector<std::tuple<NodeId, int32_t, std::vector<Edge>>> newEdgeCandidates;
     for(auto node : indep_nodes) {
         fmt::print("Contracting node {}\n", node);
         std::vector<Edge> new_edges;
@@ -369,33 +369,28 @@ void Graph::contractionStep() noexcept
             }
         }
         auto edge_diff = new_edges.size() - edges.size();
-        newEdgeCandidates.emplace_back(edge_diff, new_edges);
+        newEdgeCandidates.emplace_back(node, edge_diff, new_edges);
     }
     fmt::print("Done checking for possible shortcuts\n");
 
     // 3.
-    std::sort(newEdgeCandidates.begin(), newEdgeCandidates.end(), [](const auto& first, const auto& second) {
-        return first.first < second.first;
+    std::sort(newEdgeCandidates.begin(), newEdgeCandidates.end(), [](const auto& lhs, const auto& rhs) {
+        return std::get<1>(lhs) < std::get<1>(rhs);
     });
 
     // 4.
     std::vector<Edge> toInsert;
+    current_level++;
     for(auto i = 0; i < newEdgeCandidates.size() / 2.0; i++) {
-        auto [_, new_edges] = std::move(newEdgeCandidates[i]);
+        auto [node, _, new_edges] = std::move(newEdgeCandidates[i]);
+        levels[node] = current_level;
         toInsert = concat(std::move(toInsert), std::move(new_edges));
     }
+    fmt::print("levels {}\n", levels);
 
     // 5.
     fmt::print("adding {} new shortcuts\n", toInsert.size());
     insertEdges(toInsert);
-
-    // increment level and assign to nodes
-    current_level++;
-    for(auto node : indep_nodes) {
-        // TODO: this is wrong, some indep_nodes have not necessarily been contracted
-        levels[node] = current_level;
-    }
-    fmt::print("levels {}\n", levels);
 }
 
 std::vector<NodeId> Graph::independentSet() const
