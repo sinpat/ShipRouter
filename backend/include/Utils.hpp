@@ -38,12 +38,14 @@ using DijkstraPath = std::optional<std::pair<Path, Distance>>;
 
 struct Edge
 {
-    Edge(NodeId target, Distance dist, std::optional<std::pair<EdgeId, EdgeId>> wrapped_edges)
-        : target(target),
+    Edge(NodeId source, NodeId target, Distance dist, std::optional<std::pair<EdgeId, EdgeId>> wrapped_edges)
+        : source(source),
+          target(target),
           dist(dist),
           wrapped_edges(wrapped_edges)
     {
     }
+    NodeId source;
     NodeId target;
     Distance dist;
     std::optional<std::pair<EdgeId, EdgeId>> wrapped_edges;

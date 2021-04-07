@@ -74,7 +74,7 @@ private:
     // construct an independent set of nodes that have not yet been contracted
     std::vector<NodeId> independentSet() const;
     // update graph with new edges for the given source node
-    void insertEdges(std::vector<std::pair<NodeId, Edge>> to_insert);
+    void insertEdges(std::vector<Edge> to_insert);
     // whether the node with the given ID is contracted
     bool nodeContracted(NodeId id);
 

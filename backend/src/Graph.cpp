@@ -38,7 +38,7 @@ Graph::Graph(SphericalGrid&& g)
                                auto [dest_lat, dest_lng] = grid_.idToLatLng(neig);
                                auto distance = ::distanceBetween(start_lat, start_lng, dest_lat, dest_lng);
 
-                               return Edge{neig, static_cast<Distance>(distance), std::nullopt};
+                               return Edge{id, neig, static_cast<Distance>(distance), std::nullopt};
                            });
 
             auto numEdgesOld = edges_.size();
@@ -332,10 +332,11 @@ void Graph::contractionStep() noexcept
 
     // 2.
     Dijkstra dijkstra{*this};
-    std::vector<std::pair<int32_t, std::vector<std::pair<NodeId, Edge>>>> newEdgeCandidates;
+    // holds the edge_diff and new_edges for every node in the independent set
+    std::vector<std::pair<int32_t, std::vector<Edge>>> newEdgeCandidates;
     for(auto node : indep_nodes) {
         fmt::print("Contracting node {}\n", node);
-        std::vector<std::pair<NodeId, Edge>> new_edges;
+        std::vector<Edge> new_edges;
         // auto [edges, edge_ids] = relaxEdgesWithIds(node);
         auto edges = relaxEdges(node);
 
@@ -359,8 +360,8 @@ void Graph::contractionStep() noexcept
                         // auto wrapped_edge_2 = edge_ids[j];
                         fmt::print("found shortcut with cost {} and path {} wrapping edges {} and {}\n", cost, path, -1, -1);
                         new_edges.emplace_back(
-                            source,
-                            Edge{target,
+                            Edge{source,
+                                 target,
                                  cost,
                                  std::pair{-1, -1}});
                     }
@@ -378,7 +379,7 @@ void Graph::contractionStep() noexcept
     });
 
     // 4.
-    std::vector<std::pair<NodeId, Edge>> toInsert;
+    std::vector<Edge> toInsert;
     for(auto i = 0; i < newEdgeCandidates.size() / 2.0; i++) {
         auto [_, new_edges] = std::move(newEdgeCandidates[i]);
         toInsert = concat(std::move(toInsert), std::move(new_edges));
@@ -414,10 +415,11 @@ std::vector<NodeId> Graph::independentSet() const
     return indepNodes;
 }
 
-void Graph::insertEdges(std::vector<std::pair<NodeId, Edge>> toInsert)
+void Graph::insertEdges(std::vector<Edge> toInsert)
 {
     fmt::print("Updating graph with new edges...\n");
-    for(auto [source, new_edge] : toInsert) {
+    for(auto new_edge : toInsert) {
+        auto source = new_edge.source;
         fmt::print("adding shortcut from {} to {}\n", source, new_edge.target);
         // 1. insert new edges
         // edges_.insert(edges_.end(),
