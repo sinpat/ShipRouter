@@ -57,6 +57,7 @@ target_sources(ShipRouterSrc
   ${CMAKE_CURRENT_LIST_DIR}/include/Range.hpp
   ${CMAKE_CURRENT_LIST_DIR}/include/SphericalGrid.hpp
   ${CMAKE_CURRENT_LIST_DIR}/include/ServiceManager.hpp
+  ${CMAKE_CURRENT_LIST_DIR}/include/SeaRectangle.hpp
 
   PRIVATE
   src/Graph.cpp
