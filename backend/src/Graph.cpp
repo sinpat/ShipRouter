@@ -335,7 +335,6 @@ void Graph::contractionStep() noexcept
     std::vector<std::pair<int32_t, std::vector<std::pair<NodeId, Edge>>>> newEdgeCandidates;
     for(auto node : indep_nodes) {
         fmt::print("Contracting node {}\n", node);
-        std::unordered_set<EdgeId> obsolete_edges;
         std::vector<std::pair<NodeId, Edge>> new_edges;
         // auto [edges, edge_ids] = relaxEdgesWithIds(node);
         auto edges = relaxEdges(node);
@@ -359,8 +358,6 @@ void Graph::contractionStep() noexcept
                         // auto wrapped_edge_1 = edge_ids[i]; // this is wrong, we need the inverse edge
                         // auto wrapped_edge_2 = edge_ids[j];
                         fmt::print("found shortcut with cost {} and path {} wrapping edges {} and {}\n", cost, path, -1, -1);
-                        // obsolete_edges.emplace(wrapped_edge_1);
-                        // obsolete_edges.emplace(wrapped_edge_2);
                         new_edges.emplace_back(
                             source,
                             Edge{target,
@@ -370,8 +367,7 @@ void Graph::contractionStep() noexcept
                 }
             }
         }
-        // TODO: consider alternative to just use amount of neighbors as removed edges
-        auto edge_diff = new_edges.size() - obsolete_edges.size();
+        auto edge_diff = new_edges.size() - edges.size();
         newEdgeCandidates.emplace_back(edge_diff, new_edges);
     }
     fmt::print("Done checking for possible shortcuts\n");
