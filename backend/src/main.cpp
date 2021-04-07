@@ -45,7 +45,7 @@ void benchmark(
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         DijkstraPath p = fn(s, t);
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-        auto time_diff_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
+        auto time_diff_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
         log += fmt::format("{} -> {}: ", s, t);
         if(p) {
             log += fmt::format("{} ", p.value());
@@ -72,6 +72,7 @@ auto main() -> int
 
             return Environment{9090,
                                "../data/antarctica-latest.osm.pbf",
+                               //    "../data/planet-coastlines.pbf",
                                10};
         }
 

@@ -38,7 +38,7 @@ Graph::Graph(SphericalGrid&& g)
                                auto [dest_lat, dest_lng] = grid_.idToLatLng(neig);
                                auto distance = ::distanceBetween(start_lat, start_lng, dest_lat, dest_lng);
 
-                               return Edge{neig, static_cast<Distance>(distance), std::nullopt};
+                               return Edge{id, neig, static_cast<Distance>(distance), std::nullopt};
                            });
 
             auto numEdgesOld = edges_.size();
@@ -118,19 +118,6 @@ auto Graph::relaxEdges(NodeId node) const noexcept
     return edges;
 }
 
-auto Graph::relaxCHEdges(NodeId node) const noexcept
-    -> std::vector<Edge>
-{
-    std::vector<Edge> edges;
-    for(auto edge_id : relaxEdgeIds(node)) {
-        const auto edge = edges_[edge_id];
-        if(levels[edge.target] > levels[node]) {
-            edges.emplace_back(edge);
-        }
-    }
-    return edges;
-}
-
 auto Graph::gridToId(std::size_t m, std::size_t n) const noexcept
     -> NodeId
 {
@@ -141,6 +128,16 @@ auto Graph::isLandNode(NodeId node) const noexcept
     -> bool
 {
     return !grid_.is_water_[node];
+}
+
+const Edge& Graph::getEdge(EdgeId edge_id) const noexcept
+{
+    return edges_[edge_id];
+}
+
+Level Graph::getLevel(NodeId node) const noexcept
+{
+    return levels[node];
 }
 
 
@@ -300,7 +297,7 @@ void Graph::contract() noexcept
         for(auto i = 0; i < size(); ++i) {
             fmt::print("{} is water: {}\n", i, grid_.is_water_[i]);
             for(auto edge : relaxEdges(i)) {
-                fmt::print("{} -> {}: {} {}\n", i, edge.target, edge.dist, edge.wrapped_edges.has_value());
+                fmt::print("{} -> {}: {} {}\n", edge.source, edge.target, edge.dist, edge.wrapped_edges.has_value());
             }
             fmt::print("\n");
         }
@@ -311,7 +308,6 @@ void Graph::contract() noexcept
 
 void Graph::contractionStep() noexcept
 {
-    // TODO: Idea: we can use the construct of half_edges -in and -out for getting edges for contraction and edges for ch dijkstra
     fmt::print("Starting contraction step {}\n", current_level);
     /*
     * 1. create independent set of nodes
@@ -332,11 +328,11 @@ void Graph::contractionStep() noexcept
 
     // 2.
     Dijkstra dijkstra{*this};
-    std::vector<std::pair<int32_t, std::vector<std::pair<NodeId, Edge>>>> newEdgeCandidates;
+    // holds the edge_diff and new_edges for every node in the independent set
+    std::vector<std::tuple<NodeId, int32_t, std::vector<Edge>>> newEdgeCandidates;
     for(auto node : indep_nodes) {
         fmt::print("Contracting node {}\n", node);
-        std::unordered_set<EdgeId> obsolete_edges;
-        std::vector<std::pair<NodeId, Edge>> new_edges;
+        std::vector<Edge> new_edges;
         // auto [edges, edge_ids] = relaxEdgesWithIds(node);
         auto edges = relaxEdges(node);
 
@@ -359,46 +355,38 @@ void Graph::contractionStep() noexcept
                         // auto wrapped_edge_1 = edge_ids[i]; // this is wrong, we need the inverse edge
                         // auto wrapped_edge_2 = edge_ids[j];
                         fmt::print("found shortcut with cost {} and path {} wrapping edges {} and {}\n", cost, path, -1, -1);
-                        // obsolete_edges.emplace(wrapped_edge_1);
-                        // obsolete_edges.emplace(wrapped_edge_2);
                         new_edges.emplace_back(
-                            source,
-                            Edge{target,
+                            Edge{source,
+                                 target,
                                  cost,
                                  std::pair{-1, -1}});
                     }
                 }
             }
         }
-        // TODO: consider alternative to just use amount of neighbors as removed edges
-        auto edge_diff = new_edges.size() - obsolete_edges.size();
-        newEdgeCandidates.emplace_back(edge_diff, new_edges);
+        auto edge_diff = new_edges.size() - edges.size();
+        newEdgeCandidates.emplace_back(node, edge_diff, new_edges);
     }
     fmt::print("Done checking for possible shortcuts\n");
 
     // 3.
-    std::sort(newEdgeCandidates.begin(), newEdgeCandidates.end(), [](const auto& first, const auto& second) {
-        return first.first < second.first;
+    std::sort(newEdgeCandidates.begin(), newEdgeCandidates.end(), [](const auto& lhs, const auto& rhs) {
+        return std::get<1>(lhs) < std::get<1>(rhs);
     });
 
     // 4.
-    std::vector<std::pair<NodeId, Edge>> toInsert;
+    std::vector<Edge> toInsert;
+    current_level++;
     for(auto i = 0; i < newEdgeCandidates.size() / 2.0; i++) {
-        auto [_, new_edges] = std::move(newEdgeCandidates[i]);
+        auto [node, _, new_edges] = std::move(newEdgeCandidates[i]);
+        levels[node] = current_level;
         toInsert = concat(std::move(toInsert), std::move(new_edges));
     }
+    fmt::print("levels {}\n", levels);
 
     // 5.
     fmt::print("adding {} new shortcuts\n", toInsert.size());
     insertEdges(toInsert);
-
-    // increment level and assign to nodes
-    current_level++;
-    for(auto node : indep_nodes) {
-        // TODO: this is wrong, some indep_nodes have not necessarily been contracted
-        levels[node] = current_level;
-    }
-    fmt::print("levels {}\n", levels);
 }
 
 std::vector<NodeId> Graph::independentSet() const
@@ -418,10 +406,11 @@ std::vector<NodeId> Graph::independentSet() const
     return indepNodes;
 }
 
-void Graph::insertEdges(std::vector<std::pair<NodeId, Edge>> toInsert)
+void Graph::insertEdges(std::vector<Edge> toInsert)
 {
     fmt::print("Updating graph with new edges...\n");
-    for(auto [source, new_edge] : toInsert) {
+    for(auto new_edge : toInsert) {
+        auto source = new_edge.source;
         fmt::print("adding shortcut from {} to {}\n", source, new_edge.target);
         // 1. insert new edges
         // edges_.insert(edges_.end(),

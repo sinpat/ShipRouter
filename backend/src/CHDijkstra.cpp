@@ -5,8 +5,8 @@ CHDijkstra::CHDijkstra(const Graph& graph) noexcept
     : graph_(graph),
       forward_dists_(graph_.size(), UNREACHABLE),
       backward_dists_(graph_.size(), UNREACHABLE),
-      forward_previous_(graph_.size(), NON_EXISTENT),
-      backward_previous_(graph_.size(), NON_EXISTENT)
+      forward_previous_edges_(graph_.size(), NON_EXISTENT),
+      backward_previous_edges_(graph_.size(), NON_EXISTENT)
 {}
 
 DijkstraPath CHDijkstra::findShortestPath(NodeId source, NodeId target) noexcept
@@ -14,7 +14,7 @@ DijkstraPath CHDijkstra::findShortestPath(NodeId source, NodeId target) noexcept
     reset(); // TODO: remove this and try to optimize
     std::array done = {false, false}; // indicates whether we are done with forward resp. backward search
     q_.emplace(source, 0, FORWARD);
-    // q_.emplace(target, 0, BACKWARD);
+    q_.emplace(target, 0, BACKWARD);
     forward_dists_[source] = 0;
     backward_dists_[target] = 0;
     touched_.emplace_back(source);
@@ -34,15 +34,19 @@ DijkstraPath CHDijkstra::findShortestPath(NodeId source, NodeId target) noexcept
             continue;
         }
 
-        auto edges = graph_.relaxCHEdges(cur_node); // TODO: handle forward and backward properly
-        for(auto edge : edges) {
+        auto edge_ids = graph_.relaxEdgeIds(cur_node); // we can use this for both searches
+        for(auto edge_id : edge_ids) {
+            const auto& edge = graph_.getEdge(edge_id);
             NodeId target = edge.target;
+            if(graph_.getLevel(edge.source) >= graph_.getLevel(target)) {
+                continue;
+            }
             Distance dist_with_edge = q_node.dist + edge.dist;
             std::array dists = {&forward_dists_, &backward_dists_};
-            std::array previous = {&forward_previous_, &backward_previous_};
+            std::array previous_edges = {&forward_previous_edges_, &backward_previous_edges_};
             if(dist_with_edge < (*dists[direction])[target]) {
                 (*dists[direction])[target] = dist_with_edge;
-                (*previous[direction])[target] = cur_node;
+                (*previous_edges[direction])[target] = edge_id;
                 touched_.emplace_back(target);
                 q_.emplace(target, dist_with_edge, direction);
 
@@ -78,8 +82,8 @@ void CHDijkstra::reset() noexcept
     for(auto id : touched_) {
         forward_dists_[id] = UNREACHABLE;
         backward_dists_[id] = UNREACHABLE;
-        forward_previous_[id] = NON_EXISTENT;
-        backward_previous_[id] = NON_EXISTENT;
+        forward_previous_edges_[id] = NON_EXISTENT;
+        backward_previous_edges_[id] = NON_EXISTENT;
     }
     touched_.clear();
 }

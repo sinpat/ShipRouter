@@ -1,6 +1,7 @@
 #pragma once
 
 #include <OSMNode.hpp>
+#include <Vector3D.hpp>
 #include <vector>
 
 class NodeLookup;
@@ -11,7 +12,7 @@ class Polygon
 public:
     Polygon(const std::vector<OSMNode>& nodes);
 
-    auto pointInPolygon(Latitude<Degree> lat, Longitude<Degree> lng) const
+    auto pointInPolygon(Latitude<Degree> lat, Longitude<Degree> lng, const Vector3D& p) const
         -> bool;
 
     auto numberOfPoints() const

@@ -59,7 +59,7 @@ auto Polygon::pointInRectangle(Latitude<Degree> lat, Longitude<Degree> lng) cons
     return bottom_ <= lat and lat <= top_ and left_ <= lng and lng <= right_;
 }
 
-auto Polygon::pointInPolygon(Latitude<Degree> lat, Longitude<Degree> lng) const
+auto Polygon::pointInPolygon(Latitude<Degree> lat, Longitude<Degree> lng, const Vector3D& p) const
     -> bool
 {
     if(!pointInRectangle(lat, lng)) {
@@ -67,8 +67,6 @@ auto Polygon::pointInPolygon(Latitude<Degree> lat, Longitude<Degree> lng) const
     }
     const auto size = numberOfPoints();
     const auto range = utils::range(size);
-    const auto p = Vector3D{lat.toRadian(), lng.toRadian()}
-                       .normalize();
 
     // get vectors from p to each vertex
     std::vector<Vector3D> vec_to_vertex;

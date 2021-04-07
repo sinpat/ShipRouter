@@ -51,8 +51,8 @@ private:
     CHDijkstraQueue q_;
     std::vector<Distance> forward_dists_;
     std::vector<Distance> backward_dists_;
-    std::vector<NodeId> forward_previous_;
-    std::vector<NodeId> backward_previous_;
+    std::vector<EdgeId> forward_previous_edges_;
+    std::vector<EdgeId> backward_previous_edges_;
 
     // all nodes whose dists and previous' have been set
     std::vector<NodeId> touched_;
