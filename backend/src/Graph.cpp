@@ -118,19 +118,6 @@ auto Graph::relaxEdges(NodeId node) const noexcept
     return edges;
 }
 
-auto Graph::relaxCHEdges(NodeId node) const noexcept
-    -> std::vector<Edge>
-{
-    std::vector<Edge> edges;
-    for(auto edge_id : relaxEdgeIds(node)) {
-        const auto edge = edges_[edge_id];
-        if(levels[edge.target] > levels[node]) {
-            edges.emplace_back(edge);
-        }
-    }
-    return edges;
-}
-
 auto Graph::gridToId(std::size_t m, std::size_t n) const noexcept
     -> NodeId
 {
@@ -141,6 +128,16 @@ auto Graph::isLandNode(NodeId node) const noexcept
     -> bool
 {
     return !grid_.is_water_[node];
+}
+
+const Edge& Graph::getEdge(EdgeId edge_id) const noexcept
+{
+    return edges_[edge_id];
+}
+
+Level Graph::getLevel(NodeId node) const noexcept
+{
+    return levels[node];
 }
 
 
@@ -300,7 +297,7 @@ void Graph::contract() noexcept
         for(auto i = 0; i < size(); ++i) {
             fmt::print("{} is water: {}\n", i, grid_.is_water_[i]);
             for(auto edge : relaxEdges(i)) {
-                fmt::print("{} -> {}: {} {}\n", i, edge.target, edge.dist, edge.wrapped_edges.has_value());
+                fmt::print("{} -> {}: {} {}\n", edge.source, edge.target, edge.dist, edge.wrapped_edges.has_value());
             }
             fmt::print("\n");
         }
@@ -311,7 +308,6 @@ void Graph::contract() noexcept
 
 void Graph::contractionStep() noexcept
 {
-    // TODO: Idea: we can use the construct of half_edges -in and -out for getting edges for contraction and edges for ch dijkstra
     fmt::print("Starting contraction step {}\n", current_level);
     /*
     * 1. create independent set of nodes

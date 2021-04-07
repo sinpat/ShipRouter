@@ -30,12 +30,6 @@ public:
     auto relaxEdges(NodeId node) const noexcept
         -> std::vector<Edge>;
 
-    auto relaxCHEdges(NodeId node) const noexcept
-        -> std::vector<Edge>;
-
-    // auto relaxEdgesWithIds(NodeId node) const noexcept
-    //     -> std::pair<nonstd::span<const Edge>, std::vector<EdgeId>>;
-
     auto size() const noexcept
         -> std::size_t;
 
@@ -47,6 +41,10 @@ public:
 
     auto isLandNode(NodeId node) const noexcept
         -> bool;
+
+    const Edge& getEdge(EdgeId edge_id) const noexcept;
+
+    Level getLevel(NodeId node) const noexcept;
 
     void contract() noexcept;
 
