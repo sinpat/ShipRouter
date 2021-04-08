@@ -320,18 +320,18 @@ void Graph::contract() noexcept
 {
     fmt::print("Starting graph contraction...\n");
     while(!fully_contracted) {
-        fmt::print("Graph contains {} nodes\n", size());
-        fmt::print("Edges:\n");
-        for(auto i = 0; i < size(); ++i) {
-            fmt::print("{} is water: {}\n", i, grid_.is_water_[i]);
-            for(auto edge : relaxEdges(i)) {
-                fmt::print("{} -> {}: {} {}\n", edge.source, edge.target, edge.dist, edge.wrapped_edges.has_value());
-            }
-            fmt::print("\n");
-        }
+        // fmt::print("Graph contains {} nodes\n", size());
+        // fmt::print("Edges:\n");
+        // for(auto i = 0; i < size(); ++i) {
+        //     fmt::print("{} is water: {}\n", i, grid_.is_water_[i]);
+        //     for(auto edge : relaxEdges(i)) {
+        //         fmt::print("{} -> {}: {} {}\n", edge.source, edge.target, edge.dist, edge.wrapped_edges.has_value());
+        //     }
+        //     fmt::print("\n");
+        // }
         contractionStep();
     }
-    fmt::print("Done contracting\n");
+    fmt::print("Done contracting with {} levels\n", current_level);
 }
 
 void Graph::contractionStep() noexcept
@@ -348,7 +348,7 @@ void Graph::contractionStep() noexcept
 
     // 1.
     auto indep_nodes = independentSet();
-    fmt::print("Independent set contains {} nodes: {}\n", indep_nodes.size(), indep_nodes);
+    // fmt::print("Independent set contains {} nodes: {}\n", indep_nodes.size(), indep_nodes);
     if(indep_nodes.empty()) {
         fully_contracted = true;
         return;
@@ -359,7 +359,7 @@ void Graph::contractionStep() noexcept
     // holds the edge_diff and new_edges for every node in the independent set
     std::vector<std::tuple<NodeId, int32_t, std::vector<Edge>>> newEdgeCandidates;
     for(auto node : indep_nodes) {
-        fmt::print("Contracting node {}\n", node);
+        // fmt::print("Contracting node {}\n", node);
         std::vector<Edge> new_edges;
         auto edge_ids = relaxEdgeIds(node);
 
@@ -379,7 +379,7 @@ void Graph::contractionStep() noexcept
                     auto [path, cost] = res.value();
                     // check if shortest path contains node
                     if(path.size() == 3 and path[0] == source and path[1] == node and path[2] == target) {
-                        fmt::print("found shortcut with cost {} and path {}\n", cost, path);
+                        // fmt::print("found shortcut with cost {} and path {}\n", cost, path);
                         new_edges.emplace_back(
                             Edge{source,
                                  target,
@@ -392,7 +392,7 @@ void Graph::contractionStep() noexcept
         auto edge_diff = new_edges.size() - edge_ids.size();
         newEdgeCandidates.emplace_back(node, edge_diff, new_edges);
     }
-    fmt::print("Done checking for possible shortcuts\n");
+    // fmt::print("Done checking for possible shortcuts\n");
 
     // 3.
     std::sort(newEdgeCandidates.begin(), newEdgeCandidates.end(), [](const auto& lhs, const auto& rhs) {
@@ -407,7 +407,7 @@ void Graph::contractionStep() noexcept
         levels[node] = current_level;
         toInsert = concat(std::move(toInsert), std::move(new_edges));
     }
-    fmt::print("levels {}\n", levels);
+    // fmt::print("levels {}\n", levels);
 
     // 5.
     fmt::print("adding {} new shortcuts\n", toInsert.size());
@@ -436,7 +436,7 @@ void Graph::insertEdges(std::vector<Edge> toInsert)
     fmt::print("Updating graph with new edges...\n");
     for(auto new_edge : toInsert) {
         auto source = new_edge.source;
-        fmt::print("adding shortcut from {} to {}\n", source, new_edge.target);
+        // fmt::print("adding shortcut from {} to {}\n", source, new_edge.target);
         // 1. insert new edges
         // edges_.insert(edges_.end(),
         //               new_edges.begin(),
