@@ -47,8 +47,8 @@ public:
 
     const Edge& getEdge(EdgeId edge_id) const noexcept;
 
-    // all nodes that this edge (and its wrapped edges) represents, not including `source`
-    Path unwrapEdge(EdgeId edge_id, NodeId source) const noexcept;
+    // all nodes that this edge (and its wrapped edges) represents, not including `target`
+    Path unwrapEdge(EdgeId edge_id, NodeId target) const noexcept;
 
     Level getLevel(NodeId node) const noexcept;
 
@@ -76,11 +76,13 @@ private:
     // do one step of contraction
     void contractionStep() noexcept;
     // construct an independent set of nodes that have not yet been contracted
-    std::vector<NodeId> independentSet() const;
+    std::vector<NodeId> independentSet() const noexcept;
     // update graph with new edges for the given source node
     void insertEdges(std::vector<Edge> to_insert);
     // whether the node with the given ID is contracted
-    bool nodeContracted(NodeId id);
+    bool nodeContracted(NodeId id) const noexcept;
+    // the "back-edge" for the given edge
+    EdgeId inverseEdge(EdgeId edge) const noexcept;
 
 private:
     std::vector<std::size_t> ns_;

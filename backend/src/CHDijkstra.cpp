@@ -88,7 +88,7 @@ Path CHDijkstra::from(NodeId current, NodeId until, Direction direction) const n
     }
     EdgeId prev_edge_id = (*previous_edges_[direction])[current];
     Path wrapped = graph_.unwrapEdge(prev_edge_id, current); // all nodes represented by prev_edge
-    NodeId next_current = wrapped[wrapped.size() - 1];
+    NodeId next_current = wrapped[0];
     Path path = from(next_current, until, direction); // path before prev_edge
     path.insert(path.end(), wrapped.begin(), wrapped.end());
     return path;

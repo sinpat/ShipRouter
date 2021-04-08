@@ -297,15 +297,21 @@ std::vector<std::pair<NodeId, NodeId>> Graph::randomSTPairs(uint amount) const n
     return st_pairs;
 }
 
-Path Graph::unwrapEdge(EdgeId edge_id, NodeId source) const noexcept
+Path Graph::unwrapEdge(EdgeId edge_id, NodeId target) const noexcept
 {
-    // TODO: consider wrapped_edges
     const Edge& edge = edges_[edge_id];
-    if(edge.source == source) {
-        return std::vector<NodeId>{edge.target};
-    } else if(edge.target == source) {
-        return std::vector<NodeId>{edge.source};
+    if(!edge.wrapped_edges) {
+        if(edge.source == target) {
+            return std::vector<NodeId>{edge.target};
+        } else if(edge.target == target) {
+            return std::vector<NodeId>{edge.source};
+        }
     }
+    auto [edge1, edge2] = edge.wrapped_edges.value();
+    auto path_edge2 = unwrapEdge(edge2, target);
+    auto path = unwrapEdge(edge1, path_edge2[0]);
+    path.insert(path.end(), path_edge2.begin(), path_edge2.end());
+    return path;
 }
 
 // === stuff for ch and contraction === //
@@ -378,7 +384,7 @@ void Graph::contractionStep() noexcept
                             Edge{source,
                                  target,
                                  cost,
-                                 std::pair{edge_id1, edge_id2}});
+                                 std::pair{inverseEdge(edge_id1), edge_id2}});
                     }
                 }
             }
@@ -408,7 +414,7 @@ void Graph::contractionStep() noexcept
     insertEdges(toInsert);
 }
 
-std::vector<NodeId> Graph::independentSet() const
+std::vector<NodeId> Graph::independentSet() const noexcept
 {
     std::vector<bool> visited(size(), false);
     std::vector<NodeId> indepNodes;
@@ -474,7 +480,18 @@ void Graph::insertEdges(std::vector<Edge> toInsert)
     }
 }
 
-bool Graph::nodeContracted(NodeId id)
+bool Graph::nodeContracted(NodeId id) const noexcept
 {
     return levels[id] > 0;
+}
+
+EdgeId Graph::inverseEdge(EdgeId edge_id) const noexcept
+{
+    const Edge& edge = edges_[edge_id];
+    const auto candidates = relaxEdgeIds(edge.target);
+    for(auto cand_id : candidates) {
+        if(edges_[cand_id].target == edge.source) {
+            return cand_id;
+        }
+    }
 }
