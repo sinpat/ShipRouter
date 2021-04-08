@@ -39,7 +39,7 @@ class CHDijkstra
 public:
     CHDijkstra(const Graph& graph) noexcept;
 
-    DijkstraPath findShortestPath(NodeId source, NodeId target) noexcept;
+    DijkstraPath findRoute(NodeId source, NodeId target) noexcept;
 
 private:
     // construct the path from source to target over best_node

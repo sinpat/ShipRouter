@@ -1,5 +1,6 @@
 #pragma once
 
+#include <CHDijkstra.hpp>
 #include <Dijkstra.hpp>
 #include <Graph.hpp>
 #include <nlohmann/json.hpp>
@@ -31,5 +32,5 @@ private:
     const Graph& grid_;
 
     std::mutex dijkstra_mtx_;
-    Dijkstra dijkstra_;
+    CHDijkstra dijkstra_;
 };

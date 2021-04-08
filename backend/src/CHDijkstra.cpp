@@ -9,7 +9,7 @@ CHDijkstra::CHDijkstra(const Graph& graph) noexcept
       backward_previous_edges_(graph_.size(), NON_EXISTENT)
 {}
 
-DijkstraPath CHDijkstra::findShortestPath(NodeId source, NodeId target) noexcept
+DijkstraPath CHDijkstra::findRoute(NodeId source, NodeId target) noexcept
 {
     reset(); // TODO: remove this and try to optimize
     std::array done = {false, false}; // indicates whether we are done with forward resp. backward search

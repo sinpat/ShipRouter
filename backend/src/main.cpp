@@ -109,7 +109,7 @@ auto main() -> int
     // run ch-dijkstra on same tuples and save to different file
     CHDijkstra ch_dijkstra{graph};
     benchmark("ch", st_pairs, [&](NodeId s, NodeId t) {
-        return ch_dijkstra.findShortestPath(s, t);
+        return ch_dijkstra.findRoute(s, t);
     });
 
 
