@@ -333,17 +333,16 @@ void Graph::contractionStep() noexcept
     for(auto node : indep_nodes) {
         fmt::print("Contracting node {}\n", node);
         std::vector<Edge> new_edges;
-        // auto [edges, edge_ids] = relaxEdgesWithIds(node);
-        auto edges = relaxEdges(node);
+        auto edge_ids = relaxEdgeIds(node);
 
-        for(auto i = 0; i < edges.size(); i++) {
-            auto source = edges[i].target;
+        for(EdgeId edge_id1 : edge_ids) {
+            auto source = edges_[edge_id1].target;
             if(nodeContracted(source)) {
                 continue;
             }
             // shortest path from neigh to all other neighbors
-            for(auto j = 0; j < edges.size(); j++) {
-                auto target = edges[j].target;
+            for(EdgeId edge_id2 : edge_ids) {
+                auto target = edges_[edge_id2].target;
                 if(nodeContracted(target)) {
                     continue;
                 }
@@ -352,19 +351,17 @@ void Graph::contractionStep() noexcept
                     auto [path, cost] = res.value();
                     // check if shortest path contains node
                     if(path.size() == 3 and path[0] == source and path[1] == node and path[2] == target) {
-                        // auto wrapped_edge_1 = edge_ids[i]; // this is wrong, we need the inverse edge
-                        // auto wrapped_edge_2 = edge_ids[j];
-                        fmt::print("found shortcut with cost {} and path {} wrapping edges {} and {}\n", cost, path, -1, -1);
+                        fmt::print("found shortcut with cost {} and path {}\n", cost, path);
                         new_edges.emplace_back(
                             Edge{source,
                                  target,
                                  cost,
-                                 std::pair{-1, -1}});
+                                 std::pair{edge_id1, edge_id2}});
                     }
                 }
             }
         }
-        auto edge_diff = new_edges.size() - edges.size();
+        auto edge_diff = new_edges.size() - edge_ids.size();
         newEdgeCandidates.emplace_back(node, edge_diff, new_edges);
     }
     fmt::print("Done checking for possible shortcuts\n");

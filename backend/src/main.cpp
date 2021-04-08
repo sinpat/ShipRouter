@@ -73,7 +73,7 @@ auto main() -> int
             return Environment{9090,
                                //    "../data/antarctica-latest.osm.pbf",
                                "../data/planet-coastlines.pbf",
-                               10};
+                               100};
         }
 
         return environment_opt.value();
