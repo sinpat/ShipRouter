@@ -46,13 +46,14 @@ void benchmark(
         DijkstraPath p = fn(s, t);
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         auto time_diff_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
-        log += fmt::format("{} -> {}: ", s, t);
+        log += fmt::format("{} -> {} ", s, t);
+        log += fmt::format("in {}ms and {} queue pops: ", time_diff_ms, -1);
         if(p) {
-            log += fmt::format("{} ", p.value());
+            auto [path, dist] = p.value();
+            log += fmt::format("{} - {}\n", dist, path);
         } else {
-            log += "No path ";
+            log += "No path\n";
         }
-        log += fmt::format("in {}ms\n", time_diff_ms);
     }
 
     std::ofstream myfile;
