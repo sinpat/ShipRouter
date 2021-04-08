@@ -47,6 +47,9 @@ public:
 
     const Edge& getEdge(EdgeId edge_id) const noexcept;
 
+    // all nodes that this edge (and its wrapped edges) represents, not including `source`
+    Path unwrapEdge(EdgeId edge_id, NodeId source) const noexcept;
+
     Level getLevel(NodeId node) const noexcept;
 
     void contract() noexcept;

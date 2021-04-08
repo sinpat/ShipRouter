@@ -286,6 +286,28 @@ auto Graph::snapToGridNode(Latitude<Degree> lat,
     return candidates.top();
 }
 
+std::vector<std::pair<NodeId, NodeId>> Graph::randomSTPairs(uint amount) const noexcept
+{
+    std::vector<std::pair<NodeId, NodeId>> st_pairs;
+    for(auto i = 0; i < amount - 1; ++i) {
+        auto source = rand() % size();
+        auto target = rand() % size();
+        st_pairs.emplace_back(source, target);
+    }
+    return st_pairs;
+}
+
+Path Graph::unwrapEdge(EdgeId edge_id, NodeId source) const noexcept
+{
+    // TODO: consider wrapped_edges
+    const Edge& edge = edges_[edge_id];
+    if(edge.source == source) {
+        return std::vector<NodeId>{edge.target};
+    } else if(edge.target == source) {
+        return std::vector<NodeId>{edge.source};
+    }
+}
+
 // === stuff for ch and contraction === //
 
 void Graph::contract() noexcept
@@ -455,15 +477,4 @@ void Graph::insertEdges(std::vector<Edge> toInsert)
 bool Graph::nodeContracted(NodeId id)
 {
     return levels[id] > 0;
-}
-
-std::vector<std::pair<NodeId, NodeId>> Graph::randomSTPairs(uint amount) const noexcept
-{
-    std::vector<std::pair<NodeId, NodeId>> st_pairs;
-    for(auto i = 0; i < amount - 1; ++i) {
-        auto source = rand() % size();
-        auto target = rand() % size();
-        st_pairs.emplace_back(source, target);
-    }
-    return st_pairs;
 }

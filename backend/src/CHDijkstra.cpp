@@ -87,16 +87,10 @@ Path CHDijkstra::from(NodeId current, NodeId until, Direction direction) const n
         return std::vector<NodeId>{};
     }
     EdgeId prev_edge_id = (*previous_edges_[direction])[current];
-    const Edge& prev_edge = graph_.getEdge(prev_edge_id);
-
-    NodeId next;
-    if(prev_edge.source == current) {
-        next = prev_edge.target;
-    } else if(prev_edge.target == current) {
-        next = prev_edge.source;
-    }
-    Path path = from(next, until, direction);
-    path.emplace_back(next);
+    Path wrapped = graph_.unwrapEdge(prev_edge_id, current); // all nodes represented by prev_edge
+    NodeId next_current = wrapped[wrapped.size() - 1];
+    Path path = from(next_current, until, direction); // path before prev_edge
+    path.insert(path.end(), wrapped.begin(), wrapped.end());
     return path;
 };
 
