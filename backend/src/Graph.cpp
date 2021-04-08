@@ -459,3 +459,14 @@ bool Graph::nodeContracted(NodeId id)
 {
     return levels[id] > 0;
 }
+
+std::vector<std::pair<NodeId, NodeId>> Graph::randomSTPairs(uint amount) const noexcept
+{
+    std::vector<std::pair<NodeId, NodeId>> st_pairs;
+    for(auto i = 0; i < amount - 1; ++i) {
+        auto source = rand() % size();
+        auto target = rand() % size();
+        st_pairs.emplace_back(source, target);
+    }
+    return st_pairs;
+}

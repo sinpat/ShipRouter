@@ -71,8 +71,8 @@ auto main() -> int
             std::cout << "using default values" << std::endl;
 
             return Environment{9090,
-                               "../data/antarctica-latest.osm.pbf",
-                               //    "../data/planet-coastlines.pbf",
+                               //    "../data/antarctica-latest.osm.pbf",
+                               "../data/planet-coastlines.pbf",
                                10};
         }
 
@@ -99,12 +99,7 @@ auto main() -> int
     Graph graph{std::move(grid)};
 
     // get n random source-target tuples
-    std::vector<std::pair<NodeId, NodeId>> st_pairs;
-    for(auto i = 0; i < 10; ++i) {
-        auto source = rand() % graph.size();
-        auto target = rand() % graph.size();
-        st_pairs.emplace_back(source, target);
-    }
+    std::vector<std::pair<NodeId, NodeId>> st_pairs = graph.randomSTPairs(20);
     // run normal dijkstra on these tuples and save to file
     Dijkstra dijkstra{graph};
     benchmark("normal", st_pairs, [&](NodeId s, NodeId t) {

@@ -42,6 +42,9 @@ public:
     auto isLandNode(NodeId node) const noexcept
         -> bool;
 
+    // generate `amount` many random source-target pairs
+    std::vector<std::pair<NodeId, NodeId>> randomSTPairs(uint amount) const noexcept;
+
     const Edge& getEdge(EdgeId edge_id) const noexcept;
 
     Level getLevel(NodeId node) const noexcept;
