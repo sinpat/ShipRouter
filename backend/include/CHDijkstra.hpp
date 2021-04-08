@@ -42,7 +42,10 @@ public:
     DijkstraPath findShortestPath(NodeId source, NodeId target) noexcept;
 
 private:
-    DijkstraPath unfoldPath();
+    // construct the path from source to target over best_node
+    DijkstraPath unfoldPath(NodeId source, NodeId target) const noexcept;
+    // path from `current` until `until` in the given `direction`. Does not include the `current` node
+    Path from(NodeId current, NodeId until, Direction direction) const noexcept;
     void reset() noexcept;
 
 private:
@@ -53,6 +56,8 @@ private:
     std::vector<Distance> backward_dists_;
     std::vector<EdgeId> forward_previous_edges_;
     std::vector<EdgeId> backward_previous_edges_;
+    // helper array for previous edges that allows easy access for both directions
+    std::array<std::vector<EdgeId>*, 2> previous_edges_ = {&forward_previous_edges_, &backward_previous_edges_};
 
     // all nodes whose dists and previous' have been set
     std::vector<NodeId> touched_;

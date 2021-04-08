@@ -43,10 +43,9 @@ DijkstraPath CHDijkstra::findShortestPath(NodeId source, NodeId target) noexcept
             }
             Distance dist_with_edge = q_node.dist + edge.dist;
             std::array dists = {&forward_dists_, &backward_dists_};
-            std::array previous_edges = {&forward_previous_edges_, &backward_previous_edges_};
             if(dist_with_edge < (*dists[direction])[target]) {
                 (*dists[direction])[target] = dist_with_edge;
-                (*previous_edges[direction])[target] = edge_id;
+                (*previous_edges_[direction])[target] = edge_id;
                 touched_.emplace_back(target);
                 q_.emplace(target, dist_with_edge, direction);
 
@@ -60,20 +59,47 @@ DijkstraPath CHDijkstra::findShortestPath(NodeId source, NodeId target) noexcept
             }
         }
     }
-    return unfoldPath();
+    return unfoldPath(source, target);
 }
 
-DijkstraPath CHDijkstra::unfoldPath()
+DijkstraPath CHDijkstra::unfoldPath(NodeId source, NodeId target) const noexcept
 {
     if(best_node_.first == NON_EXISTENT) {
         return std::nullopt;
     }
     auto [node, dist] = best_node_;
-    // TODO: unfold
+
+    // unfold forward path
+    std::vector<NodeId> path = from(node, source, FORWARD);
+    path.emplace_back(node);
+    // unfold backward path
+    std::vector<NodeId> backward_path = from(node, target, BACKWARD);
+    std::reverse(backward_path.begin(), backward_path.end());
+    path.insert(path.end(), backward_path.begin(), backward_path.end());
     return std::pair{
-        std::vector<NodeId>{},
+        path,
         dist};
 }
+
+Path CHDijkstra::from(NodeId current, NodeId until, Direction direction) const noexcept
+{
+    if(current == until) {
+        return std::vector<NodeId>{};
+    }
+    EdgeId prev_edge_id = (*previous_edges_[direction])[current];
+    const Edge& prev_edge = graph_.getEdge(prev_edge_id);
+
+    NodeId next;
+    if(prev_edge.source == current) {
+        next = prev_edge.target;
+    } else if(prev_edge.target == current) {
+        next = prev_edge.source;
+    }
+    Path path = from(next, until, direction);
+    path.emplace_back(next);
+    return path;
+};
+
 
 void CHDijkstra::reset() noexcept
 {
