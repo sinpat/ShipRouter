@@ -315,7 +315,8 @@ void Graph::contract() noexcept
         // fmt::print("Edges:\n");
         // for(auto i = 0; i < size(); ++i) {
         //     fmt::print("{} is water: {}\n", i, grid_.is_water_[i]);
-        //     for(auto edge : relaxEdges(i)) {
+        //     for(auto edge_id : relaxEdgeIds(i)) {
+        //         auto edge = edges_[edge_id];
         //         fmt::print("{} -> {}: {} {}\n", edge.source, edge.target, edge.dist, edge.wrapped_edges.has_value());
         //     }
         //     fmt::print("\n");
@@ -398,12 +399,14 @@ void Graph::contractionStep(Dijkstra& dijkstra) noexcept
     });
 
     // 4.
+    const auto median = std::get<1>(newEdgeCandidates[newEdgeCandidates.size() / 2]);
     std::vector<Edge> toInsert;
     current_level++;
-    for(auto i = 0; i < newEdgeCandidates.size() / 2.0; i++) {
-        auto [node, _, new_edges] = std::move(newEdgeCandidates[i]);
-        levels[node] = current_level;
-        toInsert = concat(std::move(toInsert), std::move(new_edges));
+    for(auto [node, edge_diff, new_edges] : newEdgeCandidates) {
+        if(edge_diff <= median) {
+            levels[node] = current_level;
+            toInsert = concat(std::move(toInsert), std::move(new_edges));
+        }
     }
     // fmt::print("levels {}\n", levels);
 
