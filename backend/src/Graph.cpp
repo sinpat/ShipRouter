@@ -57,6 +57,10 @@ Graph::Graph(SphericalGrid&& g)
         ns_.emplace_back(n);
         ms_.emplace_back(m);
     }
+    fmt::print("Checking if we have inverse edges for every edge...\n");
+    for(auto i = 0; i < edges_.size(); ++i) {
+        auto inv_edge = inverseEdge(i);
+    }
 
     //insert dummy at the end
     // edges_.emplace_back(std::numeric_limits<NodeId>::max(), UNREACHABLE, std::nullopt);
@@ -496,4 +500,5 @@ EdgeId Graph::inverseEdge(EdgeId edge_id) const noexcept
             return cand_id;
         }
     }
+    fmt::print("Did not find inverse edge!! Something is wrong with the graph.\n");
 }
