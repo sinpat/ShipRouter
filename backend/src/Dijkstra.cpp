@@ -46,9 +46,10 @@ auto Dijkstra::findRoute(NodeId source, NodeId target) noexcept
         //when reusing the pq
         pq_.pop();
 
-        const auto edges = graph_.relaxEdges(current_node);
+        const auto edge_ids = graph_.relaxEdgeIds(current_node);
 
-        for(auto e : edges) {
+        for(auto edge_id : edge_ids) {
+            const auto& e = graph_.getEdge(edge_id);
             auto neig_dist = getDistanceTo(e.target);
             const auto new_dist = current_dist + e.dist;
 
@@ -158,9 +159,10 @@ auto Dijkstra::computeDistance(NodeId source, NodeId target) noexcept
         //when reusing the pq
         pq_.pop();
 
-        const auto edges = graph_.relaxEdges(current_node);
+        const auto edge_ids = graph_.relaxEdgeIds(current_node);
 
-        for(auto e : edges) {
+        for(auto edge_id : edge_ids) {
+            const Edge& e = graph_.getEdge(edge_id);
             auto neig_dist = getDistanceTo(e.target);
             const auto new_dist = current_dist + e.dist;
 

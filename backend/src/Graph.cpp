@@ -108,16 +108,6 @@ auto Graph::relaxEdgeIds(NodeId node) const noexcept
     return nonstd::span{start, end};
 }
 
-auto Graph::relaxEdges(NodeId node) const noexcept
-    -> std::vector<Edge>
-{
-    std::vector<Edge> edges;
-    for(auto edge_id : relaxEdgeIds(node)) {
-        edges.emplace_back(edges_[edge_id]);
-    }
-    return edges;
-}
-
 auto Graph::gridToId(std::size_t m, std::size_t n) const noexcept
     -> NodeId
 {
@@ -273,8 +263,8 @@ auto Graph::snapToGridNode(Latitude<Degree> lat,
 
     while(true) {
         const auto best_before_insert = candidates.top();
-        for(auto e : relaxEdges(best_before_insert)) {
-            candidates.emplace(e.target);
+        for(auto edge_id : relaxEdgeIds(best_before_insert)) {
+            candidates.emplace(edges_[edge_id].target);
         }
         const auto best_after_insert = candidates.top();
 
@@ -421,8 +411,9 @@ std::vector<NodeId> Graph::independentSet() const noexcept
 
     for(auto i = 0; i < size(); i++) {
         if(levels[i] == 0 && !visited[i]) {
-            auto edges = relaxEdges(i);
-            for(auto e : edges) {
+            auto edge_ids = relaxEdgeIds(i);
+            for(auto edge_id : edge_ids) {
+                const Edge& e = edges_[edge_id];
                 visited[e.target] = true;
             }
             indepNodes.emplace_back(i);

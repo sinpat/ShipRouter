@@ -27,9 +27,6 @@ public:
     auto relaxEdgeIds(NodeId node) const noexcept
         -> nonstd::span<const EdgeId>;
 
-    auto relaxEdges(NodeId node) const noexcept
-        -> std::vector<Edge>;
-
     auto size() const noexcept
         -> std::size_t;
 
