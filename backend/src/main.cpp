@@ -92,10 +92,10 @@ auto main() -> int
     SphericalGrid grid{environment.getNumberOfSphereNodes()};
 
     std::cout << "filtering land nodes ... " << std::endl;
-    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point begin_filter = std::chrono::steady_clock::now();
     grid.filter(polygons);
-    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    std::cout << "Filtering took " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << "[s]" << std::endl;
+    std::chrono::steady_clock::time_point end_filter = std::chrono::steady_clock::now();
+    std::cout << "Filtering took " << std::chrono::duration_cast<std::chrono::seconds>(end_filter - begin_filter).count() << "[s]" << std::endl;
 
     Graph graph{std::move(grid)};
 
@@ -106,7 +106,10 @@ auto main() -> int
     benchmark("normal", st_pairs, [&](NodeId s, NodeId t) {
         return dijkstra.findRoute(s, t);
     });
+    std::chrono::steady_clock::time_point begin_contract = std::chrono::steady_clock::now();
     graph.contract(); // contract graph
+    std::chrono::steady_clock::time_point end_contract = std::chrono::steady_clock::now();
+    std::cout << "Contracting took " << std::chrono::duration_cast<std::chrono::seconds>(end_contract - begin_contract).count() << "[s]" << std::endl;
     // run ch-dijkstra on same tuples and save to different file
     CHDijkstra ch_dijkstra{graph};
     benchmark("ch", st_pairs, [&](NodeId s, NodeId t) {

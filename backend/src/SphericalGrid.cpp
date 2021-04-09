@@ -273,11 +273,9 @@ auto SphericalGrid::filter(const std::vector<Polygon>& polygons) noexcept
                        //check the predefined rectangles if
                        //the node is definitly in the ocean
                        //if so, the polygon check can be avoided
-                       //    fmt::print("lat {}, lng {}\n", lat, lng);
-                       //    if(isDefinitlySea(lat, lng)) {
-                       //        fmt::print("found one\n");
-                       //        return true;
-                       //    }
+                       if(isDefinitlySea(lat, lng)) {
+                           return true;
+                       }
 
                        const auto p = Vector3D{lat.toRadian(), lng.toRadian()}.normalize();
                        return std::none_of(std::cbegin(polygons),
