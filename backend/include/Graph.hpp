@@ -51,6 +51,7 @@ public:
     Level getLevel(NodeId node) const noexcept;
 
     void contract() noexcept;
+    bool nodeContracted(NodeId id) const noexcept;
 
 private:
     auto getSnapNodeCandidate(Latitude<Degree> lat,
@@ -78,7 +79,6 @@ private:
     // update graph with new edges for the given source node
     void insertEdges(std::vector<Edge> to_insert);
     // whether the node with the given ID is contracted
-    bool nodeContracted(NodeId id) const noexcept;
     // the "back-edge" for the given edge
     EdgeId inverseEdge(EdgeId edge) const noexcept;
 

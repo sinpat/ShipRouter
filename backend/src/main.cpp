@@ -100,7 +100,7 @@ auto main() -> int
     Graph graph{std::move(grid)};
 
     // get n random source-target tuples
-    std::vector<std::pair<NodeId, NodeId>> st_pairs = graph.randomSTPairs(20);
+    std::vector<std::pair<NodeId, NodeId>> st_pairs = graph.randomSTPairs(30);
     // run normal dijkstra on these tuples and save to file
     Dijkstra dijkstra{graph};
     benchmark("normal", st_pairs, [&](NodeId s, NodeId t) {

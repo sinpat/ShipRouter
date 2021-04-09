@@ -37,6 +37,9 @@ public:
     auto findRoute(NodeId source, NodeId target) noexcept
         -> DijkstraPath;
 
+
+    bool shortestPathContainsU(NodeId source, NodeId target, NodeId u, Distance dist) noexcept;
+
     auto findDistance(NodeId source, NodeId target) noexcept
         -> Distance;
 
@@ -73,4 +76,5 @@ private:
     std::vector<NodeId> previous_nodes_;
     DijkstraQueue pq_;
     std::optional<NodeId> last_source_;
+    std::optional<NodeId> last_u;
 };

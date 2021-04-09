@@ -65,6 +65,62 @@ auto Dijkstra::findRoute(NodeId source, NodeId target) noexcept
     return extractShortestPath(source, target);
 }
 
+bool Dijkstra::shortestPathContainsU(NodeId source, NodeId target, NodeId u, Distance dist) noexcept
+{
+    if(source == last_source_
+       and u == last_u
+       and isSettled(target)
+       and previous_nodes_[target] != NON_EXISTENT) {
+        return distances_[target] > dist;
+    }
+
+    if(source != last_source_ or last_u != u or previous_nodes_[target] == NON_EXISTENT) {
+        last_source_ = source;
+        last_u = u;
+        reset();
+        pq_.emplace(source, 0l);
+        setDistanceTo(source, 0);
+        touched_.emplace_back(source);
+    }
+
+    while(!pq_.empty()) {
+        const auto [current_node, current_dist] = pq_.top();
+
+        settle(current_node);
+
+        if(current_node == target) {
+            return current_dist > dist;
+        }
+
+        if(current_dist > dist) {
+            return true;
+        }
+
+        //pop after the return, otherwise we loose a value
+        //when reusing the pq
+        pq_.pop();
+
+        const auto edge_ids = graph_.relaxEdgeIds(current_node);
+
+        for(auto edge_id : edge_ids) {
+            const auto& e = graph_.getEdge(edge_id);
+            if(e.target == u or graph_.nodeContracted(e.target)) {
+                continue;
+            }
+            auto neig_dist = getDistanceTo(e.target);
+            const auto new_dist = current_dist + e.dist;
+
+            if(UNREACHABLE != current_dist and neig_dist > new_dist) {
+                touched_.emplace_back(e.target);
+                setDistanceTo(e.target, new_dist);
+                pq_.emplace(e.target, new_dist);
+                previous_nodes_[e.target] = current_node;
+            }
+        }
+    }
+    return true;
+}
+
 auto Dijkstra::findDistance(NodeId source, NodeId target) noexcept
     -> Distance
 {

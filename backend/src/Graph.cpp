@@ -371,24 +371,20 @@ void Graph::contractionStep(Dijkstra& dijkstra) noexcept
                 if(nodeContracted(target)) {
                     continue;
                 }
-                auto res = dijkstra.findRoute(source, target);
-                if(res.has_value()) {
-                    auto [path, cost] = res.value();
-                    // check if shortest path contains node
-                    if(path.size() == 3 and path[0] == source and path[1] == node and path[2] == target) {
-                        // fmt::print("found shortcut with cost {} and path {}\n", cost, path);
-                        new_edges.emplace_back(
-                            Edge{source,
-                                 target,
-                                 cost,
-                                 std::pair{inverseEdge(edge_id1), edge_id2}});
-                        // insert inverse shortcut
-                        new_edges.emplace_back(
-                            Edge{target,
-                                 source,
-                                 cost,
-                                 std::pair{inverseEdge(edge_id2), edge_id1}});
-                    }
+                auto cost = edges_[edge_id1].dist + edges_[edge_id2].dist;
+                if(dijkstra.shortestPathContainsU(source, target, node, cost)) {
+                    // fmt::print("found shortcut with cost {}\n", cost);
+                    new_edges.emplace_back(
+                        Edge{source,
+                             target,
+                             cost,
+                             std::pair{inverseEdge(edge_id1), edge_id2}});
+                    // insert inverse shortcut
+                    new_edges.emplace_back(
+                        Edge{target,
+                             source,
+                             cost,
+                             std::pair{inverseEdge(edge_id2), edge_id1}});
                 }
             }
         }
@@ -403,9 +399,9 @@ void Graph::contractionStep(Dijkstra& dijkstra) noexcept
     });
 
     // 4.
+    current_level++;
     const auto median = std::get<1>(newEdgeCandidates[newEdgeCandidates.size() / 2]);
     std::vector<Edge> toInsert;
-    current_level++;
     for(auto [node, edge_diff, new_edges] : newEdgeCandidates) {
         if(edge_diff <= median) {
             levels[node] = current_level;
