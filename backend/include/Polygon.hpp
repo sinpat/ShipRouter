@@ -22,6 +22,7 @@ public:
         -> std::vector<std::pair<double, double>>;
 
 private:
+    std::vector<Vector3D> points_;
     std::vector<double> x_;
     std::vector<double> y_;
     std::vector<double> z_;

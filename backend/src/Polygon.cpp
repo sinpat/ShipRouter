@@ -51,6 +51,7 @@ Polygon::Polygon(const std::vector<OSMNode>& nodes)
         x_.emplace_back(x / lenght);
         y_.emplace_back(y / lenght);
         z_.emplace_back(z / lenght);
+        points_.emplace_back(lat, lng);
     }
 }
 
@@ -68,16 +69,6 @@ auto Polygon::pointInPolygon(Latitude<Degree> lat, Longitude<Degree> lng, const 
     const auto size = numberOfPoints();
     const auto range = utils::range(size);
 
-    // get vectors from p to each vertex
-    std::vector<Vector3D> vec_to_vertex;
-    std::transform(std::begin(range),
-                   std::end(range),
-                   std::back_inserter(vec_to_vertex),
-                   [&](auto idx) {
-                       return p - Vector3D{x_[idx], y_[idx], z_[idx]};
-                   });
-
-
     auto sum = std::transform_reduce(
         std::execution::unseq,
         std::begin(range),
@@ -87,8 +78,8 @@ auto Polygon::pointInPolygon(Latitude<Degree> lat, Longitude<Degree> lng, const 
             return current + next;
         },
         [&](auto idx) {
-            const auto& first = vec_to_vertex[idx % size];
-            const auto& second = vec_to_vertex[(idx + 1) % size];
+            const auto first = p - points_[idx % size];
+            const auto second = p - points_[(idx + 1) % size];
             return first.angleBetween(second, p);
         });
 
