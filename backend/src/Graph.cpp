@@ -309,6 +309,7 @@ Path Graph::unwrapEdge(EdgeId edge_id, NodeId target) const noexcept
 void Graph::contract() noexcept
 {
     fmt::print("Starting graph contraction...\n");
+    Dijkstra dijkstra{*this};
     while(!fully_contracted) {
         // fmt::print("Graph contains {} nodes\n", size());
         // fmt::print("Edges:\n");
@@ -319,14 +320,14 @@ void Graph::contract() noexcept
         //     }
         //     fmt::print("\n");
         // }
-        contractionStep();
+        contractionStep(dijkstra);
     }
     fmt::print("Done contracting with {} levels\n", current_level);
 }
 
-void Graph::contractionStep() noexcept
+void Graph::contractionStep(Dijkstra& dijkstra) noexcept
 {
-    fmt::print("Starting contraction step {}\n", current_level);
+    fmt::print("Graph has {} edges\n", edges_.size());
     /*
     * 1. create independent set of nodes
     * 2. for each node: 
@@ -345,7 +346,6 @@ void Graph::contractionStep() noexcept
     }
 
     // 2.
-    Dijkstra dijkstra{*this};
     // holds the edge_diff and new_edges for every node in the independent set
     std::vector<std::tuple<NodeId, int32_t, std::vector<Edge>>> newEdgeCandidates;
     for(auto node : indep_nodes) {
@@ -408,7 +408,7 @@ void Graph::contractionStep() noexcept
     // fmt::print("levels {}\n", levels);
 
     // 5.
-    fmt::print("adding {} new shortcuts\n", toInsert.size());
+    fmt::print("Contraction step {}: adding {} new shortcuts\n", current_level, toInsert.size());
     insertEdges(toInsert);
 }
 
@@ -432,7 +432,7 @@ std::vector<NodeId> Graph::independentSet() const noexcept
 
 void Graph::insertEdges(std::vector<Edge> toInsert)
 {
-    fmt::print("Updating graph with new edges...\n");
+    // fmt::print("Updating graph with new edges...\n");
     for(auto new_edge : toInsert) {
         auto source = new_edge.source;
         // fmt::print("adding shortcut from {} to {}\n", source, new_edge.target);

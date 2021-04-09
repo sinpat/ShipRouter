@@ -3,6 +3,7 @@
 #include <Range.hpp>
 #include <SphericalGrid.hpp>
 #include <nonstd/span.hpp>
+class Dijkstra;
 
 class Graph
 {
@@ -71,7 +72,7 @@ private:
     // for contraction
 
     // do one step of contraction
-    void contractionStep() noexcept;
+    void contractionStep(Dijkstra& dijkstra) noexcept;
     // construct an independent set of nodes that have not yet been contracted
     std::vector<NodeId> independentSet() const noexcept;
     // update graph with new edges for the given source node
