@@ -43,7 +43,7 @@ public:
 
 private:
     // construct the path from source to target over best_node
-    DijkstraPath unfoldPath(NodeId source, NodeId target) const noexcept;
+    DijkstraPath unfoldPath(NodeId source, NodeId target, uint pops) const noexcept;
     // path from `current` until `until` in the given `direction`. Does not include the `current` node
     Path from(NodeId current, NodeId until, Direction direction) const noexcept;
     void reset() noexcept;

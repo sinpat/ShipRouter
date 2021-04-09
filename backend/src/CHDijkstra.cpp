@@ -19,17 +19,22 @@ DijkstraPath CHDijkstra::findRoute(NodeId source, NodeId target) noexcept
     backward_dists_[target] = 0;
     touched_.emplace_back(source);
     touched_.emplace_back(target);
+    uint q_pops = 0;
 
     while(!q_.empty()) {
         QNode q_node = q_.top();
         NodeId cur_node = q_node.node;
         Direction direction = q_node.dir;
         q_.pop();
+        q_pops++;
 
         // check if we have to continue exploring in this direction
         if(done[direction]) {
             continue;
         } else if(q_node.dist > best_node_.second) {
+            if(done[direction xor 1]) {
+                break;
+            }
             done[direction] = true;
             continue;
         }
@@ -59,10 +64,10 @@ DijkstraPath CHDijkstra::findRoute(NodeId source, NodeId target) noexcept
             }
         }
     }
-    return unfoldPath(source, target);
+    return unfoldPath(source, target, q_pops);
 }
 
-DijkstraPath CHDijkstra::unfoldPath(NodeId source, NodeId target) const noexcept
+DijkstraPath CHDijkstra::unfoldPath(NodeId source, NodeId target, uint pops) const noexcept
 {
     if(best_node_.first == NON_EXISTENT) {
         return std::nullopt;
@@ -76,9 +81,10 @@ DijkstraPath CHDijkstra::unfoldPath(NodeId source, NodeId target) const noexcept
     std::vector<NodeId> backward_path = from(node, target, BACKWARD);
     std::reverse(backward_path.begin(), backward_path.end());
     path.insert(path.end(), backward_path.begin(), backward_path.end());
-    return std::pair{
+    return std::tuple{
         path,
-        dist};
+        dist,
+        pops};
 }
 
 Path CHDijkstra::from(NodeId current, NodeId until, Direction direction) const noexcept

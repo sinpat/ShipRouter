@@ -77,4 +77,6 @@ private:
     DijkstraQueue pq_;
     std::optional<NodeId> last_source_;
     std::optional<NodeId> last_u;
+
+    uint q_pops_;
 };

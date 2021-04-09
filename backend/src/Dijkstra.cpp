@@ -45,6 +45,7 @@ auto Dijkstra::findRoute(NodeId source, NodeId target) noexcept
         //pop after the return, otherwise we loose a value
         //when reusing the pq
         pq_.pop();
+        q_pops_++;
 
         const auto edge_ids = graph_.relaxEdgeIds(current_node);
 
@@ -153,7 +154,7 @@ auto Dijkstra::extractShortestPath(NodeId source, NodeId target) const noexcept
                     previous_nodes_[path[0]]);
     }
 
-    return std::pair{path, getDistanceTo(target)};
+    return std::tuple{path, getDistanceTo(target), q_pops_};
 }
 
 auto Dijkstra::reset() noexcept
@@ -166,6 +167,7 @@ auto Dijkstra::reset() noexcept
     }
     touched_.clear();
     pq_ = DijkstraQueue{DijkstraQueueComparer{}};
+    q_pops_ = 0;
 }
 
 auto Dijkstra::unSettle(NodeId n)

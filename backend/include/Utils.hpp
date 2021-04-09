@@ -34,7 +34,7 @@ using NodeId = std::uint64_t;
 using EdgeId = std::uint64_t;
 using Level = std::uint64_t;
 using Path = std::vector<NodeId>;
-using DijkstraPath = std::optional<std::pair<Path, Distance>>;
+using DijkstraPath = std::optional<std::tuple<Path, Distance, uint>>;
 
 struct Edge
 {

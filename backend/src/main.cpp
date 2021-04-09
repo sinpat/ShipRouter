@@ -47,9 +47,9 @@ void benchmark(
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         auto time_diff_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
         log += fmt::format("{} -> {} ", s, t);
-        log += fmt::format("in {}ms and {} queue pops: ", time_diff_ms, -1);
         if(p) {
-            auto [path, dist] = p.value();
+            auto [path, dist, pops] = p.value();
+            log += fmt::format("in {}ms and {} queue pops: ", time_diff_ms, pops);
             log += fmt::format("{} - {}\n", dist, path);
         } else {
             log += "No path\n";
@@ -74,7 +74,7 @@ auto main() -> int
             return Environment{9090,
                                //    "../data/antarctica-latest.osm.pbf",
                                "../data/planet-coastlines.pbf",
-                               100};
+                               2000};
         }
 
         return environment_opt.value();

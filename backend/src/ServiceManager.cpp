@@ -63,7 +63,7 @@ auto ServiceManager::getRoute(NodeId source, NodeId target)
         return result;
     }
 
-    auto [path, distance] = std::move(routing_result.value());
+    auto [path, distance, _] = std::move(routing_result.value());
 
     std::vector<double> lats;
     std::vector<double> lngs;
