@@ -353,13 +353,15 @@ void Graph::contractionStep() noexcept
         std::vector<Edge> new_edges;
         auto edge_ids = relaxEdgeIds(node);
 
-        for(EdgeId edge_id1 : edge_ids) {
+        for(auto i = 0; i < edge_ids.size(); ++i) {
+            auto edge_id1 = edge_ids[i];
             auto source = edges_[edge_id1].target;
             if(nodeContracted(source)) {
                 continue;
             }
             // shortest path from neigh to all other neighbors
-            for(EdgeId edge_id2 : edge_ids) {
+            for(auto j = i + 1; j < edge_ids.size(); ++j) {
+                auto edge_id2 = edge_ids[j];
                 auto target = edges_[edge_id2].target;
                 if(nodeContracted(target)) {
                     continue;
@@ -375,6 +377,12 @@ void Graph::contractionStep() noexcept
                                  target,
                                  cost,
                                  std::pair{inverseEdge(edge_id1), edge_id2}});
+                        // insert inverse shortcut
+                        new_edges.emplace_back(
+                            Edge{target,
+                                 source,
+                                 cost,
+                                 std::pair{inverseEdge(edge_id2), edge_id1}});
                     }
                 }
             }
