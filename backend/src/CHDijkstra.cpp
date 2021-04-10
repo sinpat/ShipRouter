@@ -21,6 +21,9 @@ DijkstraPath CHDijkstra::findRoute(NodeId source, NodeId target) noexcept
     touched_.emplace_back(target);
     uint q_pops = 0;
 
+    // helper array for easy access on the dists
+    std::array dists = {&forward_dists_, &backward_dists_};
+
     while(!q_.empty()) {
         QNode q_node = q_.top();
         NodeId cur_node = q_node.node;
@@ -40,6 +43,24 @@ DijkstraPath CHDijkstra::findRoute(NodeId source, NodeId target) noexcept
         }
 
         auto edge_ids = graph_.relaxEdgeIds(cur_node); // we can use this for both searches
+        // check if we can stall the node
+        bool can_stall = false;
+        for(auto edge_id : edge_ids) {
+            const auto& edge = graph_.getEdge(edge_id);
+            if(graph_.getLevel(edge.source) >= graph_.getLevel(edge.target)) {
+                continue;
+            }
+
+            const auto saved_dist_to_target = (*dists[direction])[edge.target];
+            if(saved_dist_to_target != UNREACHABLE and saved_dist_to_target + edge.dist < q_node.dist) {
+                can_stall = true;
+                break;
+            }
+        }
+        if(can_stall) {
+            continue;
+        }
+
         for(auto edge_id : edge_ids) {
             const auto& edge = graph_.getEdge(edge_id);
             NodeId target = edge.target;
@@ -47,7 +68,6 @@ DijkstraPath CHDijkstra::findRoute(NodeId source, NodeId target) noexcept
                 continue;
             }
             Distance dist_with_edge = q_node.dist + edge.dist;
-            std::array dists = {&forward_dists_, &backward_dists_};
             if(dist_with_edge < (*dists[direction])[target]) {
                 (*dists[direction])[target] = dist_with_edge;
                 (*previous_edges_[direction])[target] = edge_id;
