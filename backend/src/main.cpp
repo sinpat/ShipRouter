@@ -36,7 +36,8 @@ static auto waitForUserInterrupt() noexcept
 
 void benchmark(
     std::string file_name,
-    std::vector<std::pair<NodeId, NodeId>> st_pairs,
+    const Environment& env,
+    const std::vector<std::pair<NodeId, NodeId>> st_pairs,
     std::function<DijkstraPath(NodeId, NodeId)> fn)
 {
     fmt::print("Starting benchmark for {}\n", file_name);
@@ -63,7 +64,7 @@ void benchmark(
     }
 
     std::ofstream myfile;
-    myfile.open(fmt::format("../results/{}.csv", file_name));
+    myfile.open(fmt::format("../results/{}_{}.csv", file_name, env.getNumberOfSphereNodes()));
     myfile << log;
     myfile.close();
 }
@@ -78,8 +79,8 @@ auto main() -> int
             std::cout << "using default values" << std::endl;
 
             return Environment{9090,
-                               "../data/antarctica-latest.osm.pbf",
-                               //    "../data/planet-coastlines.pbf",
+                               //    "../data/antarctica-latest.osm.pbf",
+                               "../data/planet-coastlines.pbf",
                                100};
         }
 
@@ -109,7 +110,7 @@ auto main() -> int
     std::vector<std::pair<NodeId, NodeId>> st_pairs = graph.randomSTPairs(100);
     // run normal dijkstra on these tuples and save to file
     Dijkstra dijkstra{graph};
-    benchmark("normal", st_pairs, [&](NodeId s, NodeId t) {
+    benchmark("normal", environment, st_pairs, [&](NodeId s, NodeId t) {
         return dijkstra.findRoute(s, t);
     });
     std::chrono::steady_clock::time_point begin_contract = std::chrono::steady_clock::now();
@@ -118,7 +119,7 @@ auto main() -> int
     std::cout << "Contracting took " << std::chrono::duration_cast<std::chrono::seconds>(end_contract - begin_contract).count() << "[s]" << std::endl;
     // run ch-dijkstra on same tuples and save to different file
     CHDijkstra ch_dijkstra{graph};
-    benchmark("ch", st_pairs, [&](NodeId s, NodeId t) {
+    benchmark("ch", environment, st_pairs, [&](NodeId s, NodeId t) {
         return ch_dijkstra.findRoute(s, t);
     });
 
