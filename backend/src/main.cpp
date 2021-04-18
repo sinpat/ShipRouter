@@ -40,24 +40,30 @@ void benchmark(
     std::function<DijkstraPath(NodeId, NodeId)> fn)
 {
     fmt::print("Starting benchmark for {}\n", file_name);
-    std::string log;
+    std::string log = "source,target,query_time,q_pops,distance,path\n";
     for(auto [s, t] : st_pairs) {
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         DijkstraPath p = fn(s, t);
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-        auto time_diff_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
-        log += fmt::format("{} -> {} ", s, t);
+        auto time_diff_ms = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
+        log += fmt::format("{},{},{},", s, t, time_diff_ms);
         if(p) {
             auto [path, dist, pops] = p.value();
-            log += fmt::format("in {}ms and {} queue pops: ", time_diff_ms, pops);
-            log += fmt::format("{} - {}\n", dist, path);
+            log += fmt::format("{},{},", pops, dist);
+            for(auto i = 0; i < path.size(); i++) {
+                log += fmt::format("{}", path[i]);
+                if(i != path.size() - 1) {
+                    log += "->";
+                }
+            }
+            log += "\n";
         } else {
-            log += "No path\n";
+            log += ",,\n";
         }
     }
 
     std::ofstream myfile;
-    myfile.open(fmt::format("../results/{}", file_name));
+    myfile.open(fmt::format("../results/{}.csv", file_name));
     myfile << log;
     myfile.close();
 }
@@ -72,9 +78,9 @@ auto main() -> int
             std::cout << "using default values" << std::endl;
 
             return Environment{9090,
-                               //    "../data/antarctica-latest.osm.pbf",
-                               "../data/planet-coastlines.pbf",
-                               2000};
+                               "../data/antarctica-latest.osm.pbf",
+                               //    "../data/planet-coastlines.pbf",
+                               100};
         }
 
         return environment_opt.value();
@@ -100,7 +106,7 @@ auto main() -> int
     Graph graph{std::move(grid)};
 
     // get n random source-target tuples
-    std::vector<std::pair<NodeId, NodeId>> st_pairs = graph.randomSTPairs(30);
+    std::vector<std::pair<NodeId, NodeId>> st_pairs = graph.randomSTPairs(100);
     // run normal dijkstra on these tuples and save to file
     Dijkstra dijkstra{graph};
     benchmark("normal", st_pairs, [&](NodeId s, NodeId t) {
