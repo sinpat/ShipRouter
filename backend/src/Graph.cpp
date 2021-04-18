@@ -283,10 +283,12 @@ auto Graph::snapToGridNode(Latitude<Degree> lat,
 std::vector<std::pair<NodeId, NodeId>> Graph::randomSTPairs(uint amount) const noexcept
 {
     std::vector<std::pair<NodeId, NodeId>> st_pairs;
-    for(auto i = 0; i < amount - 1; ++i) {
+    while(st_pairs.size() < amount) {
         auto source = rand() % size();
         auto target = rand() % size();
-        st_pairs.emplace_back(source, target);
+        if(grid_.is_water_[source] and grid_.is_water_[target]) {
+            st_pairs.emplace_back(source, target);
+        }
     }
     return st_pairs;
 }
