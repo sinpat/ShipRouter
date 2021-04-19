@@ -11,6 +11,7 @@ CHDijkstra::CHDijkstra(const Graph& graph) noexcept
 
 DijkstraPath CHDijkstra::findRoute(NodeId source, NodeId target) noexcept
 {
+    fmt::print("{} -> {}\n", source, target);
     reset(); // TODO: remove this and try to optimize
     std::array done = {false, false}; // indicates whether we are done with forward resp. backward search
     q_.emplace(source, 0, FORWARD);
@@ -36,6 +37,7 @@ DijkstraPath CHDijkstra::findRoute(NodeId source, NodeId target) noexcept
             continue;
         } else if(q_node.dist > best_node_.second) {
             if(done[direction xor 1]) {
+                fmt::print("Can break early, with {} q_nodes left\n", q_.size());
                 break;
             }
             done[direction] = true;
@@ -48,7 +50,7 @@ DijkstraPath CHDijkstra::findRoute(NodeId source, NodeId target) noexcept
         for(auto edge_id : edge_ids) {
             const auto& edge = graph_.getEdge(edge_id);
             if(graph_.getLevel(edge.source) >= graph_.getLevel(edge.target)) {
-                continue;
+                break;
             }
 
             const auto saved_dist_to_target = (*dists[direction])[edge.target];
@@ -65,7 +67,7 @@ DijkstraPath CHDijkstra::findRoute(NodeId source, NodeId target) noexcept
             const auto& edge = graph_.getEdge(edge_id);
             NodeId target = edge.target;
             if(graph_.getLevel(edge.source) >= graph_.getLevel(target)) {
-                continue;
+                break;
             }
             Distance dist_with_edge = q_node.dist + edge.dist;
             if(dist_with_edge < (*dists[direction])[target]) {

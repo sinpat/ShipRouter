@@ -485,8 +485,17 @@ void Graph::insertEdges(std::vector<Edge> toInsert)
     std::sort(
         sorted_edge_ids_with_source_.begin(),
         sorted_edge_ids_with_source_.end(),
-        [](auto pair1, auto pair2) {
-            return pair1.second < pair2.second;
+        [&](auto pair1, auto pair2) {
+            NodeId target1 = edges_[pair1.first].target;
+            NodeId target2 = edges_[pair2.first].target;
+            // we also sort by descending level, which allows us to `break` inner loop in ch-dijkstra, instead of `continue`
+            if(pair1.second < pair2.second) {
+                return true;
+            } else if(pair1.second == pair2.second) {
+                return levels[target1] > levels[target2];
+            } else {
+                return false;
+            }
         });
     for(auto i = 0; i < sorted_edge_ids_with_source_.size(); i++) {
         sorted_edge_ids_[i] = sorted_edge_ids_with_source_[i].first;
@@ -508,4 +517,5 @@ EdgeId Graph::inverseEdge(EdgeId edge_id) const noexcept
         }
     }
     fmt::print("Did not find inverse edge!! Something is wrong with the graph.\n");
+    return -1;
 }
