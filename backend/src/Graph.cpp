@@ -359,11 +359,13 @@ void Graph::contractionStep(Dijkstra& dijkstra) noexcept
         // fmt::print("Contracting node {}\n", node);
         std::vector<Edge> new_edges;
         auto edge_ids = relaxEdgeIds(node);
+        auto numContractedNeighbors = 0;
 
         for(auto i = 0; i < edge_ids.size(); ++i) {
             auto edge_id1 = edge_ids[i];
             auto source = edges_[edge_id1].target;
             if(nodeContracted(source)) {
+                numContractedNeighbors++;
                 continue;
             }
             // shortest path from neigh to all other neighbors
@@ -390,8 +392,8 @@ void Graph::contractionStep(Dijkstra& dijkstra) noexcept
                 }
             }
         }
-        auto edge_diff = new_edges.size() - edge_ids.size();
-        newEdgeCandidates.emplace_back(node, edge_diff, new_edges);
+        auto heuristic_value = new_edges.size() - edge_ids.size() + numContractedNeighbors;
+        newEdgeCandidates.emplace_back(node, heuristic_value, new_edges);
     }
     // fmt::print("Done checking for possible shortcuts\n");
 
