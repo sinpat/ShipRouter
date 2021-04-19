@@ -402,13 +402,20 @@ void Graph::contractionStep(Dijkstra& dijkstra) noexcept
 
     // 4.
     current_level++;
-    const auto median = std::get<1>(newEdgeCandidates[newEdgeCandidates.size() / 2]);
     std::vector<Edge> toInsert;
-    for(auto [node, edge_diff, new_edges] : newEdgeCandidates) {
-        if(edge_diff <= median) {
-            levels[node] = current_level;
-            toInsert = concat(std::move(toInsert), std::move(new_edges));
-        }
+    // Alternative 1: Add shortcuts with edge_diff up to median
+    // const auto median = std::get<1>(newEdgeCandidates[newEdgeCandidates.size() / 2]);
+    // for(auto [node, edge_diff, new_edges] : newEdgeCandidates) {
+    //     if(edge_diff <= median) {
+    //         levels[node] = current_level;
+    //         toInsert = concat(std::move(toInsert), std::move(new_edges));
+    //     }
+    // }
+    // Alternative 2: Add up to 1/4 of candidates
+    for(auto i = 0; i <= newEdgeCandidates.size() / 4; ++i) {
+        auto [node, _, new_edges] = newEdgeCandidates[i];
+        levels[node] = current_level;
+        toInsert = concat(std::move(toInsert), std::move(new_edges));
     }
     // fmt::print("levels {}\n", levels);
 
